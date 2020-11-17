@@ -57,6 +57,13 @@ def SELL(ticker, amount_of_shares):
 def URL2SYM(url):
     return r.get_symbol_by_url(url)
 
+# CONVERT MONEY STRING TO 2 DECIMAL
+def TOMONEY(string):
+	if string is None:
+		return "None"
+	else:
+		return f"{float(string):.2f}"
+
 
 # PRINT STOCK ORDERS OF A SYMBOL OR ALL
 def PRINT_STOCK_ORDERS(symbol=None):
@@ -64,7 +71,7 @@ def PRINT_STOCK_ORDERS(symbol=None):
         func=r.orders.find_stock_orders(symbol=symbol)
     else:
         func=r.orders.find_stock_orders()
-    print("\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [{o["state"]}]\tavg: ${o["average_price"]:.2f}\texec0/{len(o["executions"])}: ${o["executions"][0]["price"]:.2f}\tprice: ${o["price"]:.2f}' for o in func ]))
+    print("\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec0/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in func ]))
 
 # PRINT CRYPTO ORDER OF A SYMBOL OR ALL
 # MISSING FROM robin_stocks
