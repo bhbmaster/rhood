@@ -57,7 +57,7 @@ def SELL(ticker, amount_of_shares):
 def URL2SYM(url):
     return r.get_symbol_by_url(url)
 
-# CONVERT MONEY STRING TO 2 DECIMAL
+# CONVERT MONEY STRING TO 2 DECIMAL 
 def TOMONEY(string):
 	if string is None:
 		return "None"
@@ -86,6 +86,7 @@ LOGIN() # gives us r
 
 if __name__ == "__main__":
 
+    # print account info
     prof_type = ["account","basic","investment","portfolio","security","user"]
 
     for prof in prof_type:
@@ -94,6 +95,39 @@ if __name__ == "__main__":
         print("\n".join([ f"* {i[0]}: {i[1]}" for i in prof_func().items() ]))
         print()
 
+    # print account values
+    print(f"--- Gain Information (Beta) ---")
+    print(f"NOTE: Currently not taking into account cash_management, options, and crypto. If you are doing pure stocks, this is accurate.")
+    profileData = r.load_portfolio_profile()
+    allTransactions = r.get_bank_transfers()
+    cardTransactions= r.get_card_transactions()
+
+    deposits = sum(float(x['amount']) for x in allTransactions if (x['direction'] == 'deposit') and (x['state'] == 'completed'))
+    withdrawals = sum(float(x['amount']) for x in allTransactions if (x['direction'] == 'withdraw') and (x['state'] == 'completed'))
+    debits = sum(float(x['amount']['amount']) for x in cardTransactions if (x['direction'] == 'debit' and (x['transaction_type'] == 'settled')))
+    reversal_fees = sum(float(x['fees']) for x in allTransactions if (x['direction'] == 'deposit') and (x['state'] == 'reversed'))
+
+    money_invested = deposits + reversal_fees - (withdrawals - debits)
+    dividends = r.get_total_dividends()
+    percentDividend = dividends/money_invested*100
+
+    equity = float(profileData['equity'])  # author original was extended_hours_equity
+    extended_hours_equity = profileData['extended_hours_equity']
+    totalGainMinusDividends = equity - dividends - money_invested # missing cash_account_debits + 
+    percentGain = totalGainMinusDividends/money_invested*100
+
+    print(f"* Reported Deposits: {TOMONEY(deposits)}")
+    print(f"* Reported Withdrawals: {TOMONEY(withdrawals)}")
+    print(f"* Reported Debits: {TOMONEY(debits)}")
+    print(f"* Reported Reversal Fees: {TOMONEY(reversal_fees)}")
+    print(f"* The total money invested is {TOMONEY(money_invested)}")
+    print(f"* The total equity is {TOMONEY(equity)}")
+    print(f"* Sidenote: extended_hours_equity is {TOMONEY(extended_hours_equity)}") # added by me
+    print(f"* The net worth has increased {percentDividend:.3f}% due to dividends that amount to {TOMONEY(dividends)}")
+    print(f"* The net worth has increased {TOMONEY(percentGain)}% due to other gains that amount to {TOMONEY(totalGainMinusDividends)}")
+    print()
+
+    # print all stock orders (buy and sell)
     print(f"--- All Orders - Date: {datetime.datetime.now()} ---")
     PRINT_STOCK_ORDERS()
     print()
