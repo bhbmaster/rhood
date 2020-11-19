@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     print(f"* Reported Deposits: {TOMONEY(deposits)}")
     print(f"* Reported Withdrawals: {TOMONEY(withdrawals)}")
-    print(f"* Reported Debits: {TOMONEY(debits)}")
+    print(f"* Reported Debits: {TOMONEY(debits)}") # <-- why is this 0, it should be all cash_account debits
     print(f"* Reported Reversal Fees: {TOMONEY(reversal_fees)}")
     print(f"* The total money invested is {TOMONEY(money_invested)}")
     print(f"* The total equity is {TOMONEY(equity)}")
