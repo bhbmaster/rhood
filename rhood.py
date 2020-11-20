@@ -4,8 +4,14 @@ import sys
 import json
 import base64
 import datetime
+import argparse
+
+# version
+Version="0.0.1"
 
 # TO IMPLEMENT unsync FOR FAST
+
+run_date = datetime.datetime.now()
 
 ### FUNCTIONS ###
 
@@ -57,6 +63,12 @@ def SELL(ticker, amount_of_shares):
 def URL2SYM(url):
     return r.get_symbol_by_url(url)
 
+# CONVERT CURRENCY ID TO NAME
+def ID2SYM(id,cryptopairs):
+    for i in cryptopairs:
+        if i["id"] == id:
+            return i["symbol"]
+
 # CONVERT MONEY STRING TO 2 DECIMAL 
 def TOMONEY(string):
 	if string is None:
@@ -64,27 +76,42 @@ def TOMONEY(string):
 	else:
 		return f"{float(string):.2f}"
 
+# FORMAT STOCKS
+def FORMAT_ORDER_STOCKS(orders):
+    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [S{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec0/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
+
+# FORMAT CRYPTO
+def FORMAT_ORDER_CRYPTOS(orders):
+    cryptopairs = r.get_crypto_currency_pairs()
+    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\t${TOMONEY(o["rounded_executed_notional"])}\tx{o["quantity"]}\t{ID2SYM(o["currency_pair_id"],cryptopairs)} [C|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec0/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["effective_price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
+
+# FORMAT OPTIONS
+def FORMAT_ORDER_OPTIONS(orders):
+    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [O|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec0/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
 
 # PRINT STOCK ORDERS OF A SYMBOL OR ALL
 def PRINT_STOCK_ORDERS(symbol=None):
     if symbol:
-        func=r.orders.find_stock_orders(symbol=symbol)
+        func=r.find_stock_orders(symbol=symbol)
     else:
-        func=r.orders.find_stock_orders()
-    print("\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec0/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in func ]))
+        func=r.get_all_stock_orders()
+    print(FORMAT_ORDER_STOCKS(func))
 
 # PRINT CRYPTO ORDER OF A SYMBOL OR ALL
-# MISSING FROM robin_stocks
+def PRINT_CRYPTO_ORDERS():
+    func=r.get_all_crypto_orders()
+    print(FORMAT_ORDER_CRYPTOS(func))
 
-# PRINT OPTIONS ORDER OF A SYMBOL OR ALL
-# MISSING FROM robin_stocks
+# PRINT OPTIONS ORDER OF A SYMBOL OR ALL - might not work
+def PRINT_OPTION_ORDERS():
+    func=r.get_all_option_orders()
+    print(FORMAT_ORDER_OPTIONS(func))
 
-### MAIN ###
+# PRINT STOCKS + ORDERS
+def PRINT_ALL_PROFILE_AND_ORDERS():
 
-# currently want to run this part of the code if imported + not imported
-LOGIN() # gives us r
-
-if __name__ == "__main__":
+    # print date header
+    print(f"Date: {run_date}")
 
     # print account info
     prof_type = ["account","basic","investment","portfolio","security","user"]
@@ -112,7 +139,15 @@ if __name__ == "__main__":
     percentDividend = dividends/money_invested*100
 
     equity = float(profileData['equity'])  # author original was extended_hours_equity
-    extended_hours_equity = profileData['extended_hours_equity']
+    extended_hours_equity_string = profileData['extended_hours_equity']
+    try:
+        extended_hours_equity = float(extended_hours_equity_string)
+        use_equity = extended_hours_equity
+        print("* Sidenote: extended_hours_equity exists, using it")
+    except:
+        use_equity = equity
+        print("* Sidenote: extended_hours_equity missing, using regular equity instead")
+        
     totalGainMinusDividends = equity - dividends - money_invested # missing cash_account_debits + 
     percentGain = totalGainMinusDividends/money_invested*100
 
@@ -128,8 +163,39 @@ if __name__ == "__main__":
     print()
 
     # print all stock orders (buy and sell)
-    print(f"--- All Orders - Date: {datetime.datetime.now()} ---")
+    print(f"--- All Stock Orders ---")
     PRINT_STOCK_ORDERS()
     print()
 
+    # print all crypto orders (buy and sell)
+    print(f"--- All Crypto Orders ---")
+    PRINT_CRYPTO_ORDERS()
+    print()
+
+    # print all option orders (buy and sell)
+    print(f"--- All Option Orders ---")
+    PRINT_OPTION_ORDERS()
+    print()
+
+
+### MAIN ###
+
+# currently want to run this part of the code if imported + not imported
+LOGIN() # gives us r
+
+if __name__ == "__main__":
+
+    # args
+
+    arg_desc = f"rhood v{Version} - provides lots of robinhood information"
+    parser = argparse.ArgumentParser(description=arg_desc)
+    parser.add_argument("--info","-i",help="get all profile + order info",action="store_true")
+    args = parser.parse_args()
+
+    if args.info:
+        PRINT_ALL_PROFILE_AND_ORDERS()
+        sys.exit(0)
+
+    # ran without options
+    # print("Ran without options. It just logged in. Best to run interactively:\nexample 1: python -i rhood.py\nexample 2: ipython -i rhood.py")
 # EOF
