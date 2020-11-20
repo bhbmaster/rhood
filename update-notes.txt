@@ -5,4 +5,4 @@ pip freeze | grep -E "robin|pyotp" > requirements.txt
 pip install --upgrade robin-stocks
 
 # test that it works
-python rhood.py
+python rhood.py -i
