@@ -145,10 +145,11 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
         use_equity = extended_hours_equity
         print("* Sidenote: extended_hours_equity exists, using it")
     except:
+        extended_hours_equity = None
         use_equity = equity
         print("* Sidenote: extended_hours_equity missing, using regular equity instead")
         
-    totalGainMinusDividends = equity - dividends - money_invested # missing cash_account_debits + 
+    totalGainMinusDividends = use_equity - dividends - money_invested # missing cash_account_debits + i think also missing crypto and options
     percentGain = totalGainMinusDividends/money_invested*100
 
     print(f"* Reported Deposits: {TOMONEY(deposits)}")
@@ -180,7 +181,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
 
 ### MAIN ###
 
-# currently want to run this part of the code if imported + not imported
+# currently want to run this part of the code if imported and not imported
 LOGIN() # gives us r
 
 if __name__ == "__main__":
