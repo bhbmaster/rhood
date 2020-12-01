@@ -12,12 +12,11 @@ Run either of these to enter python interactively and then mess with the robin_s
     python -i rhood.py
 
 Example:
-     python -i rhood.py           # or ipython
+
+     python -i rhood.py           # launch rhood with python or ipython in interactive mode
      > r.get_all_stock_orders()   # shows all stock orders information
 
-To print all profile information (lots of sensitive information) + order information (Stock, Crypto, Option) - run either of these with extra -i argument (stands for info):
+To print all profile information (lots of sensitive information) + order information (Stock, Crypto, Option) - add the info argument to rhood (-i or --info). Use python or ipython. Personally I prefer ipython as it has better usability:
 
-    ipython rhood.py -i
     python rhood.py -i
-    ipython -i rhood.py -i
     python -i rhood.py -i

@@ -7,7 +7,7 @@ import datetime
 import argparse
 
 # version
-Version="0.0.1"
+Version="0.0.2sp"
 
 # TO IMPLEMENT unsync FOR FAST
 
@@ -96,16 +96,31 @@ def PRINT_STOCK_ORDERS(symbol=None):
     else:
         func=r.get_all_stock_orders()
     print(FORMAT_ORDER_STOCKS(func))
+    return func
 
 # PRINT CRYPTO ORDER OF A SYMBOL OR ALL
 def PRINT_CRYPTO_ORDERS():
     func=r.get_all_crypto_orders()
     print(FORMAT_ORDER_CRYPTOS(func))
+    return func
 
 # PRINT OPTIONS ORDER OF A SYMBOL OR ALL - might not work
 def PRINT_OPTION_ORDERS():
     func=r.get_all_option_orders()
     print(FORMAT_ORDER_OPTIONS(func))
+    return func
+
+# TODO: PARSE STOCK ORDERS
+def PARSE_STOCK_ORDERS(RS_stock_orders):
+    pass
+
+# TODO:  PARSE CRYPTO ORDERS
+def PARSE_CRYPTO_ORDERS(RS_crypto_orders):
+    pass
+
+# TODO:  PARSE OPTION ORDERS
+def PARSE_OPTION_ORDERS(RS_option_orders):
+    pass
 
 # PRINT STOCKS + ORDERS
 def PRINT_ALL_PROFILE_AND_ORDERS():
@@ -164,18 +179,24 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
     print()
 
     # print all stock orders (buy and sell)
+    stocks = []
     print(f"--- All Stock Orders ---")
-    PRINT_STOCK_ORDERS()
+    stock_orders = PRINT_STOCK_ORDERS()
+    stocks = PARSE_STOCK_ORDERS(stock_orders) # TODO
     print()
 
     # print all crypto orders (buy and sell)
+    cryptos = []
     print(f"--- All Crypto Orders ---")
-    PRINT_CRYPTO_ORDERS()
+    crypto_orders = PRINT_CRYPTO_ORDERS()
+    cryptos = PARSE_CRYPTO_ORDERS(crypto_orders)  # TODO
     print()
 
     # print all option orders (buy and sell)
+    options = []
     print(f"--- All Option Orders ---")
-    PRINT_OPTION_ORDERS()
+    option_orders = PRINT_OPTION_ORDERS()
+    options = PARSE_OPTION_ORDERS(option_orders)  # TODO
     print()
 
 
