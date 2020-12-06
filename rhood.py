@@ -79,16 +79,15 @@ def TOMONEY(string):
 
 # FORMAT STOCKS
 def FORMAT_ORDER_STOCKS(orders):
-    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [S{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec0/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
+    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [S{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
 
 # FORMAT CRYPTO
 def FORMAT_ORDER_CRYPTOS(orders):
-    cryptopairs = r.get_crypto_currency_pairs()
-    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\t${TOMONEY(o["rounded_executed_notional"])}\tx{o["quantity"]}\t{ID2SYM(o["currency_pair_id"],cryptopairs)} [C|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec0/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["effective_price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
+    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\t${TOMONEY(o["rounded_executed_notional"])}\tx{o["quantity"]}\t{ID2SYM(o["currency_pair_id"],cryptopairs)} [C|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["effective_price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
 
 # FORMAT OPTIONS
 def FORMAT_ORDER_OPTIONS(orders):
-    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [O|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec0/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
+    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [O|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
 
 # PRINT STOCK ORDERS OF A SYMBOL OR ALL
 def PRINT_STOCK_ORDERS(symbol=None):
@@ -113,13 +112,21 @@ def PRINT_OPTION_ORDERS():
 
 # TODO: PARSE STOCK ORDERS
 def PARSE_STOCK_ORDERS(RS_stock_orders):
-    pass
+    stock_order_dict = {}
+    for o in RS_stock_orders:
+        symbol = URL2SYM(o["instrument"])
+        order = orders.order(o["last_transaction_at"],o["side"],float(o["average_price"]),float(o["quantity"]))
+        # print("stock",symbol,order)
+        # TODO: figure out how to put order class into stock_orders class or dictionary (same for crypto)
 
 # TODO:  PARSE CRYPTO ORDERS
 def PARSE_CRYPTO_ORDERS(RS_crypto_orders):
-    pass
+    for o in RS_crypto_orders:
+        symbol = ID2SYM(o["currency_pair_id"],cryptopairs)
+        order = orders.order(o["last_transaction_at"],o["side"],float(o["average_price"]),float(o["quantity"]))
+        # print("crypto",symbol,order)
 
-# TODO:  PARSE OPTION ORDERS
+# TODO:  PARSE OPTION ORDERS (maybe going to be like stocks?)
 def PARSE_OPTION_ORDERS(RS_option_orders):
     pass
 
@@ -205,6 +212,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
 
 # currently want to run this part of the code if imported and not imported
 LOGIN() # gives us r
+cryptopairs = r.get_crypto_currency_pairs() # global var
 
 if __name__ == "__main__":
 
