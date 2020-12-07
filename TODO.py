@@ -8,3 +8,8 @@
 
 # order class:
 # input: date string (in class can convert to datetime), type: string buy or sell, price: float, amount: float
+
+# UPDATE: 2020-12-07
+# I think best way to store stock orders
+# have a dictionary { str: stock-order-class}
+# { "APPL" : stock-order-class("APPL")}

@@ -36,7 +36,7 @@ Orders = list[order]
 
 class stock_orders:
 
-    def __init__(self,symbol_name: str,orders: Orders):
+    def __init__(self,symbol_name: str,orders: Orders = []):
         self.symbol_name = symbol_name
         self.orders = order
     
