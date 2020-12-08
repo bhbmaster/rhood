@@ -7,30 +7,41 @@ import datetime
 import argparse
 import orders
 
+###################
+
+#### PRE VARS #####
+
+###################
+
+
 # version
-Version="0.0.3sp"
+Version="0.0.4sp"
 
 # TO IMPLEMENT unsync FOR FAST
 
 run_date = datetime.datetime.now()
 
-### FUNCTIONS ###
+###################
+
+#### FUNCTIONS ####
+
+###################
 
 # LOGIN
 def LOGIN():
     global r
     # AUTH + LOGIN - LESS SECURE 
-    # clear text "creds" file - 3 lines: email/username , password, authkey
+    # - clear text "creds" file - 3 lines: email/username , password, authkey
     # with open('creds') as f:
     #     lines = f.readlines()
 
     # AUTH + LOGIN - MORE SECURE
-    # more secure "creds-encoded" - we use base64 encoding (so anyone looking over your shoulder can't see your UN,PW,KEY)
-    # create by first writing cleartext "creds" file
-    # then run this in bash                       # python -c 'import base64; print(base64.b64encode(open("creds","r").read().encode("utf-8")).decode("utf-8"))' > creds-encoded
-    # confirm you see base64 alphanumerics here   # cat creds-encoded
-    # try to revert back                          # python -c 'import base64; print(base64.b64decode(open("creds-encoded","r").read()).decode("utf-8"))'
-    # if you see the email/username , password, authkey lines in that order then you can delete the "creds" file with: # rm creds
+    # - more secure "creds-encoded" - we use base64 encoding (so anyone looking over your shoulder can't see your UN,PW,KEY)
+    # - create by first writing cleartext "creds" file
+    # - then run this in bash                       # python -c 'import base64; print(base64.b64encode(open("creds","r").read().encode("utf-8")).decode("utf-8"))' > creds-encoded
+    # - confirm you see base64 alphanumerics here   # cat creds-encoded
+    # - try to revert back                          # python -c 'import base64; print(base64.b64decode(open("creds-encoded","r").read()).decode("utf-8"))'
+    # - if you see the email/username , password, authkey lines in that order then you can delete the "creds" file with: # rm creds
     with open("creds-encoded") as f:
         lines = base64.b64decode(f.read()).decode("utf-8").split()
 
@@ -41,6 +52,8 @@ def LOGIN():
 
     login = r.login(EMAIL,PASSWD,mfa_code=ptot_now)
     return login
+
+###################
 
 # GET LATEST PRICE
 def QUOTE(ticker):
@@ -60,6 +73,8 @@ def SELL(ticker, amount_of_shares):
     print(ans)
     return ans
 
+###################
+
 # SIMPLE CONVERT INSTRUMENT URL TO SYMBOL
 def URL2SYM(url):
     return r.get_symbol_by_url(url)
@@ -70,16 +85,20 @@ def ID2SYM(id,cryptopairs):
         if i["id"] == id:
             return i["symbol"]
 
+###################
+
 # CONVERT MONEY STRING TO 2 DECIMAL 
 def TOMONEY(string):
-	if string is None:
-		return "None"
-	else:
-		return f"{float(string):.2f}"
+    if string is None:
+        return "None"
+    else:
+        return f"{float(string):.2f}"
+
+###################
 
 # FORMAT STOCKS
 def FORMAT_ORDER_STOCKS(orders):
-    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [S{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
+    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [S|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
 
 # FORMAT CRYPTO
 def FORMAT_ORDER_CRYPTOS(orders):
@@ -89,8 +108,10 @@ def FORMAT_ORDER_CRYPTOS(orders):
 def FORMAT_ORDER_OPTIONS(orders):
     return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [O|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
 
-# PRINT STOCK ORDERS OF A SYMBOL OR ALL
-def PRINT_STOCK_ORDERS(symbol=None):
+###################
+
+# LOAD + PRINT STOCK ORDERS OF A SYMBOL OR ALL
+def LOAD_PRINT_STOCK_ORDERS(symbol=None):
     if symbol:
         func=r.find_stock_orders(symbol=symbol)
     else:
@@ -98,17 +119,53 @@ def PRINT_STOCK_ORDERS(symbol=None):
     print(FORMAT_ORDER_STOCKS(func))
     return func
 
-# PRINT CRYPTO ORDER OF A SYMBOL OR ALL
-def PRINT_CRYPTO_ORDERS():
+# LOAD + PRINT CRYPTO ORDER OF A SYMBOL OR ALL
+def LOAD_PRINT_CRYPTO_ORDERS():
     func=r.get_all_crypto_orders()
     print(FORMAT_ORDER_CRYPTOS(func))
     return func
 
-# PRINT OPTIONS ORDER OF A SYMBOL OR ALL - might not work
-def PRINT_OPTION_ORDERS():
+# LOAD + PRINT OPTIONS ORDER OF A SYMBOL OR ALL - might not work
+def LOAD_PRINT_OPTION_ORDERS():
     func=r.get_all_option_orders()
     print(FORMAT_ORDER_OPTIONS(func))
     return func
+
+###################
+
+# PRINT STOCK ORDERS OF A SYMBOL OR ALL
+def PRINT_STOCK_ORDERS(RS_orders):
+    print(FORMAT_ORDER_STOCKS(RS_orders))
+
+# PRINT CRYPTO ORDER OF A SYMBOL OR ALL
+def PRINT_CRYPTO_ORDERS(RS_orders):
+    print(FORMAT_ORDER_CRYPTOS(RS_orders))
+
+# PRINT OPTIONS ORDER OF A SYMBOL OR ALL - might not work
+def PRINT_OPTION_ORDERS(RS_orders):
+    print(FORMAT_ORDER_OPTIONS(RS_orders))
+
+###################
+
+# LOAD STOCK ORDERS OF A SYMBOL OR ALL
+def LOAD_STOCK_ORDERS(symbol=None):
+    if symbol:
+        func=r.find_stock_orders(symbol=symbol)
+    else:
+        func=r.get_all_stock_orders()
+    return func
+
+# LOAD CRYPTO ORDER OF A SYMBOL OR ALL
+def LOAD_PRINT_CRYPTO_ORDERS():
+    func=r.get_all_crypto_orders()
+    return func
+
+# LOAD OPTIONS ORDER OF A SYMBOL OR ALL - might not work
+def LOAD_PRINT_OPTION_ORDERS():
+    func=r.get_all_option_orders()
+    return func
+
+###################
 
 # TODO: PARSE STOCK ORDERS
 def PARSE_STOCK_ORDERS(RS_stock_orders):
@@ -116,19 +173,48 @@ def PARSE_STOCK_ORDERS(RS_stock_orders):
     for o in RS_stock_orders:
         symbol = URL2SYM(o["instrument"])
         order = orders.order(o["last_transaction_at"],o["side"],float(o["average_price"]),float(o["quantity"]))
+        if symbol in stock_order_dict:
+            # if symbol already exists just add order
+            stock_order_dict[symbol].add_order(order)
+        else:
+            # if symbol not in dict, create new instance of stock_orders and put 1 order 
+            stock_order_dict[symbol] = orders.multi_orders(symbol, [order])
         # print("stock",symbol,order)
         # TODO: figure out how to put order class into stock_orders class or dictionary (same for crypto)
+    # VALIDATING / DEBUG:
+    # print("---- STOCKS ----")
+    # print(f"{len(stock_order_dict)=} {stock_order_dict=}")
+    # print("----")
+    # for k,v in stock_order_dict.items():
+    #    v.print_all_orders()
+    #    print("----")
+    return stock_order_dict
 
 # TODO:  PARSE CRYPTO ORDERS
 def PARSE_CRYPTO_ORDERS(RS_crypto_orders):
+    crypto_order_dict = {}
     for o in RS_crypto_orders:
         symbol = ID2SYM(o["currency_pair_id"],cryptopairs)
         order = orders.order(o["last_transaction_at"],o["side"],float(o["average_price"]),float(o["quantity"]))
+        if symbol in crypto_order_dict:
+            crypto_order_dict[symbol].add_order(order)
+        else:
+            crypto_order_dict[symbol] = orders.multi_orders(symbol, [order])
         # print("crypto",symbol,order)
+    # VALIDATING /  DEBUG:
+    # print("---- CRYPTOS ----")
+    # print(f"{len(crypto_order_dict)=} {crypto_order_dict=}")
+    # print("----")
+    # for k,v in crypto_order_dict.items():
+    #    v.print_all_orders()
+    #    print("----")
+    return crypto_order_dict
 
 # TODO:  PARSE OPTION ORDERS (maybe going to be like stocks?)
 def PARSE_OPTION_ORDERS(RS_option_orders):
     pass
+
+###################
 
 # PRINT STOCKS + ORDERS
 def PRINT_ALL_PROFILE_AND_ORDERS():
@@ -177,7 +263,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
 
     print(f"* Reported Deposits: {TOMONEY(deposits)}")
     print(f"* Reported Withdrawals: {TOMONEY(withdrawals)}")
-    print(f"* Reported Debits: {TOMONEY(debits)}") # <-- why is this 0, it should be all cash_account debits
+    print(f"* Reported Debits: {TOMONEY(debits)} *** this is wrong right now ***") # <-- why is this 0, it should be all cash_account debits
     print(f"* Reported Reversal Fees: {TOMONEY(reversal_fees)}")
     print(f"* The total money invested is {TOMONEY(money_invested)}")
     print(f"* The total equity is {TOMONEY(equity)}")
@@ -187,28 +273,31 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
     print()
 
     # print all stock orders (buy and sell)
-    stocks = []
+    stocks_dict = {}
     print(f"--- All Stock Orders ---")
-    stock_orders = PRINT_STOCK_ORDERS()
-    stocks = PARSE_STOCK_ORDERS(stock_orders) # TODO
+    stock_orders = LOAD_PRINT_STOCK_ORDERS()
+    stocks_dict = PARSE_STOCK_ORDERS(stock_orders) # TODO
     print()
 
     # print all crypto orders (buy and sell)
-    cryptos = []
+    cryptos_dict = {}
     print(f"--- All Crypto Orders ---")
-    crypto_orders = PRINT_CRYPTO_ORDERS()
-    cryptos = PARSE_CRYPTO_ORDERS(crypto_orders)  # TODO
+    crypto_orders = LOAD_PRINT_CRYPTO_ORDERS()
+    cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)  # TODO
     print()
 
     # print all option orders (buy and sell)
-    options = []
+    options_dict = {}
     print(f"--- All Option Orders ---")
-    option_orders = PRINT_OPTION_ORDERS()
-    options = PARSE_OPTION_ORDERS(option_orders)  # TODO
+    option_orders = LOAD_PRINT_OPTION_ORDERS()
+    options_dict = PARSE_OPTION_ORDERS(option_orders)  # TODO
     print()
 
+###################
 
-### MAIN ###
+####### MAIN ######
+
+###################
 
 # currently want to run this part of the code if imported and not imported
 LOGIN() # gives us r
@@ -229,4 +318,5 @@ if __name__ == "__main__":
 
     # ran without options
     # print("Ran without options. It just logged in. Best to run interactively:\nexample 1: python -i rhood.py\nexample 2: ipython -i rhood.py")
+
 # EOF

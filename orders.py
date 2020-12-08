@@ -1,5 +1,6 @@
 import dateutil.parser
 
+# a single order (symbol name not included)
 class order:
 
     def __init__(self, date_string: str, type_string: str, price_float: float, amount_float: float):
@@ -17,6 +18,7 @@ class order:
         self.type_string = type_string.lower()
         self.price_float = price_float
         self.amount_float = amount_float
+
         try:
             self.datetime = dateutil.parser.parse(date_string)
         except:
@@ -34,26 +36,34 @@ class order:
 # define type
 Orders = list[order]
 
-class stock_orders:
+# multiple multiple orders (symbol name included) - used to be called stock_orders but it works for crypto + options as well
+class multi_orders:
 
-    def __init__(self,symbol_name: str,orders: Orders = []):
+    def __init__(self, symbol_name: str, orders: Orders = []):
         self.symbol_name = symbol_name
-        self.orders = order
-    
+        self.orders = orders
+
     def clear_orders(self):
         self.orders = []
 
-    def add_order(order: order):
+    def add_order(self, order: order):
         self.orders.append(order)
 
-    def len(self):
-        return len(self.order)
+    def print_all_orders(self):
+        print(f"* {self.symbol_name} has {self.len()} orders:")
+        for i, val in enumerate(self.orders):
+            print(f"- {i}: {val}")
 
-    def sort_by_time_increasing():
+    def len(self):
+        return len(self.orders)
+
+    def sort_by_time_increasing(self):
         pass
 
-    def sort_by_time_decreasing():
+    def sort_by_time_decreasing(self):
         pass
 
     def profit(self):
         pass
+
+# EOF

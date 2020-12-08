@@ -13,3 +13,11 @@
 # I think best way to store stock orders
 # have a dictionary { str: stock-order-class}
 # { "APPL" : stock-order-class("APPL")}
+
+# UPDATE: 2020-12-08
+# implemented above. it works great.
+# sidenote: should test, find very first order from text output in multi_order's order.
+# changed name from stock_orders to multi_orders as it handles cryp + opt as well
+# next:
+# need to implement sort (although its already sorted)
+# then implement profit
