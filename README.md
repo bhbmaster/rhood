@@ -8,7 +8,7 @@ Requirements: python3.9 + pip install robin_stocks and pyotp
 
 The tested versions are python3.9 and what you see in requirements.txt for the modules.
 
-**Create Encoded Permissions File**
+## Create Encoded Permissions File
 
 Before we can do any work, first create a creds-encoded file. Its an encoded file of your email, password, and API key.
 
@@ -36,14 +36,14 @@ Steps to create encoded file:
 
     rm creds
 
-**Print All Information**
+## Print All Information
 
 Then to print all profile information (lots of sensitive information) + order information (Stock, Crypto, Option) - add the info argument to rhood (-i or --info). Use python or ipython. Personally I prefer ipython as it has better usability:
 
     python rhood.py -i
     python -i rhood.py -i
 
-**Playground**
+## Playground
 
 Want to mess with the objects by yourself?
 
