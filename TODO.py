@@ -30,3 +30,4 @@
 # TODO: implement value x (date),y (value) per stock
 # TODO: implement total value x (date),y (vlue)
 # TODO: implement pickle save + load for testing
+# TODO: remove creds comments and put into README.md
