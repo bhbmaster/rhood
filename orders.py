@@ -18,6 +18,7 @@ class order:
         self.type_string = type_string.lower()
         self.price_float = price_float
         self.amount_float = amount_float
+        self.value_float = self.amount_float * self.price_float
 
         try:
             self.date_dt = dateutil.parser.parse(date_string)
@@ -54,17 +55,18 @@ class multi_orders:
         print(f"* {self.symbol_name} has {self.len()} orders:")
         for i, val in enumerate(self.orders):
             print(f"- {i}: {val}")
+        # print(self.total_profit())
 
     def len(self):
         return len(self.orders)
 
     def sort_by_time_increasing(self):
-        pass
+        self.orders.sort(key=lambda x: x.date_epoch, reverse=False)
 
     def sort_by_time_decreasing(self):
-        pass
+        self.orders.sort(key=lambda x: x.date_epoch, reverse=True)
 
-    def profit(self):
+    def total_profit(self):
         pass
 
 # EOF

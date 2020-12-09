@@ -23,3 +23,10 @@
 # then implement profit
 # TODO: show my calculations of profit for stock, crypto, options + total
 # TODO: instead of PRINT_X_ORDERS make a PRINT_ORDERS_DICTIONARY -> because we do symbol look up which is expensive in both
+
+# UPDATE: 2020-12-09
+# implemented sort and PRINT_ORDERS_DICT
+# TODO: implement profit from start calculation
+# TODO: implement value x (date),y (value) per stock
+# TODO: implement total value x (date),y (vlue)
+# TODO: implement pickle save + load for testing

@@ -15,7 +15,7 @@ import orders
 
 
 # version
-Version="0.0.4sp"
+Version="0.0.5sp"
 
 # TO IMPLEMENT unsync FOR FAST
 
@@ -88,25 +88,52 @@ def ID2SYM(id,cryptopairs):
 ###################
 
 # CONVERT MONEY STRING TO 2 DECIMAL 
-def TOMONEY(string):
-    if string is None:
+def TOMONEY(money_string):
+    if money_string is None:
         return "None"
     else:
-        return f"{float(string):.2f}"
+        return f"{float(money_string):.2f}"
+
+# CONVERT TO 2 POINT DECIMAL FLOAT
+def D2(number):
+     return f"{float(number):.2f}"
+
+# CONVERT TO X POINT DECIMAL FLOAT
+def DX(number,number_of_decimals):
+     return f"{float(number):.{number_of_decimals}f}"
 
 ###################
 
 # FORMAT STOCKS
-def FORMAT_ORDER_STOCKS(orders):
-    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [S|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
+def FORMAT_ORDER_STOCKS(RS_orders):
+    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [S|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
 
 # FORMAT CRYPTO
-def FORMAT_ORDER_CRYPTOS(orders):
-    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\t${TOMONEY(o["rounded_executed_notional"])}\tx{o["quantity"]}\t{ID2SYM(o["currency_pair_id"],cryptopairs)} [C|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["effective_price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
+def FORMAT_ORDER_CRYPTOS(RS_orders):
+    if RS_orders is None:
+        return
+    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\t${TOMONEY(o["rounded_executed_notional"])}\tx{o["quantity"]}\t{ID2SYM(o["currency_pair_id"],cryptopairs)} [C|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["effective_price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
 
 # FORMAT OPTIONS
-def FORMAT_ORDER_OPTIONS(orders):
-    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [O|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in orders ])
+def FORMAT_ORDER_OPTIONS(RS_orders):
+    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [O|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
+
+###################
+
+def PRINT_ORDERS_DICTIONARY(stock_orders_dictionary):
+    if stock_orders_dictionary is None:
+        return
+    len_of_stocks = len(stock_orders_dictionary)
+    stock_num = 0
+    total_order_num = 0
+    for symbol, obj in stock_orders_dictionary.items():
+        stock_num += 1
+        stock_order_num = 0
+        len_of_orders = len(obj.orders)
+        for order in obj.orders:
+            total_order_num += 1;
+            stock_order_num += 1
+            print(f"* sym# {stock_num}/{len_of_stocks} ord# {stock_order_num}/{len_of_orders} tot_ord# {total_order_num} - {order.date_nice()} - {symbol} - {order.type_string} - x{order.amount_float} at ${DX(order.amount_float,4)} - value ${D2(order.value_float)}")
 
 ###################
 
@@ -167,6 +194,18 @@ def LOAD_OPTION_ORDERS():
 
 ###################
 
+# sort all stock, crypto, options increasing time
+def SORT_ALL_DICT_ORDERS_INCREASING(dict_of_symbol_orders):
+    for i in dict_of_symbol_orders.values():
+        i.sort_by_time_increasing()
+
+# sort all stock, crypto, options decreasing time
+def SORT_ALL_DICT_ORDERS_DECREASING(dict_of_symbol_orders):
+    for i in dict_of_symbol_orders.values():
+        i.sort_by_time_decreasing()
+
+###################
+
 # PARSE STOCK ORDERS
 def PARSE_STOCK_ORDERS(RS_stock_orders):
     stock_order_dict = {}
@@ -179,6 +218,7 @@ def PARSE_STOCK_ORDERS(RS_stock_orders):
         else:
             # if symbol not in dict, create new instance of stock_orders and put 1 order 
             stock_order_dict[symbol] = orders.multi_orders(symbol, [order])
+    SORT_ALL_DICT_ORDERS_INCREASING(stock_order_dict)
     return stock_order_dict
 
 # PARSE CRYPTO ORDERS
@@ -191,6 +231,7 @@ def PARSE_CRYPTO_ORDERS(RS_crypto_orders):
             crypto_order_dict[symbol].add_order(order)
         else:
             crypto_order_dict[symbol] = orders.multi_orders(symbol, [order])
+    SORT_ALL_DICT_ORDERS_INCREASING(crypto_order_dict)
     return crypto_order_dict
 
 # TODO: PARSE OPTION ORDERS (maybe going to be like stocks?)
@@ -259,38 +300,56 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
     print(f"--- Loading Orders ---")
     print(f"* (S) started stock orders load")
     stock_orders = LOAD_STOCK_ORDERS()
+    stock_orders.reverse()
     print(f"* (S) completed stock orders load")
     print(f"* (C) started crypto orders load")
     crypto_orders = LOAD_CRYPTO_ORDERS()
+    crypto_orders.reverse()
     print(f"* (C) completed crypto orders load")
     print(f"* (O) started option orders load")
     option_orders = LOAD_OPTION_ORDERS()
+    option_orders.reverse()
     print(f"* (O) completed option orders load")
     print()
 
     # print all stock orders (buy and sell)
     stocks_dict = {}
     print(f"--- All Stock Orders ---")
-    PRINT_STOCK_ORDERS(stock_orders)
-    stocks_dict = PARSE_STOCK_ORDERS(stock_orders)
-    # TODO: instead of PRINT_X_ORDERS make a PRINT_ORDERS_DICTIONARY
-    print()
+    if stock_orders != []:
+        PRINT_STOCK_ORDERS(stock_orders)
+        print()
+        print("...parsing stock orders...")
+        stocks_dict = PARSE_STOCK_ORDERS(stock_orders)
+        print()
+        print(f"--- All Stock Orders (Sorted) ---")
+        PRINT_ORDERS_DICTIONARY(stocks_dict)
+        print()
 
     # print all crypto orders (buy and sell)
     cryptos_dict = {}
     print(f"--- All Crypto Orders ---")
-    PRINT_CRYPTO_ORDERS(crypto_orders)
-    cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)
-    # TODO: instead of PRINT_X_ORDERS make a PRINT_ORDERS_DICTIONARY
-    print()
+    if crypto_orders != []:
+        PRINT_CRYPTO_ORDERS(crypto_orders)
+        print()
+        print("...parsing crypto orders...")
+        cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)
+        print()
+        print(f"--- All Crypto Orders (Sorted) ---")
+        PRINT_ORDERS_DICTIONARY(cryptos_dict)
+        print()
 
     # print all option orders (buy and sell)
     options_dict = {}
     print(f"--- All Option Orders ---")
-    PRINT_OPTION_ORDERS(option_orders)
-    options_dict = PARSE_OPTION_ORDERS(option_orders)
-    # TODO: instead of PRINT_X_ORDERS make a PRINT_ORDERS_DICTIONARY
-    print()
+    if option_orders != []:
+        PRINT_OPTION_ORDERS(option_orders)
+        print()
+        print("...parsing option orders...")
+        options_dict = PARSE_OPTION_ORDERS(option_orders)
+        print()
+        print(f"--- All Option Orders (Sorted) ---")
+        PRINT_ORDERS_DICTIONARY(options_dict)
+        print()
 
     # TODO: show my calculations of profit for stock, crypto, options + total
 
