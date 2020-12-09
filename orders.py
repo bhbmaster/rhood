@@ -20,12 +20,13 @@ class order:
         self.amount_float = amount_float
 
         try:
-            self.datetime = dateutil.parser.parse(date_string)
+            self.date_dt = dateutil.parser.parse(date_string)
+            self.date_epoch = self.date_dt.timestamp()
         except:
             raise ValueError('provided date must be a parseable date - preferablly of the type "%y-%m-%dT%H:%M:%S.%f%z" or "%y-%m-%d %H:%M:%S.%f %z"')
 
     def date_nice(self):
-        return self.datetime.strftime("%Y-%m-%d %H:%M:%S %z")
+        return self.date_dt.strftime("%Y-%m-%d %H:%M:%S %z")
 
     # def __str__(self):
     #     return f"{self.date_nice()} buy"
