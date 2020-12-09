@@ -21,3 +21,5 @@
 # next:
 # need to implement sort (although its already sorted)
 # then implement profit
+# TODO: show my calculations of profit for stock, crypto, options + total
+# TODO: instead of PRINT_X_ORDERS make a PRINT_ORDERS_DICTIONARY -> because we do symbol look up which is expensive in both

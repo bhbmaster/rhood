@@ -252,7 +252,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
     print(f"* The total equity is {TOMONEY(equity)}")
     print(f"* Sidenote: extended_hours_equity is {TOMONEY(extended_hours_equity)}") # added by me
     print(f"* The net worth has increased {percentDividend:.3f}% due to dividends that amount to {TOMONEY(dividends)}")
-    print(f"* The net worth has increased {TOMONEY(percentGain)}% due to other gains that amount to {TOMONEY(totalGainMinusDividends)}")
+    print(f"* The net worth has increased {TOMONEY(percentGain)}% due to other gains that amount to {TOMONEY(totalGainMinusDividends)} *** correct if only stocks & no cash mgmt ***")
     print()
 
     # print load stock + crypto + options - TIME CONSUMING
@@ -272,21 +272,24 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
     stocks_dict = {}
     print(f"--- All Stock Orders ---")
     PRINT_STOCK_ORDERS(stock_orders)
-    stocks_dict = PARSE_STOCK_ORDERS(stock_orders) # TODO
+    stocks_dict = PARSE_STOCK_ORDERS(stock_orders)
+    # TODO: instead of PRINT_X_ORDERS make a PRINT_ORDERS_DICTIONARY
     print()
 
     # print all crypto orders (buy and sell)
     cryptos_dict = {}
     print(f"--- All Crypto Orders ---")
     PRINT_CRYPTO_ORDERS(crypto_orders)
-    cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)  # TODO
+    cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)
+    # TODO: instead of PRINT_X_ORDERS make a PRINT_ORDERS_DICTIONARY
     print()
 
     # print all option orders (buy and sell)
     options_dict = {}
     print(f"--- All Option Orders ---")
     PRINT_OPTION_ORDERS(option_orders)
-    options_dict = PARSE_OPTION_ORDERS(option_orders)  # TODO
+    options_dict = PARSE_OPTION_ORDERS(option_orders)
+    # TODO: instead of PRINT_X_ORDERS make a PRINT_ORDERS_DICTIONARY
     print()
 
     # TODO: show my calculations of profit for stock, crypto, options + total
