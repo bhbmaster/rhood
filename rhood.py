@@ -6,6 +6,7 @@ import base64
 import datetime
 import argparse
 import orders
+import pickle
 
 ###################
 
@@ -30,26 +31,12 @@ run_date = datetime.datetime.now()
 # LOGIN
 def LOGIN():
     global r
-    # AUTH + LOGIN - LESS SECURE 
-    # - clear text "creds" file - 3 lines: email/username , password, authkey
-    # with open('creds') as f:
-    #     lines = f.readlines()
-
-    # AUTH + LOGIN - MORE SECURE
-    # - more secure "creds-encoded" - we use base64 encoding (so anyone looking over your shoulder can't see your UN,PW,KEY)
-    # - create by first writing cleartext "creds" file
-    # - then run this in bash                       # python -c 'import base64; print(base64.b64encode(open("creds","r").read().encode("utf-8")).decode("utf-8"))' > creds-encoded
-    # - confirm you see base64 alphanumerics here   # cat creds-encoded
-    # - try to revert back                          # python -c 'import base64; print(base64.b64decode(open("creds-encoded","r").read()).decode("utf-8"))'
-    # - if you see the email/username , password, authkey lines in that order then you can delete the "creds" file with: # rm creds
     with open("creds-encoded") as f:
         lines = base64.b64decode(f.read()).decode("utf-8").split()
-
+    # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password, authkey)
     EMAIL, PASSWD, KEY = map(lambda x: x.strip(), lines)
-
     ptot = pyotp.TOTP(KEY)
     ptot_now = ptot.now()
-
     login = r.login(EMAIL,PASSWD,mfa_code=ptot_now)
     return login
 
@@ -240,6 +227,22 @@ def PARSE_OPTION_ORDERS(RS_option_orders):
 
 ###################
 
+# save time consuming data to file
+def save_data(filename,so,co,oo,sd,cd,od):
+    save_data = {"stock_orders":so,"crypto_orders":co,"option_orders":oo,"stocks_dict":sd,"cryptos_dict":cd,"options_dict":od}
+    # Store data (serialize)
+    with open(filename, 'wb') as handle:
+        pickle.dump(save_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+# load time consuming data from file
+def load_data(filename):
+    # Load data (deserialize)
+    with open(filename, 'rb') as handle:
+        unserialized_data = pickle.load(handle)
+    return unserialized_data
+
+###################
+
 # PRINT STOCKS + ORDERS
 def PRINT_ALL_PROFILE_AND_ORDERS():
 
@@ -350,6 +353,11 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
         print(f"--- All Option Orders (Sorted) ---")
         PRINT_ORDERS_DICTIONARY(options_dict)
         print()
+
+    # Save Data:
+    filename = "dat.pkl"
+    save_data(filename, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict)
+    # ld = load_data(filename) # test is good
 
     # TODO: show my calculations of profit for stock, crypto, options + total
 

@@ -2,3 +2,4 @@ creds*
 output*
 __pycache__*
 .vscode
+dat*pkl

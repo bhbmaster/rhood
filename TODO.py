@@ -1,4 +1,4 @@
-# TODO: to figure out stock profit make a class called stock-orders
+# to figure out stock profit make a class called stock-orders
 # stockname: string
 # orders: dictionary list of all the orders { date: datetime, type: string buy or sell, price: float, amount: float }
 # or orders can be a list of all order instanstance class (then we would need to create an order class)
@@ -22,12 +22,20 @@
 # need to implement sort (although its already sorted)
 # then implement profit
 # TODO: show my calculations of profit for stock, crypto, options + total
-# TODO: instead of PRINT_X_ORDERS make a PRINT_ORDERS_DICTIONARY -> because we do symbol look up which is expensive in both
+# instead of PRINT_X_ORDERS make a PRINT_ORDERS_DICTIONARY -> because we do symbol look up which is expensive in both
 
 # UPDATE: 2020-12-09
 # implemented sort and PRINT_ORDERS_DICT
+# TODO: show my calculations of profit for stock, crypto, options + total
 # TODO: implement profit from start calculation
 # TODO: implement value x (date),y (value) per stock
 # TODO: implement total value x (date),y (vlue)
-# TODO: implement pickle save + load for testing
-# TODO: remove creds comments and put into README.md
+# implement pickle save + load for testing (
+# remove creds comments and put into README.md 
+
+# UPDATE: same day
+# TODO: implement pickle load or use API
+# TODO: show my calculations of profit for stock, crypto, options + total
+# TODO: implement profit from start calculation
+# TODO: implement value x (date),y (value) per stock
+# TODO: implement total value x (date),y (vlue)
