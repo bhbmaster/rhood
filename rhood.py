@@ -167,7 +167,7 @@ def LOAD_PRINT_OPTION_ORDERS():
 
 ###################
 
-# TODO: PARSE STOCK ORDERS
+# PARSE STOCK ORDERS
 def PARSE_STOCK_ORDERS(RS_stock_orders):
     stock_order_dict = {}
     for o in RS_stock_orders:
@@ -179,18 +179,9 @@ def PARSE_STOCK_ORDERS(RS_stock_orders):
         else:
             # if symbol not in dict, create new instance of stock_orders and put 1 order 
             stock_order_dict[symbol] = orders.multi_orders(symbol, [order])
-        # print("stock",symbol,order)
-        # TODO: figure out how to put order class into stock_orders class or dictionary (same for crypto)
-    # VALIDATING / DEBUG:
-    # print("---- STOCKS ----")
-    # print(f"{len(stock_order_dict)=} {stock_order_dict=}")
-    # print("----")
-    # for k,v in stock_order_dict.items():
-    #    v.print_all_orders()
-    #    print("----")
     return stock_order_dict
 
-# TODO:  PARSE CRYPTO ORDERS
+# PARSE CRYPTO ORDERS
 def PARSE_CRYPTO_ORDERS(RS_crypto_orders):
     crypto_order_dict = {}
     for o in RS_crypto_orders:
@@ -200,17 +191,9 @@ def PARSE_CRYPTO_ORDERS(RS_crypto_orders):
             crypto_order_dict[symbol].add_order(order)
         else:
             crypto_order_dict[symbol] = orders.multi_orders(symbol, [order])
-        # print("crypto",symbol,order)
-    # VALIDATING /  DEBUG:
-    # print("---- CRYPTOS ----")
-    # print(f"{len(crypto_order_dict)=} {crypto_order_dict=}")
-    # print("----")
-    # for k,v in crypto_order_dict.items():
-    #    v.print_all_orders()
-    #    print("----")
     return crypto_order_dict
 
-# TODO:  PARSE OPTION ORDERS (maybe going to be like stocks?)
+# TODO: PARSE OPTION ORDERS (maybe going to be like stocks?)
 def PARSE_OPTION_ORDERS(RS_option_orders):
     pass
 
@@ -272,26 +255,41 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
     print(f"* The net worth has increased {TOMONEY(percentGain)}% due to other gains that amount to {TOMONEY(totalGainMinusDividends)}")
     print()
 
+    # print load stock + crypto + options - TIME CONSUMING
+    print(f"--- Loading Orders ---")
+    print(f"* (S) started stock orders load")
+    stock_orders = LOAD_STOCK_ORDERS()
+    print(f"* (S) completed stock orders load")
+    print(f"* (C) started crypto orders load")
+    crypto_orders = LOAD_CRYPTO_ORDERS()
+    print(f"* (C) completed crypto orders load")
+    print(f"* (O) started option orders load")
+    option_orders = LOAD_OPTION_ORDERS()
+    print(f"* (O) completed option orders load")
+    print()
+
     # print all stock orders (buy and sell)
     stocks_dict = {}
     print(f"--- All Stock Orders ---")
-    stock_orders = LOAD_PRINT_STOCK_ORDERS()
+    PRINT_STOCK_ORDERS(stock_orders)
     stocks_dict = PARSE_STOCK_ORDERS(stock_orders) # TODO
     print()
 
     # print all crypto orders (buy and sell)
     cryptos_dict = {}
     print(f"--- All Crypto Orders ---")
-    crypto_orders = LOAD_PRINT_CRYPTO_ORDERS()
+    PRINT_CRYPTO_ORDERS(crypto_orders)
     cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)  # TODO
     print()
 
     # print all option orders (buy and sell)
     options_dict = {}
     print(f"--- All Option Orders ---")
-    option_orders = LOAD_PRINT_OPTION_ORDERS()
+    PRINT_OPTION_ORDERS(option_orders)
     options_dict = PARSE_OPTION_ORDERS(option_orders)  # TODO
     print()
+
+    # TODO: show my calculations of profit for stock, crypto, options + total
 
 ###################
 
