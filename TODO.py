@@ -39,3 +39,4 @@
 # TODO: implement profit from start calculation
 # TODO: implement value x (date),y (value) per stock
 # TODO: implement total value x (date),y (vlue)
+# TODO: if creds file missing error

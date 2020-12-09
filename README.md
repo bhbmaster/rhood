@@ -1,10 +1,16 @@
 # Robinhood Stocks Analysis
 
-**Unfinished**
+Text analysis of your robinhood portfolio. Absolutely everything you wanted to know. This generates very personal data, so make sure noone is standing around you.
 
-Requirements: python3.9 + pip install robin_stocks
+**-->Unfinished<--**
 
-First create a creds-encoded file. Its an encoded file of your email, password, and API key.
+Requirements: python3.9 + pip install robin_stocks and pyotp
+
+The tested versions are python3.9 and what you see in requirements.txt for the modules.
+
+**Create Encoded Permissions File**
+
+Before we can do any work, first create a creds-encoded file. Its an encoded file of your email, password, and API key.
 
 Steps to create encoded file:
 
@@ -30,12 +36,16 @@ Steps to create encoded file:
 
     rm creds
 
+**Print All Information**
+
 Then to print all profile information (lots of sensitive information) + order information (Stock, Crypto, Option) - add the info argument to rhood (-i or --info). Use python or ipython. Personally I prefer ipython as it has better usability:
 
     python rhood.py -i
     python -i rhood.py -i
 
-Want to mess with the objects?
+**Playground**
+
+Want to mess with the objects by yourself?
 
 Run either of these to enter python interactively and then mess with the robin_stocks r object (which has already loged you in). It will login for you and the rest is up to you:
 
