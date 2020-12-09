@@ -34,7 +34,7 @@
 # remove creds comments and put into README.md 
 
 # UPDATE: same day
-# TODO: implement pickle load or use API
+# TODO: implement pickle load or use API (dont save pkl if we load pkl + only save if we use save argument)
 # TODO: show my calculations of profit for stock, crypto, options + total
 # TODO: implement profit from start calculation
 # TODO: implement value x (date),y (value) per stock
