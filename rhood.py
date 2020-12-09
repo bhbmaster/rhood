@@ -110,7 +110,7 @@ def FORMAT_ORDER_OPTIONS(orders):
 
 ###################
 
-# LOAD + PRINT STOCK ORDERS OF A SYMBOL OR ALL
+# LOAD + PRINT STOCK ORDERS OF A SYMBOL OR ALL <- old split these up below (maybe delete)
 def LOAD_PRINT_STOCK_ORDERS(symbol=None):
     if symbol:
         func=r.find_stock_orders(symbol=symbol)
@@ -119,13 +119,13 @@ def LOAD_PRINT_STOCK_ORDERS(symbol=None):
     print(FORMAT_ORDER_STOCKS(func))
     return func
 
-# LOAD + PRINT CRYPTO ORDER OF A SYMBOL OR ALL
+# LOAD + PRINT CRYPTO ORDER OF A SYMBOL OR ALL <- old split these up below (maybe delete)
 def LOAD_PRINT_CRYPTO_ORDERS():
     func=r.get_all_crypto_orders()
     print(FORMAT_ORDER_CRYPTOS(func))
     return func
 
-# LOAD + PRINT OPTIONS ORDER OF A SYMBOL OR ALL - might not work
+# LOAD + PRINT OPTIONS ORDER OF A SYMBOL OR ALL - might not work <- old split these up below (maybe delete)
 def LOAD_PRINT_OPTION_ORDERS():
     func=r.get_all_option_orders()
     print(FORMAT_ORDER_OPTIONS(func))
@@ -156,12 +156,12 @@ def LOAD_STOCK_ORDERS(symbol=None):
     return func
 
 # LOAD CRYPTO ORDER OF A SYMBOL OR ALL
-def LOAD_PRINT_CRYPTO_ORDERS():
+def LOAD_CRYPTO_ORDERS():
     func=r.get_all_crypto_orders()
     return func
 
 # LOAD OPTIONS ORDER OF A SYMBOL OR ALL - might not work
-def LOAD_PRINT_OPTION_ORDERS():
+def LOAD_OPTION_ORDERS():
     func=r.get_all_option_orders()
     return func
 
