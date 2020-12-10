@@ -43,6 +43,21 @@ Then to print all profile information (lots of sensitive information) + order in
     python rhood.py -i
     python -i rhood.py -i
 
+## Saving and Loading Stock Order Information
+
+Checking the API for all of the orders is time consuming. Try to save the data locally & loading it. Of course if any orders were done since then, we will not have the most up to date information. Its always saved and load to 'dat.pkl' file. You can save a copy if you need, and if you need to use an older copy just rename or overwrite it to dat.pkl.
+
+Save order information to dat.pkl:
+
+    python rhood.py -i -s
+
+Load order information from dat.pkl:
+
+    python rhood.py -i -l
+
+Sidenote: saving and loading only makes sense if you also use --info/-i option 
+Sidenote: -s is short for --save, -l is short for --load
+
 ## Playground
 
 Want to mess with the objects by yourself?

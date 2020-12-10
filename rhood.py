@@ -7,6 +7,7 @@ import datetime
 import argparse
 import orders
 import pickle
+import os.path
 
 ###################
 
@@ -16,11 +17,10 @@ import pickle
 
 
 # version
-Version="0.0.5sp"
-
-# TO IMPLEMENT unsync FOR FAST
-
+Version="0.0.6"
 run_date = datetime.datetime.now()
+FILENAME = "dat.pkl"
+CREDENTIALSFILE = "creds-encoded"
 
 ###################
 
@@ -31,7 +31,12 @@ run_date = datetime.datetime.now()
 # LOGIN
 def LOGIN():
     global r
-    with open("creds-encoded") as f:
+    if not os.path.isfile(CREDENTIALSFILE):
+        print()
+        print(f"* ERROR: credentials file missing in current path '{CREDENTIALSFILE}'. follow README.md for creation instructions.")
+        print()
+        sys.exit(-1)
+    with open(CREDENTIALSFILE) as f:
         lines = base64.b64decode(f.read()).decode("utf-8").split()
     # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password, authkey)
     EMAIL, PASSWD, KEY = map(lambda x: x.strip(), lines)
@@ -228,14 +233,32 @@ def PARSE_OPTION_ORDERS(RS_option_orders):
 ###################
 
 # save time consuming data to file
-def save_data(filename,so,co,oo,sd,cd,od):
-    save_data = {"stock_orders":so,"crypto_orders":co,"option_orders":oo,"stocks_dict":sd,"cryptos_dict":cd,"options_dict":od}
+def save_data(filename,so,co,oo,sd,cd,od,verify_bool=False):
+    save_data = {"stock_orders":so,"crypto_orders":co,"option_orders":oo,"stocks_dict":sd,"cryptos_dict":cd,"options_dict":od, "run_date": run_date }
     # Store data (serialize)
     with open(filename, 'wb') as handle:
         pickle.dump(save_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # verify save
+    if verify_bool:
+        ld = load_data(filename)
+        len_so=len(ld["stock_orders"])
+        len_co=len(ld["crypto_orders"])
+        len_oo=len(ld["option_orders"])
+        len_sd=len(ld["stocks_dict"])
+        len_cd=len(ld["cryptos_dict"])
+        len_od=len(ld["options_dict"])
+        print()
+        print(f"* saved data to {filename} of run_date {run_date} - {len_so} orders of {len_sd} stocks, {len_co} orders of {len_cd} cryptos, {len_oo} orders of {len_od} options")
+        print()
 
 # load time consuming data from file
 def load_data(filename):
+    # check if file exists
+    if not os.path.isfile(filename):
+        print()
+        print(f"* ERROR: can't load {filename}, it is missing. try running with --save parameter instead so that we contact the API for the order information and save the data to {filename}.")
+        print()
+        sys.exit(-1)
     # Load data (deserialize)
     with open(filename, 'rb') as handle:
         unserialized_data = pickle.load(handle)
@@ -244,7 +267,7 @@ def load_data(filename):
 ###################
 
 # PRINT STOCKS + ORDERS
-def PRINT_ALL_PROFILE_AND_ORDERS():
+def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False):
 
     # print date header
     print(f"Date: {run_date}")
@@ -300,31 +323,53 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
     print()
 
     # print load stock + crypto + options - TIME CONSUMING
-    print(f"--- Loading Orders ---")
-    print(f"* (S) started stock orders load")
-    stock_orders = LOAD_STOCK_ORDERS()
-    stock_orders.reverse()
-    print(f"* (S) completed stock orders load")
-    print(f"* (C) started crypto orders load")
-    crypto_orders = LOAD_CRYPTO_ORDERS()
-    crypto_orders.reverse()
-    print(f"* (C) completed crypto orders load")
-    print(f"* (O) started option orders load")
-    option_orders = LOAD_OPTION_ORDERS()
-    option_orders.reverse()
-    print(f"* (O) completed option orders load")
-    print()
+    if load_bool:
+        # loading orders from pickle
+        # no need to reverse, as we already saveed reversed
+        print(f"--- Loading Orders (from file) ---")
+        ld = load_data(FILENAME) # this is used below this if as well
+        print(f"* loaded data from {ld['run_date']}")
+        print(f"* (S) started stock orders load")
+        stock_orders = ld["stock_orders"]
+        print(f"* (S) completed stock orders load")
+        print(f"* (C) started crypto orders load")
+        crypto_orders = ld["crypto_orders"]
+        print(f"* (C) completed crypto orders load")
+        print(f"* (O) started option orders load")
+        option_orders = ld["option_orders"]
+        print(f"* (O) completed option orders load")
+        print()
+    else:
+        # contacting order via API
+        print(f"--- Loading Orders (from API) ---")
+        print(f"* (S) started stock orders load")
+        stock_orders = LOAD_STOCK_ORDERS()
+        stock_orders.reverse()
+        print(f"* (S) completed stock orders load")
+        print(f"* (C) started crypto orders load")
+        crypto_orders = LOAD_CRYPTO_ORDERS()
+        crypto_orders.reverse()
+        print(f"* (C) completed crypto orders load")
+        print(f"* (O) started option orders load")
+        option_orders = LOAD_OPTION_ORDERS()
+        option_orders.reverse()
+        print(f"* (O) completed option orders load")
+        print()
 
     # print all stock orders (buy and sell)
     stocks_dict = {}
     print(f"--- All Stock Orders ---")
     if stock_orders != []:
-        PRINT_STOCK_ORDERS(stock_orders)
-        print()
-        print("...parsing stock orders...")
-        stocks_dict = PARSE_STOCK_ORDERS(stock_orders)
-        print()
-        print(f"--- All Stock Orders (Sorted) ---")
+        ### PRINT_STOCK_ORDERS(stock_orders)  ## time consuming
+        ### print()
+        if load_bool:
+            print("...loading parsed stock orders...")
+            stocks_dict = ld["stocks_dict"]
+        else:
+            print("...parsing stock orders...")
+            stocks_dict = PARSE_STOCK_ORDERS(stock_orders)
+        ### print()
+        ### print(f"--- All Stock Orders (Sorted) ---")
         PRINT_ORDERS_DICTIONARY(stocks_dict)
         print()
 
@@ -332,12 +377,16 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
     cryptos_dict = {}
     print(f"--- All Crypto Orders ---")
     if crypto_orders != []:
-        PRINT_CRYPTO_ORDERS(crypto_orders)
-        print()
-        print("...parsing crypto orders...")
-        cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)
-        print()
-        print(f"--- All Crypto Orders (Sorted) ---")
+        ### PRINT_CRYPTO_ORDERS(crypto_orders) ## time consuming
+        ### print()
+        if load_bool:
+            print("...loading parsed crypto orders...")
+            cryptos_dict = ld["cryptos_dict"]
+        else:
+            print("...parsing crypto orders...")
+            cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)
+        ### print()
+        ### print(f"--- All Crypto Orders (Sorted) ---")
         PRINT_ORDERS_DICTIONARY(cryptos_dict)
         print()
 
@@ -345,19 +394,22 @@ def PRINT_ALL_PROFILE_AND_ORDERS():
     options_dict = {}
     print(f"--- All Option Orders ---")
     if option_orders != []:
-        PRINT_OPTION_ORDERS(option_orders)
-        print()
-        print("...parsing option orders...")
-        options_dict = PARSE_OPTION_ORDERS(option_orders)
-        print()
-        print(f"--- All Option Orders (Sorted) ---")
+        ### PRINT_OPTION_ORDERS(option_orders)  ## time consuming
+        ### print()
+        if load_bool:
+            print("...loading parsed option orders...")
+            options_dict = ld["options_dict"]
+        else:
+            print("...parsing option orders...")
+            options_dict = PARSE_OPTION_ORDERS(option_orders)
+        ### print()
+        ### print(f"--- All Option Orders (Sorted) ---")
         PRINT_ORDERS_DICTIONARY(options_dict)
         print()
 
-    # Save Data:
-    filename = "dat.pkl"
-    save_data(filename, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict)
-    # ld = load_data(filename) # test is good
+    # Save Data
+    if save_bool:
+        save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, verify_bool = True)
 
     # TODO: show my calculations of profit for stock, crypto, options + total
 
@@ -373,18 +425,29 @@ cryptopairs = r.get_crypto_currency_pairs() # global var
 
 if __name__ == "__main__":
 
-    # args
+    # args parser
 
     arg_desc = f"rhood v{Version} - provides lots of robinhood information"
     parser = argparse.ArgumentParser(description=arg_desc)
     parser.add_argument("--info","-i",help="get all profile + order info",action="store_true")
+    parser.add_argument("--save","-s",help="save all orders to file (dat.pkl) if --info is used.",action="store_true")
+    parser.add_argument("--load","-l",help="load all orders to file (dat.pkl) if --info is used (uses saved file instead of API to get order info; saving time)",action="store_true")
     args = parser.parse_args()
 
-    if args.info:
-        PRINT_ALL_PROFILE_AND_ORDERS()
-        sys.exit(0)
+    # parse save and load
+    save_bool = args.save
+    load_bool = args.load
 
-    # ran without options
-    # print("Ran without options. It just logged in. Best to run interactively:\nexample 1: python -i rhood.py\nexample 2: ipython -i rhood.py")
+    # error checking on saving and loading
+    if load_bool and save_bool:
+        print()
+        print("* ERROR: can't save and load. try again with either save or load.")
+        print()
+        sys.exit(-1)
+
+    if args.info:
+
+        # get main
+        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool)
 
 # EOF

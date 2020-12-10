@@ -1,3 +1,5 @@
+# maybe? implement unsync for fast?
+
 # to figure out stock profit make a class called stock-orders
 # stockname: string
 # orders: dictionary list of all the orders { date: datetime, type: string buy or sell, price: float, amount: float }
@@ -34,9 +36,11 @@
 # remove creds comments and put into README.md 
 
 # UPDATE: same day
-# TODO: implement pickle load or use API (dont save pkl if we load pkl + only save if we use save argument)
+# implement pickle load or use API (dont save pkl if we load pkl + only save if we use save argument)
 # TODO: show my calculations of profit for stock, crypto, options + total
 # TODO: implement profit from start calculation
 # TODO: implement value x (date),y (value) per stock
 # TODO: implement total value x (date),y (vlue)
-# TODO: if creds file missing error
+# if creds file missing error
+
+# Save and load implemented; it will be quicker once we stop using PRINT_X_ORDERS because that has ORDER number of api calls to find symbol. Need to run tests to make sure PRINT_ORDERS_DICTIONARY provides enough information. <-- implemented this, but should test to make sure we are not missing anything with PRINT_ORDERS_DICTIONARY (in the end this is the way regardless)
