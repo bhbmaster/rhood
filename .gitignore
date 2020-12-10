@@ -1,5 +1,5 @@
 creds*
 output*
 __pycache__*
-.vscode
 dat*pkl
+# .vscode # useful for debugging

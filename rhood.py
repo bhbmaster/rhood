@@ -407,11 +407,38 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False):
         PRINT_ORDERS_DICTIONARY(options_dict)
         print()
 
+    # quick inner function:
+    def show_profits_from_orders_dictionary(dictionary):
+        total_profit = 0
+        total_amount = 0
+        for sym,orders in dictionary.items():
+            last_profit = orders.latest_profit()
+            last_amount = orders.latest_amount()
+            print(f"* {sym} net profit ${D2(last_profit)} (currently have {last_amount} quantity)")
+            total_profit += last_profit
+            total_amount += last_amount
+        print(f"* total net profit ${D2(total_profit)} and total quantity {total_amount}")
+
+    # show each stocks profit
+    print()
+    print(f"--- Profits ---")
+    if stock_orders != []:
+        print()
+        print(f"STOCKS:")
+        show_profits_from_orders_dictionary(stocks_dict)
+    if crypto_orders != []:
+        print()
+        print(f"CRYPTO:")
+        show_profits_from_orders_dictionary(cryptos_dict)
+    if option_orders != []:
+        print()
+        print(f"OPTIONS:")
+        show_profits_from_orders_dictionary(options_dict)
+    print()
+
     # Save Data
     if save_bool:
         save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, verify_bool = True)
-
-    # TODO: show my calculations of profit for stock, crypto, options + total
 
 ###################
 

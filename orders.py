@@ -16,9 +16,9 @@ class order:
         
         self.date_string = date_string
         self.type_string = type_string.lower()
-        self.price_float = price_float
-        self.amount_float = amount_float
-        self.value_float = self.amount_float * self.price_float
+        self.price_float = price_float    # prices a single share sold / buy at
+        self.amount_float = amount_float  # number of shares
+        self.value_float = self.amount_float * self.price_float  # total val
 
         try:
             self.date_dt = dateutil.parser.parse(date_string)
@@ -60,13 +60,44 @@ class multi_orders:
     def len(self):
         return len(self.orders)
 
-    def sort_by_time_increasing(self):
+    def sort_by_time_increasing(self): # this is the best sort order (we need to guarantee it although it pretty much is already)
         self.orders.sort(key=lambda x: x.date_epoch, reverse=False)
 
     def sort_by_time_decreasing(self):
         self.orders.sort(key=lambda x: x.date_epoch, reverse=True)
 
-    def total_profit(self):
-        pass
+    def time_vs_change_and_total_ATTR(self, attribute_name: str): # TODO: specify output type
+        # possible attribute_name so far 'value_float' or 'share_float'
+        # output is list of these tuples (datetime, change in attribute, cumulative atttributes so far)
+        result = []
+        cumulative = 0 
+        for o in self.orders:
+            if o.type_string == "buy":
+                sign = 1
+            else:           # if "sell"
+                sign = -1
+            attribute_value = getattr(o,attribute_name)
+            change_in_attribute_value = sign * attribute_value
+            cumulative += change_in_attribute_value
+            result.append( (o.date_dt, change_in_attribute_value, cumulative) )
+        return result
+
+    def time_vs_amount(self): # TODO: specify output type
+        # output (date, change in share, cumulative shares so far)
+        return self.time_vs_change_and_total_ATTR("amount_float")
+
+    def time_vs_value(self): # TODO: specify output type
+        # output (date, change in value, cumulative value so far)
+        return self.time_vs_change_and_total_ATTR("value_float")
+
+    def latest_profit(self) -> float: # shows final cumulative value
+        tvv = self.time_vs_value()
+        last_i = len(tvv)-1
+        return tvv[last_i][2]
+
+    def latest_amount(self) -> float: # shows final cumulative amount of shares
+        tva = self.time_vs_amount()
+        last_i = len(tva)-1
+        return tva[last_i][2]
 
 # EOF
