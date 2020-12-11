@@ -58,6 +58,20 @@ Load order information from dat.pkl:
 Sidenote: saving and loading only makes sense if you also use --info/-i option 
 Sidenote: -s is short for --save, -l is short for --load
 
+## Extra information about orders
+
+If you need to see alot of extra information about each order. This is alot of extra information, as during normal operations we only need the average price, amount, and date - well we also check to make sure the transaction state was not cancelled.
+
+    python rhood.py --extra
+
+This option can be ran with --save and --load. Even though load offers speed increases by avoiding contacting the API for order parsing, it will still be a little time consuming as during printing the extra information we will check with the API to map symbol IDs to their names.
+
+## To view options help
+
+Run this to see all of the options.
+
+    python rhood.py --help
+
 ## Playground
 
 Want to mess with the objects by yourself?

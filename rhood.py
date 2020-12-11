@@ -17,7 +17,7 @@ import os.path
 
 
 # version
-Version="0.0.6"
+Version="0.0.7"
 run_date = datetime.datetime.now()
 FILENAME = "dat.pkl"
 CREDENTIALSFILE = "creds-encoded"
@@ -202,6 +202,8 @@ def SORT_ALL_DICT_ORDERS_DECREASING(dict_of_symbol_orders):
 def PARSE_STOCK_ORDERS(RS_stock_orders):
     stock_order_dict = {}
     for o in RS_stock_orders:
+        if o["state"] == "cancelled":
+            continue
         symbol = URL2SYM(o["instrument"])
         order = orders.order(o["last_transaction_at"],o["side"],float(o["average_price"]),float(o["quantity"]))
         if symbol in stock_order_dict:
@@ -217,6 +219,8 @@ def PARSE_STOCK_ORDERS(RS_stock_orders):
 def PARSE_CRYPTO_ORDERS(RS_crypto_orders):
     crypto_order_dict = {}
     for o in RS_crypto_orders:
+        if o["state"] == "cancelled":
+            continue
         symbol = ID2SYM(o["currency_pair_id"],cryptopairs)
         order = orders.order(o["last_transaction_at"],o["side"],float(o["average_price"]),float(o["quantity"]))
         if symbol in crypto_order_dict:
@@ -241,12 +245,12 @@ def save_data(filename,so,co,oo,sd,cd,od,verify_bool=False):
     # verify save
     if verify_bool:
         ld = load_data(filename)
-        len_so=len(ld["stock_orders"])
-        len_co=len(ld["crypto_orders"])
-        len_oo=len(ld["option_orders"])
-        len_sd=len(ld["stocks_dict"])
-        len_cd=len(ld["cryptos_dict"])
-        len_od=len(ld["options_dict"])
+        len_so = len(ld["stock_orders"]) if ld["stock_orders"] is not None else 0
+        len_co = len(ld["crypto_orders"]) if ld["crypto_orders"] is not None else 0
+        len_oo = len(ld["option_orders"]) if ld["option_orders"] is not None else 0
+        len_sd = len(ld["stocks_dict"]) if ld["stocks_dict"] is not None else 0
+        len_cd = len(ld["cryptos_dict"]) if ld["cryptos_dict"] is not None else 0
+        len_od = len(ld["options_dict"]) if ld["options_dict"] is not None else 0
         print()
         print(f"* saved data to {filename} of run_date {run_date} - {len_so} orders of {len_sd} stocks, {len_co} orders of {len_cd} cryptos, {len_oo} orders of {len_od} options")
         print()
@@ -267,7 +271,7 @@ def load_data(filename):
 ###################
 
 # PRINT STOCKS + ORDERS
-def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False):
+def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_bool=False):
 
     # print date header
     print(f"Date: {run_date}")
@@ -328,7 +332,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False):
         # no need to reverse, as we already saveed reversed
         print(f"--- Loading Orders (from file) ---")
         ld = load_data(FILENAME) # this is used below this if as well
-        print(f"* loaded data from '{FILENAME}' which ran on {ld['run_date']}")
+        print(f"* loaded order data from '{FILENAME}' which ran on {ld['run_date']}")
         print(f"* (S) started stock orders load")
         stock_orders = ld["stock_orders"]
         print(f"* (S) completed stock orders load")
@@ -360,50 +364,79 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False):
     stocks_dict = {}
     print(f"--- All Stock Orders ---")
     if stock_orders != []:
-        ### PRINT_STOCK_ORDERS(stock_orders)  ## time consuming
-        ### print()
-        if load_bool:
-            print("...loading parsed stock orders...")
-            stocks_dict = ld["stocks_dict"]
-        else:
-            print("...parsing stock orders...")
-            stocks_dict = PARSE_STOCK_ORDERS(stock_orders)
-        ### print()
-        ### print(f"--- All Stock Orders (Sorted) ---")
-        PRINT_ORDERS_DICTIONARY(stocks_dict)
-        print()
+        if extra_info_bool: # time consuming shows alot of extra information (like state of orders and more)
+            PRINT_STOCK_ORDERS(stock_orders)  ## time consuming
+            print()
+            if load_bool:
+                print("...loading parsed stock orders...")
+                stocks_dict = ld["stocks_dict"]
+            else:
+                print("...parsing stock orders...")
+                stocks_dict = PARSE_STOCK_ORDERS(stock_orders)
+            print()
+            print(f"--- Parsed Fulfilled Stock Orders ---")
+            PRINT_ORDERS_DICTIONARY(stocks_dict)
+            print()
+        else: # not time consuming
+            if load_bool:
+                print("...loading parsed stock orders...")
+                stocks_dict = ld["stocks_dict"]
+            else:
+                print("...parsing stock orders...")
+                stocks_dict = PARSE_STOCK_ORDERS(stock_orders)
+            PRINT_ORDERS_DICTIONARY(stocks_dict)
+            print()
 
     # print all crypto orders (buy and sell)
     cryptos_dict = {}
     print(f"--- All Crypto Orders ---")
     if crypto_orders != []:
-        ### PRINT_CRYPTO_ORDERS(crypto_orders) ## time consuming
-        ### print()
-        if load_bool:
-            print("...loading parsed crypto orders...")
-            cryptos_dict = ld["cryptos_dict"]
-        else:
-            print("...parsing crypto orders...")
-            cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)
-        ### print()
-        ### print(f"--- All Crypto Orders (Sorted) ---")
-        PRINT_ORDERS_DICTIONARY(cryptos_dict)
-        print()
+        if extra_info_bool: # time consuming shows alot of extra information (like state of orders and more)
+            PRINT_CRYPTO_ORDERS(crypto_orders) ## time consuming
+            print()
+            if load_bool:
+                print("...loading parsed crypto orders...")
+                cryptos_dict = ld["cryptos_dict"]
+            else:
+                print("...parsing crypto orders...")
+                cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)
+            print()
+            print(f"--- Parsed Fulfilled Crypto Orders ---")
+            PRINT_ORDERS_DICTIONARY(cryptos_dict)
+            print()
+        else: # not time consuming
+            if load_bool:
+                print("...loading parsed crypto orders...")
+                cryptos_dict = ld["cryptos_dict"]
+            else:
+                print("...parsing crypto orders...")
+                cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)
+            PRINT_ORDERS_DICTIONARY(cryptos_dict)
+            print()
 
     # print all option orders (buy and sell)
     options_dict = {}
     print(f"--- All Option Orders ---")
-    if option_orders != []:
-        ### PRINT_OPTION_ORDERS(option_orders)  ## time consuming
-        ### print()
+    if option_orders != []: # time consuming shows alot of extra information (like state of orders and more)
+        PRINT_OPTION_ORDERS(option_orders)  ## time consuming
+        print()
         if load_bool:
             print("...loading parsed option orders...")
             options_dict = ld["options_dict"]
         else:
             print("...parsing option orders...")
             options_dict = PARSE_OPTION_ORDERS(option_orders)
-        ### print()
-        ### print(f"--- All Option Orders (Sorted) ---")
+        print()
+        print(f"--- Parsed Fulfilled Option Orders ---")
+        PRINT_ORDERS_DICTIONARY(options_dict)
+        print()
+    else:  # not time consuming
+        if load_bool:
+            print("...loading parsed option orders...")
+            options_dict = ld["options_dict"]
+        else:
+            print("...parsing option orders...")
+            options_dict = PARSE_OPTION_ORDERS(option_orders)
         PRINT_ORDERS_DICTIONARY(options_dict)
         print()
 
@@ -442,10 +475,9 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False):
 
     print(f"--- Footer: Order Data Source Note ---")
     if load_bool:
-        print(f"* loaded data from '{FILENAME}' which ran on {ld['run_date']}")
+        print(f"* loaded order data from '{FILENAME}' which ran on {ld['run_date']}")
     else:
-        print(f"* loaded data from robinhood API run date {run_date}")
-    print()
+        print(f"* loaded order data from robinhood API run date {run_date}")
 
     # Save Data
     if save_bool:
@@ -470,11 +502,15 @@ if __name__ == "__main__":
     parser.add_argument("--info","-i",help="get all profile + order info",action="store_true")
     parser.add_argument("--save","-s",help="save all orders to file (dat.pkl) if --info is used.",action="store_true")
     parser.add_argument("--load","-l",help="load all orders to file (dat.pkl) if --info is used (uses saved file instead of API to get order info; saving time)",action="store_true")
+    parser.add_argument("--extra","-e",help="shows extra order information (time consuming)",action="store_true")
     args = parser.parse_args()
 
     # parse save and load
     save_bool = args.save
     load_bool = args.load
+
+    # extra information
+    extra_info_bool = args.extra
 
     # error checking on saving and loading
     if load_bool and save_bool:
@@ -485,6 +521,6 @@ if __name__ == "__main__":
 
     if args.info:
         # get main
-        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool)
+        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool)
 
 # EOF
