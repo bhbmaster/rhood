@@ -328,7 +328,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False):
         # no need to reverse, as we already saveed reversed
         print(f"--- Loading Orders (from file) ---")
         ld = load_data(FILENAME) # this is used below this if as well
-        print(f"* loaded data from {ld['run_date']}")
+        print(f"* loaded data from '{FILENAME}' which ran on {ld['run_date']}")
         print(f"* (S) started stock orders load")
         stock_orders = ld["stock_orders"]
         print(f"* (S) completed stock orders load")
@@ -434,6 +434,13 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False):
         print()
         print(f"OPTIONS:")
         show_profits_from_orders_dictionary(options_dict)
+    print()
+
+    print(f"--- Footer: Order Data Source Note ---")
+    if load_bool:
+        print(f"* loaded data from '{FILENAME}' which ran on {ld['run_date']}")
+    else:
+        print(f"* loaded data from robinhood API run date {run_date}")
     print()
 
     # Save Data
