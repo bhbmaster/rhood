@@ -72,6 +72,22 @@ Run this to see all of the options.
 
     python rhood.py --help
 
+## Scheduling
+
+You can run this script daily and analyze the results seperately. For example grepping for "net profit" and then viewing how your net profit changes every day.
+
+You can schedule the script to run in windows with Windows task scheduler that will run a bat file, that kicks off the run.sh shell script. In Linux/MAC you can schedule run.sh to run on a crontask.
+
+* run.sh --> this script runs rhood.py with extra information and saves output to a dated output file and a dated pickle file.
+* run.bat --> not included but you can make it.
+
+run.bat would have contents similar to this:
+
+    @echo off
+    c:
+    cd \path\to\your\rhood\
+    c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
+
 ## Playground
 
 Want to mess with the objects by yourself?
