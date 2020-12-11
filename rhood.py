@@ -418,22 +418,26 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False):
             total_profit += last_profit
             total_amount += last_amount
         print(f"* total net profit ${D2(total_profit)} and total quantity {total_amount}")
+        return (total_profit, total_amount)
 
     # show each stocks profit
     print()
     print(f"--- Profits ---")
+    total_stocks_profit, total_stocks_amount, total_cryptos_profit, total_cryptos_amount, total_options_profit, total_options_amount = (0,0,0,0,0,0)
     if stock_orders != []:
         print()
         print(f"STOCKS:")
-        show_profits_from_orders_dictionary(stocks_dict)
+        total_stocks_profit, total_stocks_amount = show_profits_from_orders_dictionary(stocks_dict)
     if crypto_orders != []:
         print()
         print(f"CRYPTO:")
-        show_profits_from_orders_dictionary(cryptos_dict)
+        total_cryptos_profit, total_cryptos_amount = show_profits_from_orders_dictionary(cryptos_dict)
     if option_orders != []:
         print()
         print(f"OPTIONS:")
-        show_profits_from_orders_dictionary(options_dict)
+        total_options_profit, total_options_amount = show_profits_from_orders_dictionary(options_dict)
+    complete_profit = total_stocks_profit + total_cryptos_profit + total_options_profit
+    print(f"* total net profit from stocks, crypto, and options: ${D2(complete_profit)}")
     print()
 
     print(f"--- Footer: Order Data Source Note ---")
