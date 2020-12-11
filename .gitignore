@@ -4,3 +4,4 @@ __pycache__*
 dat*pkl
 # .vscode # useful for debugging
 run.bat
+notes*

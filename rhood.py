@@ -152,7 +152,7 @@ def FORMAT_ORDER_OPTIONS(RS_orders):
         execs = len(o["executions"]) if state != "cancelled" else "None"
         price1 = TOMONEY(o["executions"][0]["price"]) if state != "cancelled" else "None"
         price = TOMONEY(o["price"])
-        result += f'{date} - {id} - {side}\tx{quantity}\t{symbol} [S|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
+        result += f'{date} - {id} - {side}\tx{quantity}\t{symbol} [O|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
     return result
 
 ###################
