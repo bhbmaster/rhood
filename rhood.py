@@ -575,6 +575,13 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     else:
         print(f"* loaded order data from robinhood API run date {run_date_orders}")
 
+    # DEBUG:
+    # for i in stocks_dict["AAPL"].time_vs_value():
+    #     print(i)
+    # print()
+    # for i in stocks_dict["TSLA"].time_vs_value():
+    #     print(i)
+
     # create csv here if we wanted to
     if csv_bool:
         if stock_orders != []:

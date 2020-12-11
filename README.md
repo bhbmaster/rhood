@@ -2,11 +2,19 @@
 
 Text analysis of your robinhood portfolio. Absolutely everything you wanted to know. This generates very personal data, so make sure noone is standing around you.
 
-**-->Work in progress: Anything with Options is not yet Tested!<--**
-
 Requirements: python3.9 + pip install robin_stocks and pyotp
 
 The tested versions are python3.9 and what you see in requirements.txt for the modules.
+
+## Work In Progress
+
+Here is what needs work:
+
+- Anything with options is not tested, because I do not have options
+- Profit calculations are wrong
+- So far useful to get all stock transations into CSVs:
+
+    python rhood.py --info --csv
 
 ## Create Encoded Permissions File
 

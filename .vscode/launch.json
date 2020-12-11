@@ -12,12 +12,12 @@
             "request": "launch",
             "program": "rhood.py", //"${file}",
             // "args": [ "--info" ], // talks to api
-            // "args": [ "--info", "--load" ], //  loads so quick and good for debug/test (no api)
+            "args": [ "--info", "--load" ], //  loads so quick and good for debug/test (no api)
             // "args": [ "--info", "--load", "--extra" ], // quicker more info
             // "args": [ "--info", "--extra" ], //  testing extra option
             // "args": [ "--info", "--save" ], //  talks to api and saves dat.pkl
             // "args": [ "--info", "--save", "--csv" ], // saving csv from API and saving
-            "args": [ "--info", "--load", "--csv" ], // saving csv from file
+            // "args": [ "--info", "--load", "--csv" ], // saving csv from file
             // "args": [ "--info", "--load", "--csv", "--extra" ], // saving csv from file + cross checking with extra output
             // "args": [ "--info", "--save", "--csv", "--extra" ], // saving csv from API + cross checking with extra output
             "console": "integratedTerminal"
