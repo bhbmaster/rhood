@@ -455,6 +455,30 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         print(f"* (O) completed option orders load")
         print()
 
+    # show open positions - TODO:
+    print("--- Open Positions ---")
+    stocks_open = r.get_open_stock_positions()
+    # 'url':'https://api.robinhood.com/positions/5SX90465/e39ed23a-7bd1-4587-b060-71988d9ef483/'
+    # 'instrument':'https://api.robinhood.com/instruments/e39ed23a-7bd1-4587-b060-71988d9ef483/'
+    # 'account':'https://api.robinhood.com/accounts/5SX90465/'
+    # 'account_number':'5SX90465'
+    # 'average_buy_price':'639.6800'
+    # 'pending_average_buy_price':'639.6800'
+    # 'quantity':'2.00000000'
+    # 'intraday_average_buy_price':'0.0000'
+    # 'intraday_quantity':'0.00000000'
+    # 'shares_available_for_exercise':'2.00000000'
+    # 'shares_held_for_buys':'0.00000000'
+    cryptos_open = r.get_crypto_positions()
+    # 'account_id':'1f1dff6e-092e-4e7a-83fd-540a4b5a08e7'
+    # 'cost_bases':[{'currency_id': '1072fc76-1862-41ab-8...5837590762', 'direct_cost_basis': '0.000000000000000000', 'direct_quantity': '0.000000000000000000', 'id': 'ad86217c-91b8-49bb-b...3324860cb9', 'intraday_cost_basis': '0.000000000000000000', 'intraday_quantity': '0.000000000000000000', 'marked_cost_basis': '0.000000000000000000', 'marked_quantity': '0.000000000000000000'}]
+    # 'created_at':'2020-11-12T16:14:35.558727-05:00'
+    # 'currency':{'brand_color': 'EA963D', 'code': 'BTC', 'id': 'd674efea-e623-4396-9...574b92b093', 'increment': '0.000000010000000000', 'name': 'Bitcoin', 'type': 'cryptocurrency'}
+    # 'id':'e6b850b0-dee2-4e8a-928a-1cdb03428b54'
+    # 'quantity':'0.000000000000000000'
+    # 'quantity_available':'0.000000000000000000'
+    options_open = r.get_all_option_positions()
+
     # print all stock orders (buy and sell)
     stocks_dict = {}
     print(f"--- All Stock Orders ---")
@@ -548,7 +572,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         print(f"* total net profit ${D2(total_profit)} and total quantity {total_amount}")
         return (total_profit, total_amount)
 
-    # show each stocks profit
+    # show each stocks profit - TODO: needs work
     print()
     print(f"--- Profits ---")
     total_stocks_profit, total_stocks_amount, total_cryptos_profit, total_cryptos_amount, total_options_profit, total_options_amount = (0,0,0,0,0,0)
@@ -565,6 +589,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         print(f"OPTIONS:")
         total_options_profit, total_options_amount = show_profits_from_orders_dictionary(options_dict)
     complete_profit = total_stocks_profit + total_cryptos_profit + total_options_profit
+    print()
+    print("TOTAL OF STOCKS + CRYPTO + OPTIONS:")
     print(f"* total net profit from stocks, crypto, and options: ${D2(complete_profit)}")
     print()
 

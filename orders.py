@@ -66,7 +66,7 @@ class multi_orders:
     def sort_by_time_decreasing(self):
         self.orders.sort(key=lambda x: x.date_epoch, reverse=True)
 
-    def time_vs_change_and_total_ATTR(self, attribute_name: str): # TODO: specify output type & rethink!!
+    def time_vs_change_and_total_ATTR(self, attribute_name: str): # TODO: specify output type & rethink + or minus (maybe best to put it back & readjust profit formula)!!
         # possible attribute_name so far 'value_float' or 'share_float'
         # output is list of these tuples (datetime, change in attribute, cumulative atttributes so far)
         result = []
