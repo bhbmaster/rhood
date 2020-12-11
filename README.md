@@ -76,7 +76,9 @@ Run this to see all of the options.
 
 You can run this script daily and analyze the results seperately. For example grepping for "net profit" and then viewing how your net profit changes every day.
 
-You can schedule the script to run in windows with Windows task scheduler that will run a bat file, that kicks off the run.sh shell script. In Linux/MAC you can schedule run.sh to run on a crontask.
+You can schedule the script to run in windows with Windows task scheduler that will run a bat file, that kicks off the run.sh shell script. For windows you need cygwin or another source of a bash.exe to get this running.
+
+In Linux/MAC you can schedule run.sh to run on a crontask.
 
 * run.sh --> this script runs rhood.py with extra information and saves output to a dated output file and a dated pickle file.
 * run.bat --> not included but you can make it.

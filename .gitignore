@@ -5,3 +5,5 @@ dat*pkl
 # .vscode # useful for debugging
 run.bat
 notes*
+csv*
+archive*

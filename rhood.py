@@ -8,15 +8,18 @@ import argparse
 import orders
 import pickle
 import os.path
+import os
+import csv
 
 ###################
 #### PRE VARS #####
 ###################
 
 
-# version
-Version="0.0.7"
+# global vars
+Version="0.0.9"
 run_date = datetime.datetime.now()
+run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 FILENAME = "dat.pkl"
 CREDENTIALSFILE = "creds-encoded"
 
@@ -135,25 +138,9 @@ def FORMAT_ORDER_CRYPTOS(RS_orders):
     return result
 
 
-# FORMAT OPTIONS ORDERS TO EXTRA INFORMATION STRING - TODO: test with options one date
+# FORMAT OPTIONS ORDERS TO EXTRA INFORMATION STRING - TODO: test with options one date. might be similar to stocks just change to O in state field
 def FORMAT_ORDER_OPTIONS(RS_orders):
-    # return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [O|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
-    if RS_orders is None:
-        return
-    result = ""
-    for o in RS_orders:
-        date = o["last_transaction_at"]
-        id = o["id"]
-        side = o["side"]
-        quantity = o["quantity"]
-        symbol = URL2SYM(o["instrument"])
-        state = o["state"]
-        priceavg = TOMONEY(o["average_price"])
-        execs = len(o["executions"]) if state != "cancelled" else "None"
-        price1 = TOMONEY(o["executions"][0]["price"]) if state != "cancelled" else "None"
-        price = TOMONEY(o["price"])
-        result += f'{date} - {id} - {side}\tx{quantity}\t{symbol} [O|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
-    return result
+    pass
 
 ###################
 
@@ -315,11 +302,71 @@ def load_data(filename):
 
 ###################
 
+# csv functions
+
+# print rs_stocks to file name csv (works for stocks, crypto and options)
+def print_to_csv(fname, RS_orders_for_symbol):
+    # global run_date_orders
+    # create dir and get filename
+    dir_suffix = "csv"
+    date_string = run_date_orders.strftime("%Y%m%d-%H%M")
+    dir_full = dir_suffix+"/"+ date_string
+    if not os.path.exists(dir_suffix):
+        os.makedirs(dir_suffix)
+    if not os.path.exists(dir_full):
+        os.makedirs(dir_full)
+    filename = dir_full + "/" + fname + ".csv"
+    # csv saving
+    toCSV = RS_orders_for_symbol
+    keys = toCSV[0].keys()
+    with open(filename, 'w', newline='')  as output_file:
+        dict_writer = csv.DictWriter(output_file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(toCSV)
+
+# print all stock orders csvs
+def print_all_stocks_to_csv(RS_orders_all_stocks):
+    # stocks are IDed by their instrument, get all of the unique instruments with a set
+    instruments = set()
+    for o in RS_orders_all_stocks:
+        instruments.add(o["instrument"])
+    # go thru each symbol and make csv
+    for i in instruments:
+        symbol = URL2SYM(i)
+        current_orders = [ j for j in RS_orders_all_stocks if j["instrument"]==i ]
+        print_to_csv("S-"+symbol,current_orders)
+    # print all stocks (for fun)
+    print_to_csv("S-(all)",RS_orders_all_stocks)
+
+# print all crypto orders csvs
+def print_all_crypto_to_csv(RS_orders_all_cryptos):
+    # crypto are IDed by their currency_pair_id, get all of the unique ones with a set
+    currency_pair_ids = set()
+    for o in RS_orders_all_cryptos:
+        currency_pair_ids.add(o["currency_pair_id"])
+    # go thru each symbol and make csv
+    for i in currency_pair_ids:
+        symbol = ID2SYM(i,cryptopairs)
+        current_orders  = [ j for j in RS_orders_all_cryptos if j["currency_pair_id"]==i ]
+        print_to_csv("C-"+symbol,current_orders)
+    # print all stocks (for fun)
+    print_to_csv("C-(all)",RS_orders_all_cryptos)
+
+
+# print all options orders csvs - TODO: create + test when we get options. remember to prefix with "O" for options
+def print_all_options_to_csv(RS_orders_all_options):
+    pass
+
+###################
+
 # PRINT STOCKS + ORDERS
-def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_bool=False):
+def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_bool=False, csv_bool=False):
+
+    global run_date_orders # we change this value in here so we mark it as changeable with global keyword
 
     # print date header
     print(f"Date: {run_date} - Rhood Version: {Version}")
+    print()
 
     # print account info
     prof_type = ["account","basic","investment","portfolio","security","user"]
@@ -348,11 +395,11 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
 
     equity = float(profileData['equity'])  # author original was extended_hours_equity
     extended_hours_equity_string = profileData['extended_hours_equity']
-    try:
+    if extended_hours_equity_string is not None:
         extended_hours_equity = float(extended_hours_equity_string)
         use_equity = extended_hours_equity
         print("* Sidenote: extended_hours_equity exists, using it")
-    except:
+    else:
         extended_hours_equity = None
         use_equity = equity
         print("* Sidenote: extended_hours_equity missing, using regular equity instead")
@@ -377,7 +424,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         # no need to reverse, as we already saveed reversed
         print(f"--- Loading Orders (from file) ---")
         ld = load_data(FILENAME) # this is used below this if as well
-        print(f"* loaded order data from '{FILENAME}' which ran on {ld['run_date']}")
+        run_date_orders = ld['run_date']
+        print(f"* loaded order data from '{FILENAME}' which ran on {run_date_orders}")
         print(f"* (S) started stock orders load")
         stock_orders = ld["stock_orders"]
         print(f"* (S) completed stock orders load")
@@ -391,6 +439,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     else:
         # contacting order via API
         print(f"--- Loading Orders (from API) ---")
+        run_date_orders = run_date
+        print(f"* loading orders via API on {run_date_orders}")
         print(f"* (S) started stock orders load")
         stock_orders = LOAD_STOCK_ORDERS()
         stock_orders.reverse()
@@ -518,11 +568,27 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     print(f"* total net profit from stocks, crypto, and options: ${D2(complete_profit)}")
     print()
 
-    print(f"--- Footer: Order Data Source Note ---")
+    # print extra info footer
+    print(f"--- Final Notes ---")
     if load_bool:
-        print(f"* loaded order data from '{FILENAME}' which ran on {ld['run_date']}")
+        print(f"* loaded order data from '{FILENAME}' which ran on {run_date_orders}")
     else:
-        print(f"* loaded order data from robinhood API run date {run_date}")
+        print(f"* loaded order data from robinhood API run date {run_date_orders}")
+
+    # create csv here if we wanted to
+    if csv_bool:
+        if stock_orders != []:
+            print("* saving stock csvs")
+            print_all_stocks_to_csv(stock_orders)
+            print(f"* saved stock csvs")
+        if crypto_orders != []:
+            print("* saving crypto csvs")
+            print_all_crypto_to_csv(crypto_orders)
+            print(f"* saved crypto csvs")
+        if option_orders != []:
+            print("* saving option csvs")
+            print_all_options_to_csv(option_orders)
+            print(f"* saved option csvs")
 
     # Save Data
     if save_bool:
@@ -546,6 +612,7 @@ if __name__ == "__main__":
     parser.add_argument("--save","-s",help="save all orders to file (dat.pkl) if --info is used.",action="store_true")
     parser.add_argument("--load","-l",help="load all orders to file (dat.pkl) if --info is used (uses saved file instead of API to get order info; saving time)",action="store_true")
     parser.add_argument("--extra","-e",help="shows extra order information (time consuming)",action="store_true")
+    parser.add_argument("--csv","-c",help="save all loaded orders to csv files in 'csv' directory (dir is created if missing)", action="store_true")
     args = parser.parse_args()
 
     # parse save and load
@@ -554,6 +621,9 @@ if __name__ == "__main__":
 
     # extra information
     extra_info_bool = args.extra
+
+    # save csv of orders
+    csv_bool = args.csv
 
     # error checking on saving and loading
     if load_bool and save_bool:
@@ -564,6 +634,6 @@ if __name__ == "__main__":
 
     if args.info:
         # get main
-        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool)
+        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool)
 
 # EOF

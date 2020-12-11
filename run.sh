@@ -1,5 +1,7 @@
 #!/bin/bash
-# run rhood script and output is saved to a dated file + dated dat-DATE.pkl file.
+# run rhood script and save its output. also save the orders to dat.pkl.
+# make a dated copy into archives dir as well
 DATE=$(/bin/date +%Y-%m-%d-%H%M)
-python rhood.py --info --extra --save > "output-$DATE-extra"  # this also generates dat.pkl
-/bin/cp "dat.pkl" "dat-$DATE.pkl"
+mkdir archive 2> /dev/null
+python rhood.py --info --extra --save > "archive/output-$DATE-extra"  # this also generates dat.pkl
+/bin/cp "dat.pkl" "archive/dat-$DATE.pkl"
