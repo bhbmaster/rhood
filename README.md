@@ -2,7 +2,7 @@
 
 Text analysis of your robinhood portfolio. Absolutely everything you wanted to know. This generates very personal data, so make sure noone is standing around you.
 
-**-->Unfinished<--**
+**-->Work in progress: Anything with Options is not yet Tested!<--**
 
 Requirements: python3.9 + pip install robin_stocks and pyotp
 
@@ -40,8 +40,8 @@ Steps to create encoded file:
 
 Then to print all profile information (lots of sensitive information) + order information (Stock, Crypto, Option) - add the info argument to rhood (-i or --info). Use python or ipython. Personally I prefer ipython as it has better usability:
 
-    python rhood.py -i
-    python -i rhood.py -i
+    python rhood.py --info
+    python -i rhood.py --info
 
 ## Saving and Loading Stock Order Information
 
@@ -49,14 +49,20 @@ Checking the API for all of the orders is time consuming. Try to save the data l
 
 Save order information to dat.pkl:
 
-    python rhood.py -i -s
+    python rhood.py --info --save
 
 Load order information from dat.pkl:
 
-    python rhood.py -i -l
+    python rhood.py --info --load
 
 Sidenote: saving and loading only makes sense if you also use --info/-i option 
 Sidenote: -s is short for --save, -l is short for --load
+
+## Generate Order CSVs
+
+The --csv or -c option save all of the stock, crypto and options orders into CSV files. It saves the data as its recieved from the API. This can be loaded from saved orders (with --load option) file or directly from API (with out --load option).
+
+    python rhood.py --info --load --csv
 
 ## Extra information about orders
 
