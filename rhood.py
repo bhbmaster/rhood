@@ -319,7 +319,7 @@ def load_data(filename):
 def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_bool=False):
 
     # print date header
-    print(f"Date: {run_date}")
+    print(f"Date: {run_date} - Rhood Version: {Version}")
 
     # print account info
     prof_type = ["account","basic","investment","portfolio","security","user"]
