@@ -11,7 +11,8 @@
             "program": "rhood.py", //"${file}",
             // "args": [ "--info" ], // talks to api
             // "args": [ "--info", "--load" ], //  loads so quick and good for debug/test (no api)
-            "args": [ "--info", "--save" ], //  talks to api and saves dat.pkl
+            "args": [ "--info", "--extra" ], //  testing extra option
+            // "args": [ "--info", "--save" ], //  talks to api and saves dat.pkl
             "console": "integratedTerminal"
         }
     ]

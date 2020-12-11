@@ -10,9 +10,7 @@ import pickle
 import os.path
 
 ###################
-
 #### PRE VARS #####
-
 ###################
 
 
@@ -23,9 +21,7 @@ FILENAME = "dat.pkl"
 CREDENTIALSFILE = "creds-encoded"
 
 ###################
-
 #### FUNCTIONS ####
-
 ###################
 
 # LOGIN
@@ -96,19 +92,68 @@ def DX(number,number_of_decimals):
 
 ###################
 
-# FORMAT STOCKS
+# FORMAT STOCKS ORDERS TO EXTRA INFORMATION STRING
 def FORMAT_ORDER_STOCKS(RS_orders):
-    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [S|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
-
-# FORMAT CRYPTO
-def FORMAT_ORDER_CRYPTOS(RS_orders):
+    # return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [S|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
     if RS_orders is None:
         return
-    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\t${TOMONEY(o["rounded_executed_notional"])}\tx{o["quantity"]}\t{ID2SYM(o["currency_pair_id"],cryptopairs)} [C|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["effective_price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
+    result = ""
+    for o in RS_orders:
+        date = o["last_transaction_at"]
+        id = o["id"]
+        side = o["side"]
+        quantity = o["quantity"]
+        symbol = URL2SYM(o["instrument"])
+        state = o["state"]
+        priceavg = TOMONEY(o["average_price"])
+        execs = len(o["executions"]) if state != "cancelled" else "None"
+        price1 = TOMONEY(o["executions"][0]["price"]) if state != "cancelled" else "None"
+        price = TOMONEY(o["price"])
+        result += f'{date} - {id} - {side}\tx{quantity}\t{symbol} [S|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
+    return result
 
-# FORMAT OPTIONS
+
+# FORMAT CRYPTOS ORDERS TO EXTRA INFORMATION STRING
+def FORMAT_ORDER_CRYPTOS(RS_orders):
+    # return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\t${TOMONEY(o["rounded_executed_notional"])}\tx{o["quantity"]}\t{ID2SYM(o["currency_pair_id"],cryptopairs)} [C|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["effective_price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
+    if RS_orders is None:
+        return
+    result = ""
+    for o in RS_orders:
+        date = o["last_transaction_at"]
+        id = o["id"]
+        side = o["side"]
+        rounded = TOMONEY(o["rounded_executed_notional"])
+        quantity = o["quantity"]
+        symbol = ID2SYM(o["currency_pair_id"],cryptopairs)
+        state = o["state"]
+        priceavg = TOMONEY(o["average_price"])
+        execs = len(o["executions"]) if state != "cancelled" else "None"
+        price1 = TOMONEY(o["executions"][0]["effective_price"]) if state != "cancelled" else "None"
+        price = TOMONEY(o["price"])
+        result += f'{date} - {id} - {side}\t${rounded}\tx{quantity}\t{symbol} [C|state]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
+    return result
+
+
+# FORMAT OPTIONS ORDERS TO EXTRA INFORMATION STRING - TODO: test with options one date
 def FORMAT_ORDER_OPTIONS(RS_orders):
-    return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [O|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
+    # return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [O|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
+    if RS_orders is None:
+        return
+    result = ""
+    for o in RS_orders:
+        date = o["last_transaction_at"]
+        id = o["id"]
+        side = o["side"]
+        quantity = o["quantity"]
+        symbol = URL2SYM(o["instrument"])
+        state = o["state"]
+        priceavg = TOMONEY(o["average_price"])
+        execs = len(o["executions"]) if state != "cancelled" else "None"
+        price1 = TOMONEY(o["executions"][0]["price"]) if state != "cancelled" else "None"
+        price = TOMONEY(o["price"])
+        result += f'{date} - {id} - {side}\tx{quantity}\t{symbol} [S|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
+    return result
 
 ###################
 
@@ -484,9 +529,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, verify_bool = True)
 
 ###################
-
 ####### MAIN ######
-
 ###################
 
 # currently want to run this part of the code if imported and not imported
