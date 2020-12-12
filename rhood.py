@@ -566,6 +566,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     stocks_open = ld["stocks_open"] if load_bool else r.get_open_stock_positions() 
     if stocks_open != []:
         print()
+        print("STOCKS:")
         for i in stocks_open:
             s = URL2SYM(i["instrument"])
             a = float(i["quantity"])
@@ -580,6 +581,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     cryptos_open = ld["cryptos_open"] if load_bool else r.get_crypto_positions()
     if cryptos_open != []:
         print()
+        print("CRYPTO:")
         for i in cryptos_open:
             s = i["currency"]["code"] 
             a = float(i["quantity"])
@@ -599,7 +601,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         total_open_amount = total_stocks_open_amount, total_cryptos_open_amount, total_options_open_amount
         total_open_value = total_stocks_open_value + total_cryptos_open_value + total_options_open_value
         print()
-        print(f"* TOTAL OPEN POSITIONS VALUE: ${D2(total_open_value)}")
+        print("TOTAL:")
+        print(f"* total open positions value: ${D2(total_open_value)}")
 
     # show each stocks profit
     print()
@@ -621,7 +624,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         total_options_profit, total_options_amount = show_profits_from_orders_dictionary(options_dict)
     complete_profit = total_stocks_profit + total_cryptos_profit + total_options_profit
     print()
-    print("TOTAL NET PROFIT STOCKS + CRYPTO + OPTIONS:")
+    print("TOTAL:")
     print(f"* total net profit from stocks, crypto, and options: ${D2(complete_profit)}")
     print()
 
