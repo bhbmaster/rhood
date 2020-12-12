@@ -42,12 +42,17 @@ Steps to create encoded file:
 
 ## PRINT ALL INFORMATION
 
-Print all profile information (lots of sensitive information) + order information (Stock, Crypto, Option) + open positions. Add the --info argument to rhood (-i for short). Use python or ipython. Personally I prefer ipython as it has better usability:
+Print all profile information (lots of sensitive information) + order information (Stock, Crypto, Option) + open positions + net profits (see note below). Add the --info argument to rhood (-i for short). Use python or ipython. Personally I prefer ipython as it has better usability:
 
     python rhood.py --info
     python -i rhood.py --info
 
 Essentially, to get any information out of rhood, you must at least use --info. Without it, its only useful to be played with interactively (see Playground).
+
+**NOTE OF PROFIT CALCULATION:** Net Profits are calculated by subtracting the sum of the buy from the sells, then adding the open positions value. The open position values are calculated by multiplying current help quantity by the current ask_price. Therefore, if a stock, crypto or option is open then we are getting an estimate of the profit by assuming we also sell the entire stock right now. If a symbol is currently closed (no quantity is held), then open position value can be ignored as its just 0. The term symbol refers to stocks, crypto coins, and options.
+
+    Net Profit For Symbol = (Sum of Sells) - (Sum of Buys) + (Open Position Value)
+    Total Profit = (Sum of all Net Profits from all symbols)
 
 ## SAVING AND LOADING STOCK ORDER INFORMATION
 
@@ -64,11 +69,16 @@ Load order information from dat.pkl:
 Sidenote: saving and loading only makes sense if you also use --info/-i option 
 Sidenote: -s is short for --save, -l is short for --load
 
-## GENERATE ORDER CSVs
+## GENERATE CSVs
 
-The --csv or -c option save all of the stock, crypto and options orders into CSV files. It saves the data as its recieved from the API. This can be loaded from saved orders (with --load option) file or directly from API (with out --load option).
+The --csv or -c option save all of the stock, crypto and options orders + open positions + profits into CSV files. It saves the data as its recieved from the API. This can be loaded from saved orders (with --load option) file or directly from API (with out --load option).
 
-    python rhood.py --info --load --csv
+    python rhood.py --info --csv
+
+To save all profile data use the --profile-csv switch
+
+    python rhood.py --info --profile-csv         # save profile info to csvs
+    python rhood.py --info --profile-csv --csv   # save profile info & stock orders + open positions + profits to csv 
 
 ## EXTRA INFORMATION ABOUT ORDERS
 

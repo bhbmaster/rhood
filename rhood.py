@@ -18,11 +18,12 @@ import csv
 ###################
 
 # global vars
-Version="0.0.11"
+Version="0.0.12"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
-FILENAME = "dat.pkl"
-CREDENTIALSFILE = "creds-encoded"
+CREDENTIALSFILE = "creds-encoded" # file we read for creds
+FILENAME = "dat.pkl" # where we order info
+dir_suffix = "csv" # where we save csvs
 
 ###################
 #### FUNCTIONS ####
@@ -291,7 +292,7 @@ def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,verify_bool=False):
         len_soo = len(ld["stocks_open"]) if ld["stocks_open"] is not None else 0
         len_coo = len(ld["cryptos_open"]) if ld["cryptos_open"] is not None else 0
         len_ooo = len(ld["options_open"]) if ld["options_open"] is not None else 0
-        print()
+        # print()
         print(f"* saved data to {filename} of run_date {run_date} - {len_so} orders of {len_soo} open of {len_sd} stocks - {len_co} orders of {len_coo} open of {len_cd} crypto - {len_oo} orders of {len_ooo} open of {len_od} options")
         print()
 
@@ -313,10 +314,10 @@ def load_data(filename):
 # csv functions
 
 # print list of dictionary to file name csv (works for stocks, crypto and options + anything really)
+# added feature to also print dictionary. so if list_of_dictionary is a list of dicts, it will print one way
+# and if its a dict it will print the new way
 def print_to_csv(fname, list_of_dictionary):
-    # global run_date_orders
     # create dir and get filename
-    dir_suffix = "csv"
     date_string = run_date_orders.strftime("%Y%m%d-%H%M")
     dir_full = dir_suffix+"/"+ date_string
     if not os.path.exists(dir_suffix):
@@ -326,11 +327,18 @@ def print_to_csv(fname, list_of_dictionary):
     filename = dir_full + "/" + fname + ".csv"
     # csv saving
     toCSV = list_of_dictionary
-    keys = toCSV[0].keys()
-    with open(filename, 'w', newline='')  as output_file:
-        dict_writer = csv.DictWriter(output_file, keys)
-        dict_writer.writeheader()
-        dict_writer.writerows(toCSV)
+    if isinstance(toCSV,list): # print list of dict
+        keys = toCSV[0].keys()
+        with open(filename, 'w', newline='')  as output_file:
+            dict_writer = csv.DictWriter(output_file, keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(toCSV)
+    if isinstance(toCSV,dict): # just print dict
+        with open(filename, 'w') as f:
+            for key in toCSV.keys():
+                # f.write("%s,%s\n"%(key,toCSV[key]))
+                f.write(f"{key},{toCSV[key]}\n")
+
 
 # print all stock orders csvs
 def print_all_stocks_to_csv(RS_orders_all_stocks):
@@ -368,7 +376,7 @@ def print_all_options_to_csv(RS_orders_all_options):
 ###################
 
 # PRINT STOCKS + ORDERS
-def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_bool=False, csv_bool=False):
+def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_bool=False, csv_bool=False, csv_profile_bool=False):
 
     global run_date_orders # we change this value in here so we mark it as changeable with global keyword
 
@@ -376,13 +384,28 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     print(f"Date: {run_date} - Rhood Version: {Version}")
     print()
 
+    # preloading
+    if load_bool:
+        # loading orders from pickle
+        ld = load_data(FILENAME) # this is used below this if as well
+        run_date_orders = ld['run_date']
+        print(f"* Preloading Complete")
+        print()
+    else:
+        # contacting order via API
+        run_date_orders = run_date
+
     # print account info
     prof_type = ["account","basic","investment","portfolio","security","user"]
 
+        # TODO - save profiles to csv if csv_profile_bool
     for prof in prof_type:
         print(f"---{prof} Profile---")
         prof_func = getattr(r.profiles,f"load_{prof}_profile")
-        print("\n".join([ f"* {i[0]}: {i[1]}" for i in prof_func().items() ]))
+        prof_dictionary = prof_func()
+        if csv_profile_bool:
+            print_to_csv(f"A-{prof}-profile",prof_dictionary)
+        print("\n".join([ f"* {i[0]}: {i[1]}" for i in prof_dictionary.items() ]))
         print()
 
     # print account values
@@ -604,16 +627,19 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         crypto_keys = [ i["symbol"] for i in cod ] if cod != [] else []
         option_keys = [ i["symbol"] for i in ood ] if ood != [] else []
         all_keys = stock_keys + crypto_keys + option_keys
+        list_dict = []
         # go thru each item in the dictionary which is a multi_order class and run latest_profit and latest_amount (not needed)        
         for sym,orders in dictionary.items():
             last_profit = orders.latest_profit()
             last_amount = orders.latest_amount() # <-- not needed as it fails when stocks split. open stocks make more senses
             open_string = " ** currently open **" if sym in all_keys else ""
+            open_bool = True if sym in all_keys else False
+            list_dict.append({"symbol":sym,"profit":last_profit,"open":open_bool})
             print(f"* {sym} net profit ${D2(last_profit)}"+open_string)
             total_profit += last_profit
             total_amount += last_amount
         print(f"* total net profit ${D2(total_profit)}")
-        return (total_profit, total_amount)
+        return (total_profit, total_amount, list_dict)
 
     # show each stocks profit
     print()
@@ -621,23 +647,27 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     print("* NOTE: For this profit approximation, we add up all of the sell values, subtract the buy values, and finally add back in the current open value if stock is open)")
     print("* NOTE: If a stock is open, we assume it is all sold at current ask_price (estimated values shown above in open stock positions).")
     print("* NOTE: profit per stock = (current open position value) + (sum of all of the sells) - (sum of all of the buy orders)")
-    total_stocks_profit, total_stocks_amount, total_cryptos_profit, total_cryptos_amount, total_options_profit, total_options_amount = (0,0,0,0,0,0)
+    total_stocks_profit, total_stocks_amount, total_cryptos_profit, total_cryptos_amount, total_options_profit, total_options_amount = 0,0,0,0,0,0
+    list_dict_of_stock_profits, list_dict_of_crypto_profits, list_dict_of_option_profits = [], [], []
+    profits_dict = {}
     if stock_orders != []:
         print()
         print(f"STOCKS:")
-        total_stocks_profit, total_stocks_amount = show_profits_from_orders_dictionary(stocks_dict)
+        total_stocks_profit, total_stocks_amount, list_dict_of_stock_profits = show_profits_from_orders_dictionary(stocks_dict)
     if crypto_orders != []:
         print()
         print(f"CRYPTO:")
-        total_cryptos_profit, total_cryptos_amount = show_profits_from_orders_dictionary(cryptos_dict)
+        total_cryptos_profit, total_cryptos_amount, list_dict_of_crypto_profits = show_profits_from_orders_dictionary(cryptos_dict)
     if option_orders != []:
         print()
         print(f"OPTIONS:")
-        total_options_profit, total_options_amount = show_profits_from_orders_dictionary(options_dict)
+        total_options_profit, total_options_amount, list_dict_of_option_profits = show_profits_from_orders_dictionary(options_dict)
     complete_profit = total_stocks_profit + total_cryptos_profit + total_options_profit
     print()
     print("TOTAL:")
     print(f"* total net profit from stocks, crypto, and options: ${D2(complete_profit)}")
+    # TODO - save net profits to csv if csv_bool
+
     print()
 
     # print extra info footer
@@ -646,28 +676,39 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         print(f"* loaded order data from '{FILENAME}' which ran on {run_date_orders}")
     else:
         print(f"* loaded order data from robinhood API run date {run_date_orders}")
+    if save_bool:
+        print(f"* saved order data from '{FILENAME}' which ran on {run_date_orders}")
+    else:
+        print(f"* loaded order data from robinhood API run date {run_date_orders}")
 
     # create csv here if we wanted to
+    dir_full = dir_suffix+"/"+ run_date_orders.strftime("%Y%m%d-%H%M")
+    if csv_profile_bool:
+        print(f"* saved profile data csvs to '{dir_full}' directory")
+
     if csv_bool:
         if stock_orders != []:
-            print("* saving stock orders + open positions csvs")
+            print(f"* saving stock orders + open positions + net profits csvs to '{dir_full}' directory")
             print_all_stocks_to_csv(stock_orders)
+            print_to_csv("All-Profits-Stocks",list_dict_of_stock_profits)
             if sod != []:
                 print_to_csv("All-Open-Stocks",sod)
             print(f"* saved stock csvs")
         if crypto_orders != []:
-            print("* saving crypto + open positions csvs")
+            print(f"* saving crypto orders + open positions + net profits csvs to '{dir_full}' directory")
             print_all_crypto_to_csv(crypto_orders)
+            print_to_csv("All-Profits-Crypto",list_dict_of_crypto_profits)
             if cod != []:
                 print_to_csv("All-Open-Crypto",cod)
             print(f"* saved crypto csvs")
         if option_orders != []:
-            print("* saving option + open positions csvs")
+            print(f"* saving option orders + open positions + net profits csvs to '{dir_full}' directory")
             print_all_options_to_csv(option_orders)
+            print_to_csv("All-Profits-Options",list_dict_of_option_profits)
             if ood != []:
                 print_to_csv("All-Open-Options",ood)
             print(f"* saved option csvs")
-
+    
     # Save Data
     if save_bool:
         save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, soo = stocks_open, coo = cryptos_open, ooo = options_open, verify_bool = True)
@@ -691,6 +732,7 @@ if __name__ == "__main__":
     parser.add_argument("--load","-l",help="load all orders to file (dat.pkl) if --info is used (uses saved file instead of API to get order info; saving time)",action="store_true")
     parser.add_argument("--extra","-e",help="shows extra order information (time consuming)",action="store_true")
     parser.add_argument("--csv","-c",help="save all loaded orders to csv files in 'csv' directory (dir is created if missing)", action="store_true")
+    parser.add_argument("--profile-csv","-p",help="save all profile data to csv", action="store_true")
     args = parser.parse_args()
 
     # parse save and load
@@ -702,6 +744,7 @@ if __name__ == "__main__":
 
     # save csv of orders
     csv_bool = args.csv
+    csv_profile_bool = args.profile_csv
 
     # error checking on saving and loading
     if load_bool and save_bool:
@@ -712,6 +755,6 @@ if __name__ == "__main__":
 
     if args.info:
         # get main
-        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool)
+        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool,csv_profile_bool=csv_profile_bool)
 
 # EOF

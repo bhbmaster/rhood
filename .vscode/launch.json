@@ -19,6 +19,8 @@
             // "args": [ "--info", "--load", "--csv" ], // saving csv from file
             // "args": [ "--info", "--load", "--csv", "--extra" ], // saving csv from file + cross checking with extra output
             // "args": [ "--info", "--save", "--csv", "--extra" ], // saving csv from API + cross checking with extra output
+            // "args": [ "--info", "--load", "--csv", "--profile-csv" ], // test profile-csv (fast as we load from file)
+            // "args": [ "--info", "--save", "--csv", "--profile-csv" ], // test profile-csv (slow as we load from api)
             "console": "integratedTerminal"
         }
     ]
