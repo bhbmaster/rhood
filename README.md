@@ -10,7 +10,7 @@ The tested versions are python3.9 and what you see in requirements.txt for the m
 
 Here is what needs work:
 
-- Anything with options is not tested, because I do not have options.
+- Options are not calculated as I don't have any. I need to get some and then I can work them into the code.
 
 ## CREATE ENCODED PERMISSIONS FILE
 
@@ -46,6 +46,8 @@ Print all profile information (lots of sensitive information) + order informatio
 
     python rhood.py --info
     python -i rhood.py --info
+
+Essentially, to get any information out of rhood, you must at least use --info. Without it, its only useful to be played with interactively (see Playground).
 
 ## SAVING AND LOADING STOCK ORDER INFORMATION
 
@@ -100,7 +102,7 @@ run.bat would have contents similar to this:
     cd \path\to\your\rhood\
     c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
-## PLAYGROUND
+## INTERACTIVE PLAYGROUND
 
 Want to mess with the objects by yourself?
 
