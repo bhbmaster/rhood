@@ -676,10 +676,6 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         print(f"* loaded order data from '{FILENAME}' which ran on {run_date_orders}")
     else:
         print(f"* loaded order data from robinhood API run date {run_date_orders}")
-    if save_bool:
-        print(f"* saved order data from '{FILENAME}' which ran on {run_date_orders}")
-    else:
-        print(f"* loaded order data from robinhood API run date {run_date_orders}")
 
     # create csv here if we wanted to
     dir_full = dir_suffix+"/"+ run_date_orders.strftime("%Y%m%d-%H%M")
