@@ -11,11 +11,6 @@ The tested versions are python3.9 and what you see in requirements.txt for the m
 Here is what needs work:
 
 - Anything with options is not tested, because I do not have options.
-- Profit calculations are wrong need to rethink.
-- Need to implement showing current stocks + crypto + options (open positions)
-- So far useful to get all stock transations into CSVs:
-
-    python rhood.py --info --csv
 
 ## CREATE ENCODED PERMISSIONS FILE
 
@@ -47,7 +42,7 @@ Steps to create encoded file:
 
 ## PRINT ALL INFORMATION
 
-Print all profile information (lots of sensitive information) + order information (Stock, Crypto, Option) - add the info argument to rhood (-i or --info). Use python or ipython. Personally I prefer ipython as it has better usability:
+Print all profile information (lots of sensitive information) + order information (Stock, Crypto, Option) + open positions. Add the --info argument to rhood (-i for short). Use python or ipython. Personally I prefer ipython as it has better usability:
 
     python rhood.py --info
     python -i rhood.py --info

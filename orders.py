@@ -38,12 +38,22 @@ class order:
 # define type
 Orders = list[order]
 
-# multiple multiple orders (symbol name included) - used to be called stock_orders but it works for crypto + options as well
+# symbol class holds symbol name, all of its orders, and current value (open positions)
 class multi_orders:
 
-    def __init__(self, symbol_name: str, orders: Orders = []):
+    def __init__(self, symbol_name: str, orders: Orders = [], current_amount: float = 0, current_avgprice: float = 0):
         self.symbol_name = symbol_name
+        # all orders
         self.orders = orders
+        # current open
+        self.current_amount = current_amount
+        self.current_avgprice = current_avgprice
+        self.current_value = self.current_amount * self.current_avgprice
+
+    def update_current(self,current_amount: float, current_avgprice: float):
+        self.current_amount = current_amount
+        self.current_avgprice = current_avgprice
+        self.current_value = self.current_amount * self.current_avgprice
 
     def clear_orders(self):
         self.orders = []
@@ -66,7 +76,7 @@ class multi_orders:
     def sort_by_time_decreasing(self):
         self.orders.sort(key=lambda x: x.date_epoch, reverse=True)
 
-    def time_vs_change_and_total_ATTR(self, attribute_name: str): # TODO: specify output type & rethink + or minus (maybe best to put it back & readjust profit formula)!!
+    def time_vs_change_and_total_ATTR(self, attribute_name: str): # TODO: specify output type & rethink + or - (maybe best to put it back & re-adjust profit formula)!!
         # possible attribute_name so far 'value_float' or 'share_float'
         # output is list of these tuples (datetime, change in attribute, cumulative atttributes so far)
         result = []
@@ -74,8 +84,9 @@ class multi_orders:
         for o in self.orders:
             if o.type_string == "buy":
                 sign = -1  # used to be +1
-            else:           # if "sell"
+            else: # if "sell"
                 sign = 1   # used to be -1
+            # note: with negative buys and positive sells, we just add out open position values and get our profit. however, we get negative amounts which don't make sense so just multiply them by -1 to make sense - thats if you need to use amounts (as value is better for value + open position is better for current values). amounts differ with stock splits so they are kind of historically useless
             attribute_value = getattr(o,attribute_name)
             change_in_attribute_value = sign * attribute_value
             cumulative += change_in_attribute_value
@@ -83,6 +94,7 @@ class multi_orders:
         return result
 
     def time_vs_amount(self): # TODO: specify output type
+        # if splits happen this will not make sense and thats okay
         # output (date, change in share, cumulative shares so far)
         return self.time_vs_change_and_total_ATTR("amount_float")
 
@@ -90,12 +102,15 @@ class multi_orders:
         # output (date, change in value, cumulative value so far)
         return self.time_vs_change_and_total_ATTR("value_float")
 
-    def latest_profit(self) -> float: # shows final cumulative value
+    def latest_value(self) -> float: # shows final cumulative value
         tvv = self.time_vs_value()
         last_i = len(tvv)-1
         return tvv[last_i][2]
 
-    def latest_amount(self) -> float: # shows final cumulative amount of shares
+    def latest_profit(self) -> float: # latest profit is cumulative value plus what we have open
+        return self.latest_value() + self.current_value
+
+    def latest_amount(self) -> float: # shows final cumulative amount of shares (this is not going to make much sense if there are splits that happened)
         tva = self.time_vs_amount()
         last_i = len(tva)-1
         return tva[last_i][2]

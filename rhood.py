@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import robin_stocks as r
 import pyotp
 import sys
@@ -15,9 +16,8 @@ import csv
 #### PRE VARS #####
 ###################
 
-
 # global vars
-Version="0.0.9"
+Version="0.0.11"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 FILENAME = "dat.pkl"
@@ -46,23 +46,27 @@ def LOGIN():
 
 ###################
 
-# GET LATEST PRICE
-def QUOTE(ticker):
-    ans=r.get_latest_price(ticker)
-    print(f"{ticker.upper()}: ${ans[0]}")
-    return ans
+# GET LATEST PRICE OF STOCK
+def QUOTE_STOCK(symbol):
+    ans=r.get_latest_price(symbol)
+    return float(ans[0])
 
 # BUY X SHARES OF STOCK
-def BUY(ticker, amount_of_shares):
-    ans=r.order_buy_market(ticker,amount_of_shares)
-    print(ans)
+def BUY_STOCK(symbol, amount_of_shares):
+    ans=r.order_buy_market(symbol,amount_of_shares)
     return ans
 
 # SELL X SHARES OF STOCK
-def SELL(ticker, amount_of_shares):
-    ans=r.order_buy_market(ticker,amount_of_shares)
-    print(ans)
+def SELL_STOCK(symbol, amount_of_shares):
+    ans=r.order_buy_market(symbol,amount_of_shares)
     return ans
+
+###################
+
+# GET LATEST CRYPTO PRICE
+def QUOTE_CRYPTO(symbol):
+    ans=r.get_crypto_quote(symbol)
+    return float(ans["ask_price"])
 
 ###################
 
@@ -74,7 +78,7 @@ def URL2SYM(url):
 def ID2SYM(id,cryptopairs):
     for i in cryptopairs:
         if i["id"] == id:
-            return i["symbol"]
+            return i["asset_currency"]["code"] # old: i["symbol"] used to be BTC-USD, new: its just BTC
 
 ###################
 
@@ -269,8 +273,8 @@ def PARSE_OPTION_ORDERS(RS_option_orders):
 ###################
 
 # save time consuming data to file
-def save_data(filename,so,co,oo,sd,cd,od,verify_bool=False):
-    save_data = {"stock_orders":so,"crypto_orders":co,"option_orders":oo,"stocks_dict":sd,"cryptos_dict":cd,"options_dict":od, "run_date": run_date }
+def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,verify_bool=False):
+    save_data = { "stock_orders":so, "crypto_orders":co, "option_orders":oo, "stocks_dict":sd, "cryptos_dict":cd, "options_dict":od, "stocks_open":soo, "cryptos_open":coo, "options_open":ooo, "run_date": run_date }
     # Store data (serialize)
     with open(filename, 'wb') as handle:
         pickle.dump(save_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -283,8 +287,11 @@ def save_data(filename,so,co,oo,sd,cd,od,verify_bool=False):
         len_sd = len(ld["stocks_dict"]) if ld["stocks_dict"] is not None else 0
         len_cd = len(ld["cryptos_dict"]) if ld["cryptos_dict"] is not None else 0
         len_od = len(ld["options_dict"]) if ld["options_dict"] is not None else 0
+        len_soo = len(ld["stocks_open"]) if ld["stocks_open"] is not None else 0
+        len_coo = len(ld["cryptos_open"]) if ld["cryptos_open"] is not None else 0
+        len_ooo = len(ld["options_open"]) if ld["options_open"] is not None else 0
         print()
-        print(f"* saved data to {filename} of run_date {run_date} - {len_so} orders of {len_sd} stocks, {len_co} orders of {len_cd} cryptos, {len_oo} orders of {len_od} options")
+        print(f"* saved data to {filename} of run_date {run_date} - {len_so} orders of {len_soo} open of {len_sd} stocks - {len_co} orders of {len_coo} open of {len_cd} crypto - {len_oo} orders of {len_ooo} open of {len_od} options")
         print()
 
 # load time consuming data from file
@@ -304,8 +311,8 @@ def load_data(filename):
 
 # csv functions
 
-# print rs_stocks to file name csv (works for stocks, crypto and options)
-def print_to_csv(fname, RS_orders_for_symbol):
+# print list of dictionary to file name csv (works for stocks, crypto and options + anything really)
+def print_to_csv(fname, list_of_dictionary):
     # global run_date_orders
     # create dir and get filename
     dir_suffix = "csv"
@@ -317,7 +324,7 @@ def print_to_csv(fname, RS_orders_for_symbol):
         os.makedirs(dir_full)
     filename = dir_full + "/" + fname + ".csv"
     # csv saving
-    toCSV = RS_orders_for_symbol
+    toCSV = list_of_dictionary
     keys = toCSV[0].keys()
     with open(filename, 'w', newline='')  as output_file:
         dict_writer = csv.DictWriter(output_file, keys)
@@ -379,7 +386,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
 
     # print account values
     print(f"--- Gain Information (Beta) ---")
-    print(f"NOTE: Currently not taking into account cash_management, options, and crypto. If you are doing pure stocks, this is accurate.")
+    print(f"* NOTE: Currently not taking into account cash_management, options, and crypto. If you are doing only stocks, then this section is accurate.")
+    print(f"* NOTE: The profit calculations below this section are more accurate as they look into every symbols order + current open positions")
     profileData = r.load_portfolio_profile()
     allTransactions = r.get_bank_transfers()
     cardTransactions= r.get_card_transactions()
@@ -398,11 +406,11 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     if extended_hours_equity_string is not None:
         extended_hours_equity = float(extended_hours_equity_string)
         use_equity = extended_hours_equity
-        print("* Sidenote: extended_hours_equity exists, using it")
+        print("* NOTE: extended_hours_equity exists, using it")
     else:
         extended_hours_equity = None
         use_equity = equity
-        print("* Sidenote: extended_hours_equity missing, using regular equity instead")
+        print("* NOTE: extended_hours_equity missing, using regular equity instead")
         
     totalGainMinusDividends = use_equity - dividends - money_invested # missing cash_account_debits + i think also missing crypto and options
     percentGain = totalGainMinusDividends/money_invested*100
@@ -413,7 +421,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     print(f"* Reported Reversal Fees: {TOMONEY(reversal_fees)}")
     print(f"* The total money invested is {TOMONEY(money_invested)}")
     print(f"* The total equity is {TOMONEY(equity)}")
-    print(f"* Sidenote: extended_hours_equity is {TOMONEY(extended_hours_equity)}") # added by me
+    print(f"* NOTE: extended_hours_equity is {TOMONEY(extended_hours_equity)}") # added by me
     print(f"* The net worth has increased {percentDividend:.3f}% due to dividends that amount to {TOMONEY(dividends)}")
     print(f"* The net worth has increased {TOMONEY(percentGain)}% due to other gains that amount to {TOMONEY(totalGainMinusDividends)} *** correct if only stocks & no cash mgmt ***")
     print()
@@ -454,30 +462,6 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         option_orders.reverse()
         print(f"* (O) completed option orders load")
         print()
-
-    # show open positions - TODO:
-    print("--- Open Positions ---")
-    stocks_open = r.get_open_stock_positions()
-    # 'url':'https://api.robinhood.com/positions/5SX90465/e39ed23a-7bd1-4587-b060-71988d9ef483/'
-    # 'instrument':'https://api.robinhood.com/instruments/e39ed23a-7bd1-4587-b060-71988d9ef483/'
-    # 'account':'https://api.robinhood.com/accounts/5SX90465/'
-    # 'account_number':'5SX90465'
-    # 'average_buy_price':'639.6800'
-    # 'pending_average_buy_price':'639.6800'
-    # 'quantity':'2.00000000'
-    # 'intraday_average_buy_price':'0.0000'
-    # 'intraday_quantity':'0.00000000'
-    # 'shares_available_for_exercise':'2.00000000'
-    # 'shares_held_for_buys':'0.00000000'
-    cryptos_open = r.get_crypto_positions()
-    # 'account_id':'1f1dff6e-092e-4e7a-83fd-540a4b5a08e7'
-    # 'cost_bases':[{'currency_id': '1072fc76-1862-41ab-8...5837590762', 'direct_cost_basis': '0.000000000000000000', 'direct_quantity': '0.000000000000000000', 'id': 'ad86217c-91b8-49bb-b...3324860cb9', 'intraday_cost_basis': '0.000000000000000000', 'intraday_quantity': '0.000000000000000000', 'marked_cost_basis': '0.000000000000000000', 'marked_quantity': '0.000000000000000000'}]
-    # 'created_at':'2020-11-12T16:14:35.558727-05:00'
-    # 'currency':{'brand_color': 'EA963D', 'code': 'BTC', 'id': 'd674efea-e623-4396-9...574b92b093', 'increment': '0.000000010000000000', 'name': 'Bitcoin', 'type': 'cryptocurrency'}
-    # 'id':'e6b850b0-dee2-4e8a-928a-1cdb03428b54'
-    # 'quantity':'0.000000000000000000'
-    # 'quantity_available':'0.000000000000000000'
-    options_open = r.get_all_option_positions()
 
     # print all stock orders (buy and sell)
     stocks_dict = {}
@@ -566,15 +550,61 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         for sym,orders in dictionary.items():
             last_profit = orders.latest_profit()
             last_amount = orders.latest_amount()
-            print(f"* {sym} net profit ${D2(last_profit)} (currently have {last_amount} quantity)")
+            print(f"* {sym} net profit ${D2(last_profit)}")
             total_profit += last_profit
             total_amount += last_amount
-        print(f"* total net profit ${D2(total_profit)} and total quantity {total_amount}")
+        print(f"* total net profit ${D2(total_profit)}")
         return (total_profit, total_amount)
 
-    # show each stocks profit - TODO: needs work
+    # show open positions
+    print("--- Open Positions ---")
+    total_stocks_open_amount, total_cryptos_open_amount, total_options_open_amount = (0, 0, 0)
+    total_stocks_open_value, total_cryptos_open_value, total_options_open_value = (0, 0, 0)
+    sod, cod, ood = [], [], [] # stock open dict, crypto open dict, option open dict
+    # stocks
+    stocks_open = ld["stocks_open"] if load_bool else r.get_open_stock_positions() 
+    if stocks_open != []:
+        print()
+        for i in stocks_open:
+            s = URL2SYM(i["instrument"])
+            a = float(i["quantity"])
+            p = QUOTE_STOCK(s) # or maybe faster to do this: float(i["average_buy_price"])
+            stocks_dict[s].update_current(a,p)
+            total_stocks_open_amount += a
+            total_stocks_open_value += stocks_dict[s].current_value
+            sod.append({ "symbol": s, "quantity": a, "price": p, "value": stocks_dict[s].current_value })
+            print(f"* OPEN STOCK - {s} x{stocks_dict[s].current_amount} at ${D2(stocks_dict[s].current_avgprice)} each - est current value: ${D2(stocks_dict[s].current_value)}")
+        print(f"* TOTAL OPEN STOCKS - {total_stocks_open_amount} stocks for total ${D2(total_stocks_open_value)} estimated value")
+    # cryptos
+    cryptos_open = ld["cryptos_open"] if load_bool else r.get_crypto_positions()
+    if cryptos_open != []:
+        print()
+        for i in cryptos_open:
+            s = i["currency"]["code"] 
+            a = float(i["quantity"])
+            p = QUOTE_CRYPTO(s)
+            cryptos_dict[s].update_current(a,p)
+            total_cryptos_open_amount += a
+            total_cryptos_open_value += cryptos_dict[s].current_value
+            cod.append({ "symbol": s, "quantity": a, "price": p, "value": cryptos_dict[s].current_value })
+            print(f"* OPEN CRYPTO - {s} x{cryptos_dict[s].current_amount} at ${D2(cryptos_dict[s].current_avgprice)} each - est current value: ${D2(cryptos_dict[s].current_value)}")
+        print(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} stocks for total ${D2(total_cryptos_open_value)} estimated value")
+    # TODO: options open positions
+    options_open = ld["options_open"] if load_bool else r.get_all_option_positions()
+    if options_open != []:
+        pass
+    # show total open amounts
+    if stocks_open != [] or cryptos_open != [] or stocks_open != []:
+        total_open_amount = total_stocks_open_amount, total_cryptos_open_amount, total_options_open_amount
+        total_open_value = total_stocks_open_value + total_cryptos_open_value + total_options_open_value
+        print()
+        print(f"* TOTAL OPEN POSITIONS VALUE: ${D2(total_open_value)}")
+
+    # show each stocks profit
     print()
-    print(f"--- Profits ---")
+    print(f"--- Profits Based On Orders + Open Positions ---")
+    print("* NOTE: For this profit approximation, we add up all of the sell values, subtract the buy values, and finally add back in the current open value (if there are any stocks) If a stock is open, we assume it is all sold at current value.")
+    print("* NOTE: profit per stock = current open position value + sum of all of the sells - sum of all of the buy orders")
     total_stocks_profit, total_stocks_amount, total_cryptos_profit, total_cryptos_amount, total_options_profit, total_options_amount = (0,0,0,0,0,0)
     if stock_orders != []:
         print()
@@ -590,7 +620,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         total_options_profit, total_options_amount = show_profits_from_orders_dictionary(options_dict)
     complete_profit = total_stocks_profit + total_cryptos_profit + total_options_profit
     print()
-    print("TOTAL OF STOCKS + CRYPTO + OPTIONS:")
+    print("TOTAL NET PROFIT STOCKS + CRYPTO + OPTIONS:")
     print(f"* total net profit from stocks, crypto, and options: ${D2(complete_profit)}")
     print()
 
@@ -601,31 +631,30 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     else:
         print(f"* loaded order data from robinhood API run date {run_date_orders}")
 
-    # DEBUG:
-    # for i in stocks_dict["AAPL"].time_vs_value():
-    #     print(i)
-    # print()
-    # for i in stocks_dict["TSLA"].time_vs_value():
-    #     print(i)
-
     # create csv here if we wanted to
     if csv_bool:
         if stock_orders != []:
-            print("* saving stock csvs")
+            print("* saving stock orders + open positions csvs")
             print_all_stocks_to_csv(stock_orders)
+            if sod != []:
+                print_to_csv("All-Open-Stocks",sod)
             print(f"* saved stock csvs")
         if crypto_orders != []:
-            print("* saving crypto csvs")
+            print("* saving crypto + open positions csvs")
             print_all_crypto_to_csv(crypto_orders)
+            if cod != []:
+                print_to_csv("All-Open-Crypto",cod)
             print(f"* saved crypto csvs")
         if option_orders != []:
-            print("* saving option csvs")
+            print("* saving option + open positions csvs")
             print_all_options_to_csv(option_orders)
+            if ood != []:
+                print_to_csv("All-Open-Options",ood)
             print(f"* saved option csvs")
 
     # Save Data
     if save_bool:
-        save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, verify_bool = True)
+        save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, soo = stocks_open, coo = cryptos_open, ooo = options_open, verify_bool = True)
 
 ###################
 ####### MAIN ######
