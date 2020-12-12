@@ -544,24 +544,11 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         PRINT_ORDERS_DICTIONARY(options_dict)
         print()
 
-    # quick inner function:
-    def show_profits_from_orders_dictionary(dictionary):
-        total_profit = 0
-        total_amount = 0
-        for sym,orders in dictionary.items():
-            last_profit = orders.latest_profit()
-            last_amount = orders.latest_amount()
-            print(f"* {sym} net profit ${D2(last_profit)}")
-            total_profit += last_profit
-            total_amount += last_amount
-        print(f"* total net profit ${D2(total_profit)}")
-        return (total_profit, total_amount)
-
     # show open positions
     print("--- Open Positions ---")
     total_stocks_open_amount, total_cryptos_open_amount, total_options_open_amount = (0, 0, 0)
     total_stocks_open_value, total_cryptos_open_value, total_options_open_value = (0, 0, 0)
-    sod, cod, ood = [], [], [] # stock open dict, crypto open dict, option open dict
+    sod, cod, ood = [], [], [] # stock open list of dicts, crypto open list of dicts, option open list of dicts
     # stocks
     stocks_open = ld["stocks_open"] if load_bool else r.get_open_stock_positions() 
     if stocks_open != []:
@@ -570,6 +557,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         for i in stocks_open:
             s = URL2SYM(i["instrument"])
             a = float(i["quantity"])
+            if a == 0: # skip if empty and not actually an open position
+                continue
             p = QUOTE_STOCK(s) # or maybe faster to do this: float(i["average_buy_price"])
             stocks_dict[s].update_current(a,p)
             total_stocks_open_amount += a
@@ -585,6 +574,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         for i in cryptos_open:
             s = i["currency"]["code"] 
             a = float(i["quantity"])
+            if a == 0: # skip if empty and not actually an open position
+                continue
             p = QUOTE_CRYPTO(s)
             cryptos_dict[s].update_current(a,p)
             total_cryptos_open_amount += a
@@ -597,18 +588,39 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     if options_open != []:
         pass
     # show total open amounts
-    if stocks_open != [] or cryptos_open != [] or stocks_open != []:
+    if stocks_open != [] or cryptos_open != [] or options_open != []:
         total_open_amount = total_stocks_open_amount, total_cryptos_open_amount, total_options_open_amount
         total_open_value = total_stocks_open_value + total_cryptos_open_value + total_options_open_value
         print()
         print("TOTAL:")
         print(f"* total open positions value: ${D2(total_open_value)}")
 
+    # quick inner function for profit printing
+    def show_profits_from_orders_dictionary(dictionary):
+        total_profit = 0
+        total_amount = 0
+        # get list of all symbols that are open
+        stock_keys = [ i["symbol"] for i in sod ] if sod != [] else []
+        crypto_keys = [ i["symbol"] for i in cod ] if cod != [] else []
+        option_keys = [ i["symbol"] for i in ood ] if ood != [] else []
+        all_keys = stock_keys + crypto_keys + option_keys
+        # go thru each item in the dictionary which is a multi_order class and run latest_profit and latest_amount (not needed)        
+        for sym,orders in dictionary.items():
+            last_profit = orders.latest_profit()
+            last_amount = orders.latest_amount() # <-- not needed as it fails when stocks split. open stocks make more senses
+            open_string = " ** currently open **" if sym in all_keys else ""
+            print(f"* {sym} net profit ${D2(last_profit)}"+open_string)
+            total_profit += last_profit
+            total_amount += last_amount
+        print(f"* total net profit ${D2(total_profit)}")
+        return (total_profit, total_amount)
+
     # show each stocks profit
     print()
     print(f"--- Profits Based On Orders + Open Positions ---")
-    print("* NOTE: For this profit approximation, we add up all of the sell values, subtract the buy values, and finally add back in the current open value (if there are any stocks) If a stock is open, we assume it is all sold at current value.")
-    print("* NOTE: profit per stock = current open position value + sum of all of the sells - sum of all of the buy orders")
+    print("* NOTE: For this profit approximation, we add up all of the sell values, subtract the buy values, and finally add back in the current open value if stock is open)")
+    print("* NOTE: If a stock is open, we assume it is all sold at current ask_price (estimated values shown above in open stock positions).")
+    print("* NOTE: profit per stock = (current open position value) + (sum of all of the sells) - (sum of all of the buy orders)")
     total_stocks_profit, total_stocks_amount, total_cryptos_profit, total_cryptos_amount, total_options_profit, total_options_amount = (0,0,0,0,0,0)
     if stock_orders != []:
         print()
