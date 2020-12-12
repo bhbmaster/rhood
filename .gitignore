@@ -2,7 +2,7 @@ creds*
 output*
 __pycache__*
 dat*pkl
-# .vscode # useful for debugging
+.vscode
 run.bat
 notes*
 csv*
