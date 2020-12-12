@@ -14,17 +14,29 @@ Here is what needs work:
 
 - Options are not calculated as I don't have any. I need to get some and then I can work them into the code. So if you are using only stocks + crypto or one or the other, then you this code will be useful.
 
+## SECURITY ###
+
+For this to work, I encourage to use 2 factor authentication. Please set it up. I installed the google authenticator app on my phone and then I enabled 2 factor authentication with an app (not SMS) on robinhood.
+
+More instructions: https://robinhood.com/us/en/support/articles/twofactor-authentication/
+
+You will be given an alphanumetic API key that looks like this "TZIJ9PPENAA2X69Z". You will use it to create the credentials file below.
+
 ## CREATE ENCODED PERMISSIONS FILE
 
-Before we can do any work, first create a credentials files called 'creds-encoded'. Its an encoded file of your email, password, and API key.
+Before we can do any work, first create a credentials files called 'creds-encoded'.
 
-Steps to create the encoded file:
+Its an encoded file of your email, password, and API key. We start with a clear text credentials file 'creds', but then we convert it to be encoded for extra security.
 
-1. Create a clear text "creds" file which has 3 lines: UN, PW, and KEY.
+**NOTE:** Although, having an encoded credentials file provides an extra level of security so that your creds are not stored in clear text on your PC, please take extra caution your computer is secured other methods (perhaps accessing via 2 factor as well)
 
-    email/username
-    password
-    authkey
+Steps to create the encoded credentials file:
+
+1. Create a clear text 'creds' file which has 3 lines: UN, PW, and KEY. For me it looked like this:
+
+    bhbmaster@gmail.com
+    PineapplesExpress
+    TZIJ9PPENAA2X69Z
 
 1. Encode it with this bash command.
 
@@ -44,12 +56,11 @@ Steps to create the encoded file:
 
 ## PRINT ALL INFORMATION
 
-Print all profile information (lots of sensitive information) + order information (Stock, Crypto, Option) + open positions + net profits (see note below). Add the --info argument to rhood (-i for short). Use python or ipython. Personally I prefer ipython as it has better usability:
+Add the --info argument to rhood (-i for short) to print all profile information (lots of sensitive information), order information (Stock, Crypto, Option), open positions, and net profits (see note below).
 
     python rhood.py --info
-    python -i rhood.py --info
 
-Essentially, to get any information out of rhood, you must at least use --info. Without it, its only useful to be played with interactively (see Playground).
+**NOTE:** To get any information out of rhood, you must at least use --info. Without it, its only useful to be played with interactively (see Playground).
 
 **NOTE OF PROFIT CALCULATION:** Net Profits are calculated by subtracting the sum of the buy from the sells, then adding the open positions value. The open position values are calculated by multiplying current help quantity by the current ask_price. Therefore, if a stock, crypto or option is open then we are getting an estimate of the profit by assuming we also sell the entire stock right now. If a symbol is currently closed (no quantity is held), then open position value can be ignored as its just 0. The term symbol refers to stocks, crypto coins, and options.
 
