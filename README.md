@@ -1,42 +1,44 @@
 # RHOOD - Robinhood Stocks Analysis
 
-Text analysis of your robinhood portfolio. Absolutely everything you wanted to know. This generates very personal data, so make sure noone is standing around you.
+Rhood provides a text analysis of your robinhood portfolio. It provides all of the profile data, order data, open positions, and net profits.
+
+As this generates very private data, the output should be viewed with discretely.
 
 Requirements: python3.9 + pip install robin_stocks and pyotp
 
-The tested versions are python3.9 and what you see in requirements.txt for the modules.
+The tested versions are python3.9 and the modules listed in requirements.txt (along with the tested versions).
 
 ## WORK IN PROGRESS
 
 Here is what needs work:
 
-- Options are not calculated as I don't have any. I need to get some and then I can work them into the code.
+- Options are not calculated as I don't have any. I need to get some and then I can work them into the code. So if you are using only stocks + crypto or one or the other, then you this code will be useful.
 
 ## CREATE ENCODED PERMISSIONS FILE
 
-Before we can do any work, first create a creds-encoded file. Its an encoded file of your email, password, and API key.
+Before we can do any work, first create a credentials files called 'creds-encoded'. Its an encoded file of your email, password, and API key.
 
-Steps to create encoded file:
+Steps to create the encoded file:
 
-(1) Create a clear text "creds" file which has 3 lines: UN, PW, and KEY.
+1. Create a clear text "creds" file which has 3 lines: UN, PW, and KEY.
 
     email/username
     password
     authkey
 
-(2) Encode it with this bash command.
+1. Encode it with this bash command.
 
     python -c 'import base64; print(base64.b64encode(open("creds","r").read().encode("utf-8")).decode("utf-8"))' > creds-encoded
 
-(3) Verify you see an encoded file
+1. Verify you see an encoded file
 
     cat creds-encoded
 
-(4) Verify the file decodes correctly. You should see your UN, PW, and KEY.
+1. Verify the file decodes correctly. You should see your UN, PW, and KEY.
 
     python -c 'import base64; print(base64.b64decode(open("creds-encoded","r").read()).decode("utf-8"))'
 
-(5) If you see the original output, then delete the original file. The software will use the creds-encoded file to load your credentials by decodeing it correctly.
+1. If you see the original output, then delete the original file. The software will use the creds-encoded file to load your credentials by decodeing it correctly.
 
     rm creds
 
