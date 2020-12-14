@@ -42,32 +42,50 @@ TZIJ9PPENAA2X69Z
 
 1. Encode it with this bash command.
 
-    python -c 'import base64; print(base64.b64encode(open("creds","r").read().encode("utf-8")).decode("utf-8"))' > creds-encoded
+```
+python -c 'import base64; print(base64.b64encode(open("creds","r").read().encode("utf-8")).decode("utf-8"))' > creds-encoded
+```
 
 1. Verify you see an encoded file
 
-    cat creds-encoded
+```
+cat creds-encoded
+```
 
 1. Verify the file decodes correctly. You should see your UN, PW, and KEY.
 
-    python -c 'import base64; print(base64.b64decode(open("creds-encoded","r").read()).decode("utf-8"))'
+```
+python -c 'import base64; print(base64.b64decode(open("creds-encoded","r").read()).decode("utf-8"))'
+```
+
+Example output (modified for privacy):
+
+```
+PPhib3453455QGdtYWlsasERTVCXYWlyMTIz123412341230VlZFTkJLMlg0N1A=
+```
 
 1. If you see the original output, then delete the original file. The software will use the creds-encoded file to load your credentials by decodeing it correctly.
 
-    rm creds
+```
+rm creds
+```
 
 ## PRINT ALL INFORMATION
 
 Add the --info argument to rhood (-i for short) to print all profile information (lots of sensitive information), order information (Stock, Crypto, Option), open positions, and net profits (see note below).
 
-    python rhood.py --info
+```
+python rhood.py --info
+```
 
 **NOTE:** To get any information out of rhood, you must at least use --info. Without it, its only useful to be played with interactively (see Playground).
 
 **NOTE OF PROFIT CALCULATION:** Net Profits are calculated by subtracting the sum of the buy from the sells, then adding the open positions value. The open position values are calculated by multiplying current help quantity by the current ask_price. Therefore, if a stock, crypto or option is open then we are getting an estimate of the profit by assuming we also sell the entire stock right now. If a symbol is currently closed (no quantity is held), then open position value can be ignored as its just 0. The term symbol refers to stocks, crypto coins, and options.
 
-    Net Profit For Symbol = (Sum of Sells) - (Sum of Buys) + (Open Position Value)
-    Total Profit = (Sum of all Net Profits from all symbols)
+```
+Net Profit For Symbol = (Sum of Sells) - (Sum of Buys) + (Open Position Value)
+Total Profit = (Sum of all Net Profits from all symbols)
+```
 
 ## SAVING AND LOADING STOCK ORDER INFORMATION
 
@@ -75,11 +93,15 @@ Checking the API for all of the orders is time consuming. Try to save the data l
 
 Save order information to dat.pkl:
 
-    python rhood.py --info --save
+```
+python rhood.py --info --save
+```
 
 Load order information from dat.pkl:
 
-    python rhood.py --info --load
+```
+python rhood.py --info --load
+```
 
 Sidenote: saving and loading only makes sense if you also use --info/-i option 
 Sidenote: -s is short for --save, -l is short for --load
@@ -88,18 +110,24 @@ Sidenote: -s is short for --save, -l is short for --load
 
 The --csv or -c option save all of the stock, crypto and options orders + open positions + profits into CSV files. It saves the data as its recieved from the API. This can be loaded from saved orders (with --load option) file or directly from API (with out --load option).
 
-    python rhood.py --info --csv
+```
+python rhood.py --info --csv
+```
 
 To save all profile data use the --profile-csv switch
 
-    python rhood.py --info --profile-csv         # save profile info to csvs
-    python rhood.py --info --profile-csv --csv   # save profile info & stock orders + open positions + profits to csv 
+```
+python rhood.py --info --profile-csv         # save profile info to csvs
+python rhood.py --info --profile-csv --csv   # save profile info & stock orders + open positions + profits to csv 
+```
 
 ## EXTRA INFORMATION ABOUT ORDERS
 
 To view all of the information returned from the robinhood API about every order run it with --extra option or --csv option (csv saves the same information). This extra information is ommited during normal operations as we are only concerned with each orders: date, price, amount, state.
 
-    python rhood.py --extra
+```
+python rhood.py --extra
+```
 
 This option can be ran with --save and --load. Even though load offers speed increases by avoiding contacting the API for order parsing, this option will still be a little time consuming as contact the API to map IDs to Symbol names.
 
@@ -107,7 +135,9 @@ This option can be ran with --save and --load. Even though load offers speed inc
 
 Run this to see all of the options.
 
-    python rhood.py --help
+```
+python rhood.py --help
+```
 
 ## SCHEDULING
 
@@ -122,10 +152,12 @@ In Linux/MAC you can schedule run.sh to run on a crontask.
 
 run.bat would have contents similar to this:
 
-    @echo off
-    c:
-    cd \path\to\your\rhood\
-    c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
+```
+@echo off
+c:
+cd \path\to\your\rhood\
+c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
+```
 
 ## INTERACTIVE PLAYGROUND
 
@@ -133,11 +165,15 @@ Want to mess with the objects by yourself?
 
 Run either of these to enter python interactively and then mess with the robin_stocks r object (which has already loged you in). It will login for you and the rest is up to you:
 
-    ipython -i rhood.py
-    python -i rhood.py
+```
+ipython -i rhood.py
+python -i rhood.py
+```
 
 Example:
 
-    python -i rhood.py               # launch rhood with python or ipython in interactive mode
-    > r.get_all_stock_orders()       # shows all stock orders information
-    > r.get_open_stock_positions()   # shows all currently open stocks
+```
+python -i rhood.py               # launch rhood with python or ipython in interactive mode
+> r.get_all_stock_orders()       # shows all stock orders information
+> r.get_open_stock_positions()   # shows all currently open stocks
+```
