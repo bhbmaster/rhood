@@ -2,11 +2,15 @@
 
 Rhood provides a text analysis of your robinhood portfolio. It provides all of the profile data, order data, open positions, and net profits.
 
+Rhood provides an excellent way to see your profit per each symbol (stock, crypto and options*) that you ever owed. Robinhood webapp & native application doesn't provide this information (at least I couldn't find it). You can see your total revenue, and you can see symbols total return. However, robinhoods total return per symbol, seems to clear out if you sell the whole symbol; or maybe part sell of the symbol distorts it too - I am not sure. My application, rhood, tells you the total return of each stock regardless of sales. This gives you a good idea as to which stocks, crypto or option* were your most advantageous (and least advantageous).
+
 As this generates very private data, the output should be viewed with discretely.
 
 Requirements: python3.9 + pip install robin_stocks and pyotp
 
 The tested versions are python3.9 and the modules listed in requirements.txt (along with the tested versions).
+
+**NOTE*: Options are not actually included yet as they are a work in progress.
 
 ## WORK IN PROGRESS
 
@@ -21,6 +25,8 @@ For this to work, I encourage to use 2 factor authentication. Please set it up. 
 More instructions: https://robinhood.com/us/en/support/articles/twofactor-authentication/
 
 You will be given an alphanumetic API key that looks like this "TZIJ9PPENAA2X69Z". You will use it to create the credentials file below.
+
+**NOTE:** I am not sure if the 2 factor with SMS method works, it might. If it doesn't then just switch to 2 factor with an app
 
 ## CREATE ENCODED PERMISSIONS FILE
 
