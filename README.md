@@ -34,9 +34,11 @@ Steps to create the encoded credentials file:
 
 1. Create a clear text 'creds' file which has 3 lines: UN, PW, and KEY. For me it looked like this:
 
-    bhbmaster@gmail.com
-    PineapplesExpress
-    TZIJ9PPENAA2X69Z
+```
+bhbmaster@gmail.com
+PineapplesExpress
+TZIJ9PPENAA2X69Z
+```
 
 1. Encode it with this bash command.
 
@@ -95,11 +97,11 @@ To save all profile data use the --profile-csv switch
 
 ## EXTRA INFORMATION ABOUT ORDERS
 
-If you need to see alot of extra information about each order. This is alot of extra information, as during normal operations we only need the average price, amount, and date - well we also check to make sure the transaction state was not cancelled.
+To view all of the information returned from the robinhood API about every order run it with --extra option or --csv option (csv saves the same information). This extra information is ommited during normal operations as we are only concerned with each orders: date, price, amount, state.
 
     python rhood.py --extra
 
-This option can be ran with --save and --load. Even though load offers speed increases by avoiding contacting the API for order parsing, it will still be a little time consuming as during printing the extra information we will check with the API to map symbol IDs to their names.
+This option can be ran with --save and --load. Even though load offers speed increases by avoiding contacting the API for order parsing, this option will still be a little time consuming as contact the API to map IDs to Symbol names.
 
 ## HELP
 
