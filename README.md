@@ -16,7 +16,7 @@ Here is what needs work:
 
 ## SECURITY ###
 
-For this to work, I encourage to use 2 factor authentication. Please set it up. I installed the google authenticator app on my phone and then I enabled 2 factor authentication with an app (not SMS) on robinhood.
+For this to work, I encourage to use 2 factor authentication. Please set it up. I installed the Google Authenticator app on my phone and then I enabled 2 factor from Robinhood app the "authentication with an app" 2 factor method (not the SMS method).
 
 More instructions: https://robinhood.com/us/en/support/articles/twofactor-authentication/
 
