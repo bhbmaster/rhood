@@ -644,8 +644,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     # show each stocks profit
     print()
     print(f"--- Profits Based On Orders + Open Positions ---")
-    print("* NOTE: For this profit approximation, we add up all of the sell values, subtract the buy values, and finally add back in the current open value if stock is open)")
-    print("* NOTE: If a stock is open, we assume it is all sold at current ask_price (estimated values shown above in open stock positions).")
+    print("* NOTE: For this profit approximation, we add up every symbols of the sell values, subtract the buy values, and if the symbol is open add in the current open value based of current ask price for the symbol")
     print("* NOTE: profit per stock = (current open position value) + (sum of all of the sells) - (sum of all of the buy orders)")
     total_stocks_profit, total_stocks_amount, total_cryptos_profit, total_cryptos_amount, total_options_profit, total_options_amount = 0,0,0,0,0,0
     list_dict_of_stock_profits, list_dict_of_crypto_profits, list_dict_of_option_profits = [], [], []
