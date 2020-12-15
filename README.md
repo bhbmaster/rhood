@@ -78,13 +78,13 @@ rm creds
 
 ## PRINT ALL INFORMATION
 
-Add the --info argument to rhood (-i for short) to print all profile information (lots of sensitive information), order information (Stock, Crypto, Option), open positions, and net profits (see note below).
+Add the --all-info argument to rhood (-i for short) to print all profile information (lots of sensitive information), order information (Stock, Crypto, Option), open positions, and net profits (see note below).
 
 ```
-python rhood.py --info
+python rhood.py --all-info
 ```
 
-**NOTE:** To get any information out of rhood, you must at least use --info. Without it, its only useful to be played with interactively (see Playground).
+**NOTE:** To get any information out of rhood, you must at least use --all-info. Without it, its only useful to be played with interactively (see Playground).
 
 **NOTE OF PROFIT CALCULATION:** Net Profits are calculated by subtracting the sum of the buy from the sells, then adding the open positions value. The open position values are calculated by multiplying current help quantity by the current ask_price. Therefore, if a stock, crypto or option is open then we are getting an estimate of the profit by assuming we also sell the entire stock right now. If a symbol is currently closed (no quantity is held), then open position value can be ignored as its just 0. The term symbol refers to stocks, crypto coins, and options.
 
@@ -93,6 +93,31 @@ Net Profit For Symbol = (Sum of Sells) - (Sum of Buys) + (Open Position Value)
 Total Profit = (Sum of all Net Profits from all symbols)
 ```
 
+## ONLY GETTING PROFILE INFORMATION OR FINANCIAL INFORMATION
+
+Getting all of the information might not be the intent. So other then using a bunch of grep and regex on the final output to get the desired info. You can specify if you want just the profile information (--profile-info), or financial information (--finance-info).
+
+Profile information includes only profile data. This switch can be used with --profile-csv. Other switches that rely on --finance-info will just be ignored (no errors shown)
+
+```
+python rhood.py --profile-info
+```
+
+Finance info includes only financial data (order information, open positions, and net profits). This switch can be used with --csv, --load, --save, --extra. Other switches that rely on --profile-info, will be ignored.
+
+```
+python rhood.py --finance-info
+```
+
+If both profile-info and finance-info switches are used, then its equivalent of just using --all-info. This way all switches work, --save, --load, --extra, --csv, --profile-csv.
+
+```
+python rhood.py --finance-info --profile-info  # both of these lines return the same output
+python rhood.py --all-info                     # both of these lines return the same output
+```
+
+**SIDENOTE:** The old --info switch was renamed to --all-info
+
 ## SAVING AND LOADING STOCK ORDER INFORMATION
 
 Checking the API for all of the orders is time consuming. Try to save the data locally & loading it. Of course if any orders were done since then, we will not have the most up to date information. Its always saved and load to 'dat.pkl' file. You can save a copy if you need, and if you need to use an older copy just rename or overwrite it to dat.pkl.
@@ -100,16 +125,16 @@ Checking the API for all of the orders is time consuming. Try to save the data l
 Save order information to dat.pkl:
 
 ```
-python rhood.py --info --save
+python rhood.py --all-info --save
 ```
 
 Load order information from dat.pkl:
 
 ```
-python rhood.py --info --load
+python rhood.py --all-info --load
 ```
 
-Sidenote: saving and loading only makes sense if you also use --info/-i option 
+Sidenote: saving and loading only makes sense if you also use --all-info/-i option 
 Sidenote: -s is short for --save, -l is short for --load
 
 ## GENERATE CSVs
@@ -117,14 +142,14 @@ Sidenote: -s is short for --save, -l is short for --load
 The --csv or -c option save all of the stock, crypto and options orders + open positions + profits into CSV files. It saves the data as its recieved from the API. This can be loaded from saved orders (with --load option) file or directly from API (with out --load option).
 
 ```
-python rhood.py --info --csv
+python rhood.py --all-info --csv
 ```
 
 To save all profile data use the --profile-csv switch
 
 ```
-python rhood.py --info --profile-csv         # save profile info to csvs
-python rhood.py --info --profile-csv --csv   # save profile info & stock orders + open positions + profits to csv 
+python rhood.py --all-info --profile-csv         # save profile info to csvs
+python rhood.py --all-info --profile-csv --csv   # save profile info & stock orders + open positions + profits to csv 
 ```
 
 ## EXTRA INFORMATION ABOUT ORDERS
