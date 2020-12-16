@@ -12,9 +12,9 @@ function LogNumberTrackerWrapper () {
     echo ""
     echo "###########################################";
     echo "### `date` | `date +%s` --- TEST $N: $@ ###";
-    eval $@;
     echo "###########################################";
     echo "";
+    eval $@;
 }
 
 function LogDoneMessage () {
