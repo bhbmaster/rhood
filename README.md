@@ -1,4 +1,4 @@
-a# RHOOD - Robinhood Stocks Analysis
+# RHOOD - Robinhood Stocks Analysis
 
 Rhood provides a text analysis of your robinhood portfolio. It provides all of the profile data, order data, open positions, and net profits.
 
@@ -187,13 +187,13 @@ The above command has the following output for a random user:
 ```
 2020-07-13T18:15:55.663576Z - a1053cf0-abcde-4910-9e04-abcde - buy        x0.06341400     TSLA [S|filled] avg: $1576.94   exec1/2: 
 $1574.70        price: $1654.93
-...skip...
+...lines skiped for brevity...
 2020-12-09T15:53:58.910000Z - bc4c8aed-abcde-46dd-8106-abcde - buy        x2.00000000     TSLA [S|filled] avg: $639.68    exec1/1: 
 $639.68 price: $671.58
 2020-12-14T18:48:28.147000Z - 75985dd4-abcde-495a-adf3-abcde - buy        x1.00000000     TSLA [S|filled] avg: $637.19    exec1/1: 
 $637.19 price: $669.10
 
-...skip...
+...lines skiped for brevity...
 * sym# 10/41 ord# 41/42 tot_ord# 156 - 2020-12-09 15:53:58 +0000 - TSLA - buy - x2.0 at $2.0000 - value $1279.36
 * sym# 10/41 ord# 42/42 tot_ord# 157 - 2020-12-14 18:48:28 +0000 - TSLA - buy - x1.0 at $1.0000 - value $637.19
 
