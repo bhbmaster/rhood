@@ -13,12 +13,17 @@ import os.path
 import os
 import csv
 
+# NOTE: orders can be in the following states as I have witnessed so far:
+# filled - complete order
+# cancelled - order was cancelled before it was fulfilled
+# queued - purchased/sold not during trade hours, so its waiting
+
 ###################
 #### PRE VARS #####
 ###################
 
 # global vars
-Version="0.0.13"
+Version="0.0.14"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -103,7 +108,6 @@ def DX(number,number_of_decimals):
 
 # FORMAT STOCKS ORDERS TO EXTRA INFORMATION STRING
 def FORMAT_ORDER_STOCKS(RS_orders):
-    # return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\tx{o["quantity"]}\t{URL2SYM(o["instrument"])} [S|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
     if RS_orders is None:
         return
     result = ""
@@ -115,16 +119,14 @@ def FORMAT_ORDER_STOCKS(RS_orders):
         symbol = URL2SYM(o["instrument"])
         state = o["state"]
         priceavg = TOMONEY(o["average_price"])
-        execs = len(o["executions"]) if state != "cancelled" else "None"
-        price1 = TOMONEY(o["executions"][0]["price"]) if state != "cancelled" else "None"
+        execs = len(o["executions"]) if state == "filled" else "None"  # used to be state != "cancelled"
+        price1 = TOMONEY(o["executions"][0]["price"]) if state == "filled" else "None"  # used to be state != "cancelled"
         price = TOMONEY(o["price"])
         result += f'{date} - {id} - {side}\tx{quantity}\t{symbol} [S|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
     return result
 
-
 # FORMAT CRYPTOS ORDERS TO EXTRA INFORMATION STRING
 def FORMAT_ORDER_CRYPTOS(RS_orders):
-    # return "\n".join([ f'{o["last_transaction_at"]} - {o["id"]} - {o["side"]}\t${TOMONEY(o["rounded_executed_notional"])}\tx{o["quantity"]}\t{ID2SYM(o["currency_pair_id"],cryptopairs)} [C|{o["state"]}]\tavg: ${TOMONEY(o["average_price"])}\texec1/{len(o["executions"])}: ${TOMONEY(o["executions"][0]["effective_price"])}\tprice: ${TOMONEY(o["price"])}' for o in RS_orders ])
     if RS_orders is None:
         return
     result = ""
@@ -137,12 +139,11 @@ def FORMAT_ORDER_CRYPTOS(RS_orders):
         symbol = ID2SYM(o["currency_pair_id"],cryptopairs)
         state = o["state"]
         priceavg = TOMONEY(o["average_price"])
-        execs = len(o["executions"]) if state != "cancelled" else "None"
-        price1 = TOMONEY(o["executions"][0]["effective_price"]) if state != "cancelled" else "None"
+        execs = len(o["executions"]) if state == "filled" else "None"  # used to be state != "cancelled"
+        price1 = TOMONEY(o["executions"][0]["effective_price"]) if state == "filled" else "None"  # used to be state != "cancelled"
         price = TOMONEY(o["price"])
-        result += f'{date} - {id} - {side}\t${rounded}\tx{quantity}\t{symbol} [C|state]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
+        result += f'{date} - {id} - {side}\t${rounded}\tx{quantity}\t{symbol} [C|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
     return result
-
 
 # FORMAT OPTIONS ORDERS TO EXTRA INFORMATION STRING - TODO: test with options one date. might be similar to stocks just change to O in state field
 def FORMAT_ORDER_OPTIONS(RS_orders):
@@ -240,7 +241,7 @@ def SORT_ALL_DICT_ORDERS_DECREASING(dict_of_symbol_orders):
 def PARSE_STOCK_ORDERS(RS_stock_orders):
     stock_order_dict = {}
     for o in RS_stock_orders:
-        if o["state"] == "cancelled":
+        if o["state"] != "filled":  # used to be if o["state"] == "cancelled":
             continue
         symbol = URL2SYM(o["instrument"])
         order = orders.order(o["last_transaction_at"],o["side"],float(o["average_price"]),float(o["quantity"]))
@@ -257,7 +258,7 @@ def PARSE_STOCK_ORDERS(RS_stock_orders):
 def PARSE_CRYPTO_ORDERS(RS_crypto_orders):
     crypto_order_dict = {}
     for o in RS_crypto_orders:
-        if o["state"] == "cancelled":
+        if o["state"] != "filled":  # used to be if o["state"] == "cancelled":
             continue
         symbol = ID2SYM(o["currency_pair_id"],cryptopairs)
         order = orders.order(o["last_transaction_at"],o["side"],float(o["average_price"]),float(o["quantity"]))
@@ -313,9 +314,7 @@ def load_data(filename):
 
 # csv functions
 
-# print list of dictionary to file name csv (works for stocks, crypto and options + anything really)
-# added feature to also print dictionary. so if list_of_dictionary is a list of dicts, it will print one way
-# and if its a dict it will print the new way
+# print list of dictionary or just a dictionary to filename (adds .csv to filename)
 def print_to_csv(fname, list_of_dictionary):
     # create dir and get filename
     date_string = run_date_orders.strftime("%Y%m%d-%H%M")

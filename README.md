@@ -10,7 +10,7 @@ Requirements: python3.9 + pip install robin_stocks and pyotp
 
 The tested versions are python3.9 and the modules listed in requirements.txt (along with the tested versions).
 
-**NOTE*: Options are not actually included yet as they are a work in progress.
+**NOTE:** Options are not actually included yet as they are a work in progress.
 
 ## WORK IN PROGRESS
 
@@ -249,3 +249,8 @@ python -i rhood.py               # launch rhood with python or ipython in intera
 > r.get_all_stock_orders()       # shows all stock orders information
 > r.get_open_stock_positions()   # shows all currently open stocks
 ```
+
+## EXTRA INFORMATION
+
+
+* only filled orders are taken into account. orders that were cancelled or are currently pending do not take into account for order parsing, open positions, or profit calculations.

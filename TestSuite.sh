@@ -6,8 +6,24 @@
 # # ./TestSuite.sh > test-output.txt 2>&1 &
 
 N=0
-function LogNumberTrackerWrapper () { N=$((N+1)); echo "### `date` | `date +%s` --- TEST $N: $@ ###"; eval $@; }
-function LogDoneMessage () { echo "### `date` | `date +%s` --- DONE ###"; }
+
+function LogNumberTrackerWrapper () {
+    N=$((N+1));
+    echo ""
+    echo "###########################################";
+    echo "### `date` | `date +%s` --- TEST $N: $@ ###";
+    eval $@;
+    echo "###########################################";
+    echo "";
+}
+
+function LogDoneMessage () {
+    echo "";
+    echo "###########################################";
+    echo "### `date` | `date +%s` --- TESTS DONE ###";
+    echo "###########################################";
+    echo "";
+}
 
 LogNumberTrackerWrapper python rhood.py --all-info
 LogNumberTrackerWrapper python rhood.py --all-info --extra
