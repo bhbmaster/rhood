@@ -1,4 +1,4 @@
-# RHOOD - Robinhood Stocks Analysis
+a# RHOOD - Robinhood Stocks Analysis
 
 Rhood provides a text analysis of your robinhood portfolio. It provides all of the profile data, order data, open positions, and net profits.
 
@@ -161,6 +161,47 @@ python rhood.py --extra
 ```
 
 This option can be ran with --save and --load. Even though load offers speed increases by avoiding contacting the API for order parsing, this option will still be a little time consuming as contact the API to map IDs to Symbol names.
+
+## PARSING WITH GREP FOR A SPECIFIC SYMBOL
+
+Here is how to get information about a specific symbol you have traded (stock or crypto).
+
+First generate the all of the financial information by running one of the three commands below (just run one; they all return equally important data for the current purpose):
+
+```
+python rhood.py --all-info --extra --save --csv > output.txt
+tpython rhood.py --finance-info --extra --save --csv > output.txt
+./run.sh                             # this also generates an output.txt
+```
+
+Then grep the output for your stock:
+
+```
+cat output.txt | grep TSLA
+```
+
+**SIDENOTE:** grep is a linux/unix/mac program that searches for strings that match a specific regular expression (search string). In otherwords for the example above, this shows me only the lines that have the word TSLA in them. Windows users can also get grep if they utilize some sort of linux emulator such as cygwin, or windows 10's bash ability.
+
+The above command has the following output for a random user:
+
+```
+2020-07-13T18:15:55.663576Z - a1053cf0-abcde-4910-9e04-abcde - buy        x0.06341400     TSLA [S|filled] avg: $1576.94   exec1/2: 
+$1574.70        price: $1654.93
+...skip...
+2020-12-09T15:53:58.910000Z - bc4c8aed-abcde-46dd-8106-abcde - buy        x2.00000000     TSLA [S|filled] avg: $639.68    exec1/1: 
+$639.68 price: $671.58
+2020-12-14T18:48:28.147000Z - 75985dd4-abcde-495a-adf3-abcde - buy        x1.00000000     TSLA [S|filled] avg: $637.19    exec1/1: 
+$637.19 price: $669.10
+
+...skip...
+* sym# 10/41 ord# 41/42 tot_ord# 156 - 2020-12-09 15:53:58 +0000 - TSLA - buy - x2.0 at $2.0000 - value $1279.36
+* sym# 10/41 ord# 42/42 tot_ord# 157 - 2020-12-14 18:48:28 +0000 - TSLA - buy - x1.0 at $1.0000 - value $637.19
+
+* OPEN STOCK - TSLA x3.0 at $634.13 each - est current value: $1902.38
+* TSLA net profit $695.66 ** currently open **
+```
+
+**Sidenote:** the above information from top to bottom shows the order information as shown by the robinhood API, then the pertinent stock info as it was parsed by rhood.py (this is similar to the returned order info, except it also shows the value), then it shows any open positions, then my net profits. So this tells the used they had a total of 42 orders with TSLA and made 695$ off of it so far TSLA, and that they still currently have 3 shares of TSLA. Since this is an open stock, we will see that $695 profit only after selling TSLA right now at its current ask price ($634.13)
 
 ## HELP
 
