@@ -8,6 +8,8 @@ As this generates very private data, the output should be viewed with discretely
 
 Requirements: python3.9 + pip install robin_stocks and pyotp
 
+Robinhood API used: https://github.com/jmfernandes/robin_stocks
+
 The tested versions are python3.9 and the modules listed in requirements.txt (along with the tested versions).
 
 **NOTE:** Options are not actually included yet as they are a work in progress.
