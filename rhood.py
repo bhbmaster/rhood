@@ -730,7 +730,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
 ###################
 
 # currently want to run this part of the code if imported and not imported
-LOGIN() # gives us r
+_login_output = LOGIN() # gives us r
 cryptopairs = r.get_crypto_currency_pairs() # global var
 
 if __name__ == "__main__":
