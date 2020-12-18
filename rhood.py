@@ -23,12 +23,15 @@ import csv
 ###################
 
 # global vars
-Version="0.0.14"
+Version="0.1.0"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
 FILENAME = "dat.pkl" # where we order info
 dir_suffix = "csv" # where we save csvs
+user_string = ""
+expires_seconds = 3600 # one hour login session (don't worry they don't overlap so you can login with another user afterwards)
+loaded_username = "" # TODO: to check if we use --load, if correct username is loaded
 
 ###################
 #### FUNCTIONS ####
@@ -36,19 +39,27 @@ dir_suffix = "csv" # where we save csvs
 
 # LOGIN
 def LOGIN():
-    global r
+    global r, user_string, loaded_username
     if not os.path.isfile(CREDENTIALSFILE):
         print()
         print(f"* ERROR: credentials file missing in current path '{CREDENTIALSFILE}'. follow README.md for creation instructions.")
         print()
-        sys.exit(-1)
+        sys.exit(1)
     with open(CREDENTIALSFILE) as f:
         lines = base64.b64decode(f.read()).decode("utf-8").split()
     # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password, authkey)
     EMAIL, PASSWD, KEY = map(lambda x: x.strip(), lines)
+    loaded_username = EMAIL
+    user_string = EMAIL.split("@")[0] # get the username part of the email (or just the username if username was provided)
     ptot = pyotp.TOTP(KEY)
     ptot_now = ptot.now()
-    login = r.login(EMAIL,PASSWD,mfa_code=ptot_now)
+    # probably don't need this try block but it doesn't hurt - so we logout first
+    try:
+        r.logout()
+    except:
+        pass
+    # login and don't store session to pickle file, so that we
+    login = r.login(EMAIL, PASSWD, mfa_code=ptot_now, expiresIn = expires_seconds, store_session=False) # changed to store_session false so could load gabes data
     return login
 
 ###################
@@ -277,7 +288,7 @@ def PARSE_OPTION_ORDERS(RS_option_orders):
 
 # save time consuming data to file
 def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,verify_bool=False):
-    save_data = { "stock_orders":so, "crypto_orders":co, "option_orders":oo, "stocks_dict":sd, "cryptos_dict":cd, "options_dict":od, "stocks_open":soo, "cryptos_open":coo, "options_open":ooo, "run_date": run_date }
+    save_data = { "stock_orders":so, "crypto_orders":co, "option_orders":oo, "stocks_dict":sd, "cryptos_dict":cd, "options_dict":od, "stocks_open":soo, "cryptos_open":coo, "options_open":ooo, "run_date": run_date, "username": loaded_username }  # loaded_username is global
     # Store data (serialize)
     with open(filename, 'wb') as handle:
         pickle.dump(save_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -293,8 +304,9 @@ def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,verify_bool=False):
         len_soo = len(ld["stocks_open"]) if ld["stocks_open"] is not None else 0
         len_coo = len(ld["cryptos_open"]) if ld["cryptos_open"] is not None else 0
         len_ooo = len(ld["options_open"]) if ld["options_open"] is not None else 0
+        un = ld["username"] if ld["username"] is not None else "N/A"
         # print()
-        print(f"* saved data to {filename} of run_date {run_date} - {len_so} orders of {len_soo} open of {len_sd} stocks - {len_co} orders of {len_coo} open of {len_cd} crypto - {len_oo} orders of {len_ooo} open of {len_od} options")
+        print(f"* saved data of {un} to {filename} of run_date {run_date} - {len_so} orders of {len_soo} open of {len_sd} stocks - {len_co} orders of {len_coo} open of {len_cd} crypto - {len_oo} orders of {len_ooo} open of {len_od} options")
         print()
 
 # load time consuming data from file
@@ -304,7 +316,7 @@ def load_data(filename):
         print()
         print(f"* ERROR: can't load {filename}, it is missing. try running with --save parameter instead so that we contact the API for the order information and save the data to {filename}.")
         print()
-        sys.exit(-1)
+        sys.exit(1)
     # Load data (deserialize)
     with open(filename, 'rb') as handle:
         unserialized_data = pickle.load(handle)
@@ -313,12 +325,15 @@ def load_data(filename):
 ###################
 
 # csv functions
+def get_save_dir():
+    date_string = run_date_orders.strftime("%Y%m%d-%H%M")
+    dir_full = f"{dir_suffix}/{date_string}-{user_string}"
+    return dir_full
 
 # print list of dictionary or just a dictionary to filename (adds .csv to filename)
 def print_to_csv(fname, list_of_dictionary):
     # create dir and get filename
-    date_string = run_date_orders.strftime("%Y%m%d-%H%M")
-    dir_full = dir_suffix+"/"+ date_string
+    dir_full = get_save_dir()
     if not os.path.exists(dir_suffix):
         os.makedirs(dir_suffix)
     if not os.path.exists(dir_full):
@@ -397,6 +412,11 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         ld = load_data(FILENAME) # this is used below this if as well
         run_date_orders = ld['run_date']
         print(f"* Preloading Complete")
+        if ld["username"] != loaded_username:
+            print()
+            print("* ERROR: loaded dat.pkl of another user, can't do that. please save current users data first using --save, if you wish to --load it at later point.")
+            print()
+            sys.exit(1)
         print()
     else:
         # contacting order via API
@@ -583,8 +603,10 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         total_stocks_open_value, total_cryptos_open_value, total_options_open_value = (0, 0, 0)
         sod, cod, ood = [], [], [] # stock open list of dicts, crypto open list of dicts, option open list of dicts
         # stocks
-        stocks_open = ld["stocks_open"] if load_bool else r.get_open_stock_positions() 
-        if stocks_open != []:
+        stocks_open = ld["stocks_open"] if load_bool else r.get_open_stock_positions()
+        sum_of_stocks_open_quantity = sum([ float(i["quantity"]) for i in stocks_open ])
+        # if stocks_open != []:
+        if sum_of_stocks_open_quantity != 0:
             print()
             print("STOCKS:")
             for i in stocks_open:
@@ -601,7 +623,9 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             print(f"* TOTAL OPEN STOCKS - {total_stocks_open_amount} stocks for total ${D2(total_stocks_open_value)} estimated value")
         # cryptos
         cryptos_open = ld["cryptos_open"] if load_bool else r.get_crypto_positions()
-        if cryptos_open != []:
+        sum_of_cryptos_open_quantity = sum([ float(i["quantity"]) for i in cryptos_open ])
+        # if cryptos_open != []:
+        if sum_of_cryptos_open_quantity != 0:
             print()
             print("CRYPTO:")
             for i in cryptos_open:
@@ -681,7 +705,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     print(f"--- Final Notes ---")
 
     # if profile info was saved to csv
-    dir_full = dir_suffix+"/"+ run_date_orders.strftime("%Y%m%d-%H%M")
+    dir_full = get_save_dir()
+
     if info_type == "ALL" or info_type == "PROFILE":
         if csv_profile_bool:
             print(f"* saved profile data csvs to '{dir_full}' directory")
@@ -773,7 +798,7 @@ if __name__ == "__main__":
         print()
         print("* ERROR: can't save and load. try again with either save or load.")
         print()
-        sys.exit(-1)
+        sys.exit(1)
 
     # kicking off main operation below:
     if all_info_bool: # this should be all info - get main profile & orders
