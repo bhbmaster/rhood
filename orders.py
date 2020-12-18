@@ -70,47 +70,55 @@ class multi_orders:
     def len(self):
         return len(self.orders)
 
-    def sort_by_time_increasing(self): # this is the best sort order (we need to guarantee it although it pretty much is already)
+    def sort_by_time_increasing(self):
+        # this is the best sort order (we need to guarantee it although it pretty much is already)
         self.orders.sort(key=lambda x: x.date_epoch, reverse=False)
 
     def sort_by_time_decreasing(self):
         self.orders.sort(key=lambda x: x.date_epoch, reverse=True)
 
-    def time_vs_change_and_total_ATTR(self, attribute_name: str): # TODO: specify output type & rethink + or - (maybe best to put it back & re-adjust profit formula)!!
+    def time_vs_change_and_total_ATTR(self, attribute_name: str) -> list:
         # possible attribute_name so far 'value_float' or 'share_float'
         # output is list of these tuples (datetime, change in attribute, cumulative atttributes so far)
         result = []
         cumulative = 0 
         for o in self.orders:
             if o.type_string == "buy":
-                sign = -1  # used to be +1
+                sign = -1
             else: # if "sell"
-                sign = 1   # used to be -1
-            # note: with negative buys and positive sells, we just add out open position values and get our profit. however, we get negative amounts which don't make sense so just multiply them by -1 to make sense - thats if you need to use amounts (as value is better for value + open position is better for current values). amounts differ with stock splits so they are kind of historically useless
+                sign = 1
+            # note: with negative buys and positive sells, we just add out open position values and get our profit. however, we get negative amounts which don't make sense so just multiply them by -1 to make sense. however, calculating amounts/quantity this way is not advised as stock splits mess the numbers up. instead use current open positions for current value. historical stock quantity doesn't really matter, its the value that matters.
             attribute_value = getattr(o,attribute_name)
             change_in_attribute_value = sign * attribute_value
             cumulative += change_in_attribute_value
             result.append( (o.date_dt, change_in_attribute_value, cumulative) )
         return result
 
-    def time_vs_amount(self): # TODO: specify output type
+    def time_vs_amount(self) -> list:
         # if splits happen this will not make sense and thats okay
         # output (date, change in share, cumulative shares so far)
         return self.time_vs_change_and_total_ATTR("amount_float")
 
-    def time_vs_value(self): # TODO: specify output type
+    def time_vs_value(self) -> list:
         # output (date, change in value, cumulative value so far)
         return self.time_vs_change_and_total_ATTR("value_float")
 
-    def latest_value(self) -> float: # shows final cumulative value
+    def latest_value(self) -> float:
+        # this part of the profit formula
+        # profit = sells - buys + opens
+        # this reports the sells - buys
+        # shows final cumulative value
         tvv = self.time_vs_value()
         last_i = len(tvv)-1
         return tvv[last_i][2]
 
-    def latest_profit(self) -> float: # latest profit is cumulative value plus what we have open
+    def latest_profit(self) -> float:
+        # latest profit is cumulative value plus what we have open
+        # profit = sells - buys + opens
         return self.latest_value() + self.current_value
 
-    def latest_amount(self) -> float: # shows final cumulative amount of shares (this is not going to make much sense if there are splits that happened)
+    def latest_amount(self) -> float:
+        # shows final cumulative amount of shares (this is not going to make much sense if there are splits that happened)
         tva = self.time_vs_amount()
         last_i = len(tva)-1
         return tva[last_i][2]

@@ -31,7 +31,7 @@ FILENAME = "dat.pkl" # where we order info
 dir_suffix = "csv" # where we save csvs
 user_string = ""
 expires_seconds = 3600 # one hour login session (don't worry they don't overlap so you can login with another user afterwards)
-loaded_username = "" # TODO: to check if we use --load, if correct username is loaded
+loaded_username = ""
 
 ###################
 #### FUNCTIONS ####
