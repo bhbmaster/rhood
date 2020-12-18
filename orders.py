@@ -29,9 +29,6 @@ class order:
     def date_nice(self):
         return self.date_dt.strftime("%Y-%m-%d %H:%M:%S %z")
 
-    # def __str__(self):
-    #     return f"{self.date_nice()} buy"
-
     def __repr__(self):
         return f'order("{self.date_nice()}","{self.type_string}",{self.price_float},{self.amount_float})'
 
