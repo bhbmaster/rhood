@@ -20,7 +20,7 @@ Here is what needs work:
 
 - Options are not calculated as I don't have any. I need to get some and then I can work them into the code. So if you are using only stocks + crypto or one or the other, then you this code will be useful.
 
-## SECURITY ###
+## SECURITY
 
 For this to work, I encourage to use 2 factor authentication. Please set it up. I installed the Google Authenticator app on my phone and then I enabled 2 factor from Robinhood app the "authentication with an app" 2 factor method (not the SMS method).
 
@@ -77,6 +77,21 @@ PPhib3453455QGdtYWlsasERTVCXYWlyMTIz123412341230VlZFTkJLMlg0N1A=
 ```
 rm creds
 ```
+
+## LOGIN INSECURELY - NOT RECOMMENDED
+
+One can login with username and password as well - without 2 factor authentication. It is not recommended, but it works.
+
+Follow the instructions above to create a creds-encoded file with just username and password, missing the auth key.
+
+So it would look like this pre encoding:
+
+```
+bhbmaster@gmail.com
+PineapplesExpress
+```
+
+Then include the the --insecure (or -I) argument in all of your rhood.py commands.
 
 ## PRINT ALL INFORMATION
 
@@ -233,26 +248,14 @@ cd \path\to\your\rhood\
 c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 ```
 
-## INTERACTIVE PLAYGROUND
-
-Want to mess with the objects by yourself?
-
-Run either of these to enter python interactively and then mess with the robin_stocks r object (which has already loged you in). It will login for you and the rest is up to you:
-
-```
-ipython -i rhood.py
-python -i rhood.py
-```
-
-Example:
-
-```
-python -i rhood.py               # launch rhood with python or ipython in interactive mode
-> r.get_all_stock_orders()       # shows all stock orders information
-> r.get_open_stock_positions()   # shows all currently open stocks
-```
-
 ## EXTRA INFORMATION
 
+* only filled orders are taken into account. orders that were cancelled or are currently pending / queued do not take into account for order parsing, open positions, or profit calculations.
 
-* only filled orders are taken into account. orders that were cancelled or are currently pending do not take into account for order parsing, open positions, or profit calculations.
+## TODO
+
+* if we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occured then we will be in a mathematics mess, that I don't want to deal with
+
+* allow insecure credentials, without 2factor authentication. add --insecure / -I flag. due to 2 methods of login, we now have to remove interactive mode (it was useless anyways). **DONE, need to test.**
+
+* sort open positions & net profits alphabetically, or by value. default alphabet, include option --sort-by-value / -S.

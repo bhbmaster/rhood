@@ -23,7 +23,7 @@ import csv
 ###################
 
 # global vars
-Version="0.1.0"
+Version="0.1.1"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -37,7 +37,7 @@ loaded_username = ""
 #### FUNCTIONS ####
 ###################
 
-# LOGIN
+# LOGIN WITH 2FACTOR. creds FILE HAS 3 LINES: username/email, password, authkey
 def LOGIN():
     global r, user_string, loaded_username
     if not os.path.isfile(CREDENTIALSFILE):
@@ -60,6 +60,29 @@ def LOGIN():
         pass
     # login and don't store session to pickle file, so that we
     login = r.login(EMAIL, PASSWD, mfa_code=ptot_now, expiresIn = expires_seconds, store_session=False) # changed to store_session false so could load gabes data
+    return login
+
+# LOGIN INSECURELY WITHOUT 2FACTOR. creds FILE HAS 2 LINES: username/email, password
+def LOGIN_INSECURE():
+    global r, user_string, loaded_username
+    if not os.path.isfile(CREDENTIALSFILE):
+        print()
+        print(f"* ERROR: credentials file missing in current path '{CREDENTIALSFILE}'. follow README.md for creation instructions.")
+        print()
+        sys.exit(1)
+    with open(CREDENTIALSFILE) as f:
+        lines = base64.b64decode(f.read()).decode("utf-8").split()
+    # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password)
+    EMAIL, PASSWD = map(lambda x: x.strip(), lines)
+    loaded_username = EMAIL
+    user_string = EMAIL.split("@")[0] # get the username part of the email (or just the username if username was provided)
+    # probably don't need this try block but it doesn't hurt - so we logout first
+    try:
+        r.logout()
+    except:
+        pass
+    # login and don't store session to pickle file, so that we
+    login = r.login(EMAIL, PASSWD, expiresIn = expires_seconds, store_session=False) # changed to store_session false so could load gabes data
     return login
 
 ###################
@@ -754,16 +777,13 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
 ####### MAIN ######
 ###################
 
-# currently want to run this part of the code if imported and not imported
-_login_output = LOGIN() # gives us r
-cryptopairs = r.get_crypto_currency_pairs() # global var
-
 if __name__ == "__main__":
 
     # args parser
 
     arg_desc = f"rhood v{Version} - provides lots of robinhood information"
     parser = argparse.ArgumentParser(description=arg_desc)
+    parser.add_argument("--insecure","-I",help="not recommended. login insecurely without 2factor authentication. 'creds-encoded' only holds username line and password line in encoded base64 ascii format. sidenote: default secure mode also needs third auth key line encoded as well", action="store_true")
     parser.add_argument("--all-info","-i",help="get all profile + order + open positions + profit info.",action="store_true")
     parser.add_argument("--profile-info","-r",help="get only profile information.",action="store_true")
     parser.add_argument("--finance-info","-f",help="get financial information: all orders + open positions + profit info.",action="store_true")
@@ -799,6 +819,15 @@ if __name__ == "__main__":
         print("* ERROR: can't save and load. try again with either save or load.")
         print()
         sys.exit(1)
+
+    # LOGIN securely or insecurely
+    if not args.insecure:
+        _login_output = LOGIN() # gives us r from secure login
+    else:
+        _login_output = LOGIN_INSECURE() # gives us r from insecure login
+
+    # GET CRYPTOPAIRS (global var used in pairing crypto ids to coin name)
+    cryptopairs = r.get_crypto_currency_pairs() # global var
 
     # kicking off main operation below:
     if all_info_bool: # this should be all info - get main profile & orders
