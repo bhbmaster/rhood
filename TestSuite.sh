@@ -50,4 +50,6 @@ LogNumberTrackerWrapper python rhood.py --finance-info --load --csv
 LogNumberTrackerWrapper python rhood.py --finance-info --load --extra
 LogNumberTrackerWrapper python rhood.py --finance-info --load --csv --extra
 
+LogNumberTrackerWrapper python rhood.py --all-info --sort-by-name
+
 LogDoneMessage;
