@@ -413,7 +413,7 @@ def print_all_options_to_csv(RS_orders_all_options):
 ###################
 
 # PRINT STOCKS + ORDERS
-def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_bool=False, csv_bool=False, csv_profile_bool=False, info_type="ALL"):
+def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_bool=False, csv_bool=False, csv_profile_bool=False, info_type="ALL", sort_alpha_bool=False):
 
     global run_date_orders # we change this value in here so we mark it as changeable with global keyword
 
@@ -642,7 +642,16 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 total_stocks_open_amount += a
                 total_stocks_open_value += stocks_dict[s].current_value
                 sod.append({ "symbol": s, "quantity": a, "price": p, "value": stocks_dict[s].current_value })
-                print(f"* OPEN STOCK - {s} x{stocks_dict[s].current_amount} at ${D2(stocks_dict[s].current_avgprice)} each - est current value: ${D2(stocks_dict[s].current_value)}")
+            if sort_alpha_bool:
+                sod.sort(key=lambda x: x["symbol"], reverse=False)
+            else:
+                sod.sort(key=lambda x: float(x["value"]), reverse=False)
+            for i in sod:
+                s = i["symbol"]
+                a = i["quantity"]
+                p = i["price"]
+                v = i["value"]
+                print(f"* OPEN STOCK - {s} x{a} at ${D2(p)} each - est current value: ${D2(v)}")
             print(f"* TOTAL OPEN STOCKS - {total_stocks_open_amount} stocks for total ${D2(total_stocks_open_value)} estimated value")
         # cryptos
         cryptos_open = ld["cryptos_open"] if load_bool else r.get_crypto_positions()
@@ -661,7 +670,16 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 total_cryptos_open_amount += a
                 total_cryptos_open_value += cryptos_dict[s].current_value
                 cod.append({ "symbol": s, "quantity": a, "price": p, "value": cryptos_dict[s].current_value })
-                print(f"* OPEN CRYPTO - {s} x{cryptos_dict[s].current_amount} at ${D2(cryptos_dict[s].current_avgprice)} each - est current value: ${D2(cryptos_dict[s].current_value)}")
+            if sort_alpha_bool:
+                cod.sort(key=lambda x: x["symbol"], reverse=False)
+            else:
+                cod.sort(key=lambda x: float(x["value"]), reverse=False)
+            for i in cod:
+                s = i["symbol"]
+                a = i["quantity"]
+                p = i["price"]
+                v = i["value"]
+                print(f"* OPEN CRYPTO - {s} x{a} at ${D2(p)} each - est current value: ${D2(v)}")
             print(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} stocks for total ${D2(total_cryptos_open_value)} estimated value")
         # TODO: options open positions
         options_open = ld["options_open"] if load_bool else r.get_all_option_positions()
@@ -676,7 +694,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             print(f"* total open positions value: ${D2(total_open_value)}")
 
         # quick inner function for profit printing
-        def show_profits_from_orders_dictionary(dictionary):
+        def show_profits_from_orders_dictionary(dictionary, prefix=""):
             total_profit = 0
             total_amount = 0
             # get list of all symbols that are open
@@ -689,13 +707,23 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             for sym,orders in dictionary.items():
                 last_profit = orders.latest_profit()
                 last_amount = orders.latest_amount() # <-- not needed as it fails when stocks split. open stocks make more senses
-                open_string = " ** currently open **" if sym in all_keys else ""
+                ## open_string = " ** currently open **" if sym in all_keys else ""
                 open_bool = True if sym in all_keys else False
                 list_dict.append({"symbol":sym,"profit":last_profit,"open":open_bool})
-                print(f"* {sym} net profit ${D2(last_profit)}"+open_string)
+                ## print(f"* {sym} net profit ${D2(last_profit)}"+open_string)
                 total_profit += last_profit
                 total_amount += last_amount
-            print(f"* total net profit ${D2(total_profit)}")
+            # sort list by profit (previously we printed list above, and didn't this for loop because we didn't sort)
+            if sort_alpha_bool:
+                list_dict.sort(key=lambda x: x["symbol"], reverse=False) # increasing
+            else:
+                list_dict.sort(key=lambda x: float(x["profit"]), reverse=False) # increasing
+            for i in list_dict:
+                sym = i["symbol"]
+                last_profit = i["profit"]
+                open_string = " ** currently open **" if i["open"] else ""
+                print(f"* {prefix}{sym} net profit ${D2(last_profit)}"+open_string)
+            print(f"* {prefix}total net profit ${D2(total_profit)}")
             return (total_profit, total_amount, list_dict)
 
         # show each stocks profit
@@ -709,15 +737,15 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         if stock_orders != []:
             print()
             print(f"STOCKS:")
-            total_stocks_profit, total_stocks_amount, list_dict_of_stock_profits = show_profits_from_orders_dictionary(stocks_dict)
+            total_stocks_profit, total_stocks_amount, list_dict_of_stock_profits = show_profits_from_orders_dictionary(stocks_dict,"STOCK ")
         if crypto_orders != []:
             print()
             print(f"CRYPTO:")
-            total_cryptos_profit, total_cryptos_amount, list_dict_of_crypto_profits = show_profits_from_orders_dictionary(cryptos_dict)
+            total_cryptos_profit, total_cryptos_amount, list_dict_of_crypto_profits = show_profits_from_orders_dictionary(cryptos_dict, "CRYPTO ")
         if option_orders != []:
             print()
             print(f"OPTIONS:")
-            total_options_profit, total_options_amount, list_dict_of_option_profits = show_profits_from_orders_dictionary(options_dict)
+            total_options_profit, total_options_amount, list_dict_of_option_profits = show_profits_from_orders_dictionary(options_dict, "OPTION ")
         complete_profit = total_stocks_profit + total_cryptos_profit + total_options_profit
         print()
         print("TOTAL:")
@@ -792,6 +820,7 @@ if __name__ == "__main__":
     parser.add_argument("--extra","-e",help="shows extra order information (time consuming). only works with --all-info or --finance-info.",action="store_true")
     parser.add_argument("--csv","-c",help="save all loaded orders to csv files in 'csv' directory (dir is created if missing). only works  with --all-info or --finance-info.", action="store_true")
     parser.add_argument("--profile-csv","-p",help="save all profile data to csv. only works if --profile-info or --all-info used as well.", action="store_true")
+    parser.add_argument("--sort-by-name","-S",help="sort open positions + profits by name instead of value.", action="store_true")
     args = parser.parse_args()
 
     # parse save and load
@@ -813,6 +842,9 @@ if __name__ == "__main__":
         # if we are asking for profile + order info then just get all of it
         all_info_bool = True
 
+    # sort type
+    sort_alpha_bool = args.sort_by_name
+
     # error checking on saving and loading
     if load_bool and save_bool:
         print()
@@ -831,10 +863,10 @@ if __name__ == "__main__":
 
     # kicking off main operation below:
     if all_info_bool: # this should be all info - get main profile & orders
-        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool,csv_profile_bool=csv_profile_bool,info_type="ALL")
+        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool,csv_profile_bool=csv_profile_bool,info_type="ALL", sort_alpha_bool=sort_alpha_bool)
     elif profile_info_bool: # this should be just profile info
-        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool,csv_profile_bool=csv_profile_bool,info_type="PROFILE")
+        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool,csv_profile_bool=csv_profile_bool,info_type="PROFILE", sort_alpha_bool=sort_alpha_bool)
     elif finance_info_bool: # this is just finance info
-        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool,csv_profile_bool=csv_profile_bool,info_type="FINANCE")
+        PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool,csv_profile_bool=csv_profile_bool,info_type="FINANCE", sort_alpha_bool=sort_alpha_bool)
 
 # EOF

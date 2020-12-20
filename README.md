@@ -2,7 +2,7 @@
 
 Rhood provides a text analysis of your robinhood portfolio. It provides all of the profile data, order data, open positions, and net profits.
 
-Rhood provides an excellent way to see your profit per each symbol (stock, crypto and options*) that you ever owed. Robinhood webapp & native application doesn't provide this information (at least I couldn't find it). You can see your total revenue, and you can see symbols total return. However, robinhoods total return per symbol, seems to clear out if you sell the whole symbol; or maybe part sell of the symbol distorts it too - I am not sure. My application, rhood, tells you the total return of each stock regardless of sales. This gives you a good idea as to which stocks, crypto or option* were your most advantageous (and least advantageous).
+Rhood provides an excellent way to see your profit for each symbol ever held. Robinhood webapp & native application doesn't provide this information (at least I couldn't find it). You can see your total revenue, and you can see symbols total return. However, robinhoods total return per symbol, seems to clear out if you sell the whole symbol; or maybe part sell of the symbol distorts it too - I am not sure. My application, rhood, tells you the total return of each stock regardless of sales. This gives you a good idea as to which stocks, crypto or option* were your most advantageous (and least advantageous).
 
 As this generates very private data, the output should be viewed with discretely.
 
@@ -12,13 +12,9 @@ Robinhood API used: https://github.com/jmfernandes/robin_stocks
 
 The tested versions are python3.9 and the modules listed in requirements.txt (along with the tested versions).
 
-**NOTE:** Options are not actually included yet as they are a work in progress.
-
 ## WORK IN PROGRESS
 
-Here is what needs work:
-
-- Options are not calculated as I don't have any. I need to get some and then I can work them into the code. So if you are using only stocks + crypto or one or the other, then you this code will be useful.
+* See todo list at the bottom. Options are not taken into account, yet.
 
 ## SECURITY
 
@@ -252,10 +248,14 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 * only filled orders are taken into account. orders that were cancelled or are currently pending / queued do not take into account for order parsing, open positions, or profit calculations.
 
+* open positions and net profits are sorted from lowest value symbols to highest. you can use the --sort-name (-S) option to instead sort alphabetically by name.
+
 ## TODO
+
+* Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
 
 * if we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occured then we will be in a mathematics mess, that I don't want to deal with
 
 * allow insecure credentials, without 2factor authentication. add --insecure / -I flag. due to 2 methods of login, we now have to remove interactive mode (it was useless anyways). **DONE, need to test.**
 
-* sort open positions & net profits alphabetically, or by value. default alphabet, include option --sort-by-value / -S.
+* sort open positions & net profits alphabetically, or by value. default value, include option --sort-by-name / -S. **DONE**
