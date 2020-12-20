@@ -99,7 +99,7 @@ python rhood.py --all-info
 
 **NOTE:** To get any information out of rhood, you must at least use --all-info. Without it, its only useful to be played with interactively (see Playground).
 
-**NOTE OF PROFIT CALCULATION:** Net Profits are calculated by subtracting the sum of the buy from the sells, then adding the open positions value. The open position values are calculated by multiplying current help quantity by the current ask_price. Therefore, if a stock, crypto or option is open then we are getting an estimate of the profit by assuming we also sell the entire stock right now. If a symbol is currently closed (no quantity is held), then open position value can be ignored as its just 0. The term symbol refers to stocks, crypto coins, and options.
+**NOTE OF PROFIT CALCULATION:** Net Profits are calculated by subtracting the sum of the buy from the sells, then adding the open positions value. The open position values are calculated by multiplying current help quantity by the current ask_price (which is always changing). Therefore, if a stock, crypto or option is open then we are only getting an estimate of the profit by assuming we also sell the entire stock right now. If a symbol is currently closed (no quantity is held), then open position value can be ignored as its just 0. The term symbol refers to stocks, crypto coins, and options.
 
 ```
 Net Profit For Symbol = (Sum of Sells) - (Sum of Buys) + (Open Position Value)
@@ -214,7 +214,7 @@ $637.19 price: $669.10
 * TSLA net profit $695.66 ** currently open **
 ```
 
-**Sidenote:** the above information from top to bottom shows the order information as shown by the robinhood API, then the pertinent stock info as it was parsed by rhood.py (this is similar to the returned order info, except it also shows the value), then it shows any open positions, then my net profits. So this tells the used they had a total of 42 orders with TSLA and made 695$ off of it so far TSLA, and that they still currently have 3 shares of TSLA. Since this is an open stock, we will see that $695 profit only after selling TSLA right now at its current ask price ($634.13)
+**Sidenote:** Above information shows the order information as shown by the robinhood API, followed by the info as it was parsed by rhood.py (this is similar to the returned API order info, except it also shows the value), then it shows any open positions, finally it shows the net profits. From this data, we see there is a total of 42 orders with TSLA with 3 open stocks and profited $695 so far. Since this is an open stock, we will only see that full profit after selling all of TSLA at current ask price ($634.13).
 
 ## HELP
 
@@ -246,16 +246,16 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 ## EXTRA INFORMATION
 
-* only filled orders are taken into account. orders that were cancelled or are currently pending / queued do not take into account for order parsing, open positions, or profit calculations.
+* Only filled orders are taken into account. orders that were cancelled or are currently pending / queued do not take into account for order parsing, open positions, or profit calculations.
 
-* open positions and net profits are sorted from lowest value symbols to highest. you can use the --sort-name (-S) option to instead sort alphabetically by name.
+* Open positions and net profits are sorted from lowest value symbols to highest. you can use the --sort-name (-S) option to instead sort alphabetically by name.
 
 ## TODO
 
 * Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
 
-* if we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occured then we will be in a mathematics mess, that I don't want to deal with
+* If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occured then we will be in a mathematics mess, that I don't want to deal with
 
-* allow insecure credentials, without 2factor authentication. add --insecure / -I flag. due to 2 methods of login, we now have to remove interactive mode (it was useless anyways). **DONE, need to test.**
+* Allow insecure credentials, without 2factor authentication. add --insecure / -I flag. due to 2 methods of login, we now have to remove interactive mode (it was useless anyways). **DONE, need to test.**
 
-* sort open positions & net profits alphabetically, or by value. default value, include option --sort-by-name / -S. **DONE**
+* Sort open positions & net profits alphabetically, or by value. default value, include option --sort-by-name / -S. **DONE**
