@@ -6,9 +6,30 @@ Rhood provides an excellent way to see your profit for each symbol ever held. Ro
 
 As this generates very private data, the output should be viewed with discretely.
 
-Requirements: python3.9 + pip install robin_stocks and pyotp
+Example output which is made up but shows general concept:
 
-Robinhood API used: https://github.com/jmfernandes/robin_stocks
+```
+...many lines cut off for brevity (cut lines might have shown all profile info, all orders and open positions)...
+
+STOCKS:
+* STOCK CBAT net profit $-3.73
+* STOCK MGM net profit $27.25 ** currently open **
+* STOCK NCLH net profit $11.66 ** currently open **
+* STOCK SPCE net profit $169.44
+* STOCK total net profit $204.62
+
+CRYPTO:
+* CRYPTO ETH net profit $-3.31
+* CRYPTO BTC net profit $67.34 ** currently open **
+* CRYPTO total net profit $64.03
+
+TOTAL:
+* total net profit from stocks, crypto, and options: $268.65
+```
+
+**Requirements:** python3.9 + pip install robin_stocks and pyotp
+
+**Robinhood API used:** https://github.com/jmfernandes/robin_stocks
 
 The tested versions are python3.9 and the modules listed in requirements.txt (along with the tested versions).
 
