@@ -271,12 +271,28 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 * Open positions and net profits are sorted from lowest value symbols to highest. you can use the --sort-name (-S) option to instead sort alphabetically by name.
 
+* If --load option is used, the dat.pkl file contains the following information: username, run date & time, all of the stock, crypto and options orders (as received from API), and all of the stock, crypto and option open positions.
+
+## LIMITATIONS
+
+* Credentials file must be named 'creds-encoded' and be present in current working directory.
+
+* The --save option saves 'dat.pkl' into current working directory. --load can only load that file. Specifying other files is not possible.
+
+* The --load option can only be used if 'dat.pkl' file is present in current working directory.
+
+* The --load option only works if the username logging in matches the username saved in the 'dat.pkl' file.
+
 ## TODO
 
 * Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
 
-* If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occured then we will be in a mathematics mess, that I don't want to deal with
+* If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occured then we will be in a mathematics mess, that I don't want to deal with.
 
 * Allow insecure credentials, without 2factor authentication. add --insecure / -I flag. due to 2 methods of login, we now have to remove interactive mode (it was useless anyways). **DONE, need to test.**
 
 * Sort open positions & net profits alphabetically, or by value. default value, include option --sort-by-name / -S. **DONE**
+
+* Add login for secure and insecure mode using CLI arguments, without needing 'creds-encoded' file. Will add --username (-U), --password (-P), --authkey (--K). **IN PROGRESS**
+
+* Code refactor: combine login secure and insecure into 1 login method.

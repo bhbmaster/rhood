@@ -23,7 +23,7 @@ import csv
 ###################
 
 # global vars
-Version="0.1.2"
+Version="0.1.3"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -38,7 +38,8 @@ loaded_username = ""
 ###################
 
 # LOGIN WITH 2FACTOR. creds FILE HAS 3 LINES: username/email, password, authkey
-def LOGIN():
+def LOGIN(un="",pw="",ke=""):
+    # TODO: if un,pw, and key present use them for login, if all missing (""), then use creds-encoded. if inbetween, error.
     global r, user_string, loaded_username
     if not os.path.isfile(CREDENTIALSFILE):
         print()
@@ -63,7 +64,8 @@ def LOGIN():
     return login
 
 # LOGIN INSECURELY WITHOUT 2FACTOR. creds FILE HAS 2 LINES: username/email, password
-def LOGIN_INSECURE():
+def LOGIN_INSECURE(un="",pw=""):
+    # TODO: if un,pw present use them for login, if all missing (""), then use creds-encoded. if inbetween, error.
     global r, user_string, loaded_username
     if not os.path.isfile(CREDENTIALSFILE):
         print()
@@ -809,18 +811,23 @@ if __name__ == "__main__":
 
     # args parser
 
-    arg_desc = f"rhood v{Version} - provides lots of robinhood information"
-    parser = argparse.ArgumentParser(description=arg_desc)
-    parser.add_argument("--insecure","-I",help="not recommended. login insecurely without 2factor authentication. 'creds-encoded' only holds username line and password line in encoded base64 ascii format. sidenote: default secure mode also needs third auth key line encoded as well", action="store_true")
-    parser.add_argument("--all-info","-i",help="get all profile + order + open positions + profit info.",action="store_true")
-    parser.add_argument("--profile-info","-r",help="get only profile information.",action="store_true")
-    parser.add_argument("--finance-info","-f",help="get financial information: all orders + open positions + profit info.",action="store_true")
-    parser.add_argument("--save","-s",help="save all orders + open positions to file 'dat.pkl'. only works with --all-info or --finance-info.",action="store_true")
-    parser.add_argument("--load","-l",help="load all orders + open positions from file 'dat.pkl', therefore we don't have to contact API; saves time but gets older data. only works  with --all-info or --finance-info.",action="store_true")
-    parser.add_argument("--extra","-e",help="shows extra order information (time consuming). only works with --all-info or --finance-info.",action="store_true")
-    parser.add_argument("--csv","-c",help="save all loaded orders to csv files in 'csv' directory (dir is created if missing). only works  with --all-info or --finance-info.", action="store_true")
-    parser.add_argument("--profile-csv","-p",help="save all profile data to csv. only works if --profile-info or --all-info used as well.", action="store_true")
-    parser.add_argument("--sort-by-name","-S",help="sort open positions + profits by name instead of value.", action="store_true")
+    arg_desc = f"rhood v{Version} - Text analysis of robinhood profile, portfolio and profits. Please review README.md for login instructions. There are 2 methods: creating creds-encoded file (more secure), or providing credentials in the command line (less secure)."
+    end_message = "Example: first create 'creds-encoded' credentials file following the README.md instructions, then run # python rhood.py --all-info"
+    parser = argparse.ArgumentParser(description=arg_desc,epilog=end_message)
+    parser.add_argument("--username","-U",help="Robinhood username. Must be used with --password and --authkey, if 2 factor authentication is used.", action="store", default="")
+    parser.add_argument("--password","-P",help="Robinhood password.", action="store", default="")
+    parser.add_argument("--authkey","-K",help="2 factor authentication key. Only needed if 2Factor is enabled.", action="store", default="")
+    parser.add_argument("--insecure","-I",help="Not recommended. Login insecurely without 2factor authentication. 'creds-encoded' only holds username line and password line in encoded base64 ascii format. Sidenote: default secure mode also needs third auth key line encoded as well.", action="store_true")
+    parser.add_argument("--all-info","-i",help="Get all profile + order + open positions + profit info.",action="store_true")
+    parser.add_argument("--profile-info","-r",help="Get only profile information.",action="store_true")
+    parser.add_argument("--finance-info","-f",help="Get financial information: all orders + open positions + profit info.",action="store_true")
+    parser.add_argument("--save","-s",help="Save all orders + open positions to file 'dat.pkl'. Only works with --all-info or --finance-info.",action="store_true")
+    parser.add_argument("--load","-l",help="Load all orders + open positions from file 'dat.pkl', therefore we don't have to contact API; Saves time but gets older data. Only works  with --all-info or --finance-info.",action="store_true")
+    parser.add_argument("--extra","-e",help="Shows extra order information (time consuming). only works with --all-info or --finance-info.",action="store_true")
+    parser.add_argument("--csv","-c",help="Save all loaded orders to csv files in 'csv' directory (dir is created if missing). Only works  with --all-info or --finance-info.", action="store_true")
+    parser.add_argument("--profile-csv","-p",help="Save all profile data to csv. Only works if --profile-info or --all-info used as well.", action="store_true")
+    parser.add_argument("--sort-by-name","-S",help="Sorts open positions + profits by name instead of value. Only works if --finance-info or --all-info is used as well.", action="store_true")
+
     args = parser.parse_args()
 
     # parse save and load
@@ -845,6 +852,11 @@ if __name__ == "__main__":
     # sort type
     sort_alpha_bool = args.sort_by_name
 
+    # credentials at cli, if not used the are "", we check for missing items inside LOGIN files
+    cli_user = args.username
+    cli_pass = args.password
+    cli_key = args.authkey
+
     # error checking on saving and loading
     if load_bool and save_bool:
         print()
@@ -854,9 +866,9 @@ if __name__ == "__main__":
 
     # LOGIN securely or insecurely
     if not args.insecure:
-        _login_output = LOGIN() # gives us r from secure login
+        _login_output = LOGIN(un=cli_user,pw=cli_pass,ke=cli_key) # gives us r from secure login
     else:
-        _login_output = LOGIN_INSECURE() # gives us r from insecure login
+        _login_output = LOGIN_INSECURE(un=cli_user,pw=cli_pass) # gives us r from insecure login
 
     # GET CRYPTOPAIRS (global var used in pairing crypto ids to coin name)
     cryptopairs = r.get_crypto_currency_pairs() # global var
