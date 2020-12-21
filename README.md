@@ -296,3 +296,5 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 * Add login for secure and insecure mode using CLI arguments, without needing 'creds-encoded' file. Will add --username (-U), --password (-P), --authkey (--K). **IN PROGRESS**
 
 * Code refactor: combine login secure and insecure into 1 login method.
+
+* Add dividend profit to my calculations.
