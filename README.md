@@ -145,7 +145,7 @@ python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress [res
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --all-info
 ```
 
-Sidenote: instead of using --username, --password, and --authkey which are 'wordy', you can use -U, -P and -A respectivly.
+**SIDENOTE:** instead of using --username, --password, and --authkey which are 'wordy', you can use -U, -P and -A respectivly.
 
 ## PRINT ALL INFORMATION
 
