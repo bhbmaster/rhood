@@ -2,7 +2,7 @@
 
 Rhood provides a text analysis of your robinhood portfolio. It provides all of the profile data, order data, open positions, and net profits.
 
-Rhood provides an excellent way to see your profit for each symbol ever held. Robinhood webapp & native application doesn't provide this information (at least I couldn't find it). You can see your total revenue, and you can see symbols total return. However, robinhoods total return per symbol, seems to clear out if you sell the whole symbol; or maybe part sell of the symbol distorts it too - I am not sure. My application, rhood, tells you the total return of each stock regardless of sales. This gives you a good idea as to which stocks, crypto or option* were your most advantageous (and least advantageous).
+Rhood provides an excellent way to see your profit for each symbol ever held. Robinhood webapp & native application doesn't provide this information (at least I couldn't find it). You can see your total revenue, and you can see symbols total return. However, robinhood's total return per symbol, seems to clear out if you sell the whole symbol; or maybe part sell of the symbol distorts it too - I am not sure. My application, rhood, tells you the total return of each stock regardless of sales. This gives you a good idea as to which stocks, crypto or option* were your most advantageous (and least advantageous).
 
 As this generates very private data, the output should be viewed with discretely.
 
@@ -37,7 +37,22 @@ The tested versions are python3.9 and the modules listed in requirements.txt (al
 
 * See todo list at the bottom. Options are not taken into account, yet.
 
-## SECURITY
+## HOW TO USE RHOOD
+
+First select a login method, preferably more secure ones. Then select the arguments you want to use. Most likely --all-info to start off, that just give - all the info (all profile info, all orders, open positions and net profits)
+
+## LOGIN METHODS
+
+There are 4 methods of login in. In order from least to most secure:
+
+1. secure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line and authkey on third line (pre-encoding)
+1. insecure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line (pre-encoding)
+1. secure login with CLI using --username --password and --authkey
+1. insecure login with CLI --username and --password
+
+secure vs insecure simply means, secure is your account has 2 factor authentication mode, where as insecure means your account does not have 2 factor authentication.
+
+## LOGIN METHOD 1 ) LOGIN SECURELY - USE AUTHENTICATION KEY AND CREATE CREDS FILE
 
 For this to work, I encourage to use 2 factor authentication. Please set it up. I installed the Google Authenticator app on my phone and then I enabled 2 factor from Robinhood app the "authentication with an app" 2 factor method (not the SMS method).
 
@@ -47,7 +62,7 @@ You will be given an alphanumetic API key that looks like this "TZIJ9PPENAA2X69Z
 
 **NOTE:** I am not sure if the 2 factor with SMS method works, it might. If it doesn't then just switch to 2 factor with an app
 
-## CREATE ENCODED PERMISSIONS FILE
+###  CREATE ENCODED CREDS FILE
 
 Before we can do any work, first create a credentials files called 'creds-encoded'.
 
@@ -95,7 +110,7 @@ PPhib3453455QGdtYWlsasERTVCXYWlyMTIz123412341230VlZFTkJLMlg0N1A=
 rm creds
 ```
 
-## LOGIN INSECURELY - NOT RECOMMENDED
+## LOGIN METHOD 2 ) LOGIN INSECURELY WITH CREDENTIALS FILE - NOT RECOMMENDED
 
 One can login with username and password as well - without 2 factor authentication. It is not recommended, but it works.
 
@@ -109,6 +124,28 @@ PineapplesExpress
 ```
 
 Then include the the --insecure (or -I) argument in all of your rhood.py commands.
+
+## LOGIN METHOD 3 and 4 ) USING CLI TO LOGIN
+
+If you have 2 factor authentication, you would use secure login with CLI like so:
+
+```
+# syntax:
+python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --authkey TZIJ9PPENAA2X69Z [rest of the options]
+# example:
+python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --authkey TZIJ9PPENAA2X69Z --all-info
+```
+
+If you have 2 factor authentication disabled, you would use insecure login with CLI like so:
+
+```
+# syntax:
+python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress [rest of the options]
+# example:
+python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --all-info
+```
+
+Sidenote: instead of using --username, --password, and --authkey which are 'wordy', you can use -U, -P and -A respectivly.
 
 ## PRINT ALL INFORMATION
 
@@ -188,7 +225,7 @@ python rhood.py --all-info --profile-csv --csv   # save profile info & stock ord
 
 ## EXTRA INFORMATION ABOUT ORDERS
 
-To view all of the information returned from the robinhood API about every order run it with --extra option or --csv option (csv saves the same information). This extra information is ommited during normal operations as we are only concerned with each orders: date, price, amount, state.
+To view all of the information returned from the robinhood API about every order run it with --extra option or --csv option (csv saves the same information). This extra information is omitted during normal operations as we are only concerned with each orders: date, price, amount, state.
 
 ```
 python rhood.py --all-info --extra              # Can use extra when all info is shown.
@@ -218,14 +255,14 @@ Then grep the output for your stock:
 cat output.txt | grep TSLA
 ```
 
-**SIDENOTE:** grep is a linux/unix/mac program that searches for strings that match a specific regular expression (search string). In otherwords for the example above, this shows me only the lines that have the word TSLA in them. Windows users can also get grep if they utilize some sort of linux emulator such as cygwin, or windows 10's bash ability.
+**SIDENOTE:** grep is a linux/unix/mac program that searches for strings that match a specific regular expression (search string). In other words for the example above, this shows me only the lines that have the word TSLA in them. Windows users can also get grep if they utilize some sort of linux emulator such as cygwin, or windows 10's bash ability.
 
 The above command has the following output for a random user:
 
 ```
 2020-07-13T18:15:55.663576Z - a1053cf0-abcde-4910-9e04-abcde - buy        x0.06341400     TSLA [S|filled] avg: $1576.94   exec1/2: 
 $1574.70        price: $1654.93
-...lines skiped for brevity...
+...lines skipped for brevity...
 2020-12-09T15:53:58.910000Z - bc4c8aed-abcde-46dd-8106-abcde - buy        x2.00000000     TSLA [S|filled] avg: $639.68    exec1/1: 
 $639.68 price: $671.58
 2020-12-14T18:48:28.147000Z - 75985dd4-abcde-495a-adf3-abcde - buy        x1.00000000     TSLA [S|filled] avg: $637.19    exec1/1: 
@@ -251,7 +288,7 @@ python rhood.py --help
 
 ## SCHEDULING
 
-You can run this script on repeat per a schedule (example daily) and analyze the results seperately. For example grepping for "net profit" and then viewing how your net profit changes every day.
+You can run this script on repeat per a schedule (example daily) and analyze the results separately. For example grepping for "net profit" and then viewing how your net profit changes every day.
 
 You can schedule the script to run in windows with Windows task scheduler that will run a bat file, that kicks off the run.sh shell script. For windows you need cygwin or another source of a bash.exe to get this running.
 
@@ -291,7 +328,7 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 * Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
 
-* If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occured then we will be in a mathematics mess, that I don't want to deal with.
+* If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occurred then we will be in a mathematics mess, that I don't want to deal with.
 
 * Allow insecure credentials, without 2factor authentication. add --insecure / -I flag. due to 2 methods of login, we now have to remove interactive mode (it was useless anyways). **DONE, need to test.**
 
