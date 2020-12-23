@@ -191,7 +191,11 @@ python rhood.py --all-info --profile-csv --csv   # save profile info & stock ord
 To view all of the information returned from the robinhood API about every order run it with --extra option or --csv option (csv saves the same information). This extra information is ommited during normal operations as we are only concerned with each orders: date, price, amount, state.
 
 ```
-python rhood.py --extra
+python rhood.py --all-info --extra              # Can use extra when all info is shown.
+python rhood.py --finance-info --extra          # Or can use extra with finance-info (it won't do anything with profile-info).
+python rhood.py --all-info --extra --load       # Can also load saved orders to lower API time. Works with all-info.
+python rhood.py --finance-info --extra --load   # Can also load saved orders to lower API time. Works with finance-info.
+
 ```
 
 This option can be ran with --save and --load. Even though load offers speed increases by avoiding contacting the API for order parsing, this option will still be a little time consuming as contact the API to map IDs to Symbol names.
