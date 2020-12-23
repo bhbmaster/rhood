@@ -293,7 +293,7 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 * Sort open positions & net profits alphabetically, or by value. default value, include option --sort-by-name / -S. **DONE**
 
-* Add login for secure and insecure mode using CLI arguments, without needing 'creds-encoded' file. Will add --username (-U), --password (-P), --authkey (--K). **IN PROGRESS**
+* Add login for secure and insecure mode using CLI arguments, without needing 'creds-encoded' file. Will add --username (-U), --password (-P), --authkey (--K). **DONE**
 
 * Code refactor: combine login secure and insecure into 1 login method.
 

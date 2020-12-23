@@ -13,17 +13,12 @@ import os.path
 import os
 import csv
 
-# NOTE: orders can be in the following states as I have witnessed so far:
-# filled - complete order
-# cancelled - order was cancelled before it was fulfilled
-# queued - purchased/sold not during trade hours, so its waiting
-
 ###################
 #### PRE VARS #####
 ###################
 
 # global vars
-Version="0.1.3"
+Version="0.1.4"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -39,17 +34,28 @@ loaded_username = ""
 
 # LOGIN WITH 2FACTOR. creds FILE HAS 3 LINES: username/email, password, authkey
 def LOGIN(un="",pw="",ke=""):
-    # TODO: if un,pw, and key present use them for login, if all missing (""), then use creds-encoded. if inbetween, error.
     global r, user_string, loaded_username
-    if not os.path.isfile(CREDENTIALSFILE):
+    if un != "" and pw != "" and ke != "":
+        # CLI LOGIN
+        EMAIL, PASSWD, KEY = un, pw, ke
+    elif un == "" and pw == "" and ke == "":
+        # CREDS FILE
+        if not os.path.isfile(CREDENTIALSFILE):
+            print()
+            print(f"* ERROR: credentials file missing in current path '{CREDENTIALSFILE}'. follow README.md for creation instructions.")
+            print()
+            sys.exit(1)
+        with open(CREDENTIALSFILE) as f:
+            lines = base64.b64decode(f.read()).decode("utf-8").split()
+        # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password, authkey)
+        EMAIL, PASSWD, KEY = map(lambda x: x.strip(), lines)
+    else:
+        # FAIL
         print()
-        print(f"* ERROR: credentials file missing in current path '{CREDENTIALSFILE}'. follow README.md for creation instructions.")
+        print(f"* ERROR: if using CLI arguments for secure login, must specify: username, password and authentication key.")
         print()
         sys.exit(1)
-    with open(CREDENTIALSFILE) as f:
-        lines = base64.b64decode(f.read()).decode("utf-8").split()
-    # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password, authkey)
-    EMAIL, PASSWD, KEY = map(lambda x: x.strip(), lines)
+    # now we have creds, login in and such
     loaded_username = EMAIL
     user_string = EMAIL.split("@")[0] # get the username part of the email (or just the username if username was provided)
     ptot = pyotp.TOTP(KEY)
@@ -65,17 +71,28 @@ def LOGIN(un="",pw="",ke=""):
 
 # LOGIN INSECURELY WITHOUT 2FACTOR. creds FILE HAS 2 LINES: username/email, password
 def LOGIN_INSECURE(un="",pw=""):
-    # TODO: if un,pw present use them for login, if all missing (""), then use creds-encoded. if inbetween, error.
     global r, user_string, loaded_username
-    if not os.path.isfile(CREDENTIALSFILE):
+    if un != "" and pw != "":
+        # CLI LOGIN
+        EMAIL, PASSWD = un, pw
+    elif un == "" and pw == "":
+        # CREDS FILE
+        if not os.path.isfile(CREDENTIALSFILE):
+            print()
+            print(f"* ERROR: credentials file missing in current path '{CREDENTIALSFILE}'. follow README.md for creation instructions.")
+            print()
+            sys.exit(1)
+        with open(CREDENTIALSFILE) as f:
+            lines = base64.b64decode(f.read()).decode("utf-8").split()
+        # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password)
+        EMAIL, PASSWD = map(lambda x: x.strip(), lines)
+    else:
+        # FAIL
         print()
-        print(f"* ERROR: credentials file missing in current path '{CREDENTIALSFILE}'. follow README.md for creation instructions.")
+        print(f"* ERROR: if using CLI arguments for insecure login, must specify: username and password.")
         print()
         sys.exit(1)
-    with open(CREDENTIALSFILE) as f:
-        lines = base64.b64decode(f.read()).decode("utf-8").split()
-    # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password)
-    EMAIL, PASSWD = map(lambda x: x.strip(), lines)
+    # now we have creds, login in and such
     loaded_username = EMAIL
     user_string = EMAIL.split("@")[0] # get the username part of the email (or just the username if username was provided)
     # probably don't need this try block but it doesn't hurt - so we logout first
