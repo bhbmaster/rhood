@@ -52,4 +52,6 @@ LogNumberTrackerWrapper python rhood.py --finance-info --load --csv --extra
 
 LogNumberTrackerWrapper python rhood.py --all-info --sort-by-name
 
+# Not testing all features, such as CLI login or insecure login. I don't have an insecure account, mine is secure (2 factor enabled). Also I don't want to test CLI securely, because then this output log file will have my credentials in them. So I will manually test the login types.
+
 LogDoneMessage;

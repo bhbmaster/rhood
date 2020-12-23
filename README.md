@@ -88,10 +88,14 @@ PineapplesExpress
 TZIJ9PPENAA2X69Z
 ```
 
-1. Encode it with this bash command.
+1. Encode it with this python or bash command.
 
 ```
+# python command
 python -c 'import base64; print(base64.b64encode(open("creds","r").read().encode("utf-8")).decode("utf-8"))' > creds-encoded
+
+# bash command
+cat creds | base64 > creds-encoded
 ```
 
 1. Verify you see an encoded file
@@ -103,7 +107,11 @@ cat creds-encoded
 1. Verify the file decodes correctly. You should see your UN, PW, and KEY.
 
 ```
+# python command
 python -c 'import base64; print(base64.b64decode(open("creds-encoded","r").read()).decode("utf-8"))'
+
+# bash command
+cat creds-encoded | base64 -d 2> /dev/null
 ```
 
 Example output (modified for privacy):
@@ -112,7 +120,7 @@ Example output (modified for privacy):
 PPhib3453455QGdtYWlsasERTVCXYWlyMTIz123412341230VlZFTkJLMlg0N1A=
 ```
 
-1. If you see the original output, then delete the original file. The software will use the creds-encoded file to load your credentials by decodeing it correctly.
+1. If you see the original output, then delete the original file. The software will use the creds-encoded file to load your credentials by decoding it correctly.
 
 ```
 rm creds
