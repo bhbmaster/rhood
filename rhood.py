@@ -18,7 +18,7 @@ import csv
 ###################
 
 # global vars
-Version="0.1.4"
+Version="0.1.5"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -175,7 +175,7 @@ def FORMAT_ORDER_STOCKS(RS_orders):
         execs = len(o["executions"]) if state == "filled" else "None"  # used to be state != "cancelled"
         price1 = TOMONEY(o["executions"][0]["price"]) if state == "filled" else "None"  # used to be state != "cancelled"
         price = TOMONEY(o["price"])
-        result += f'{date} - {id} - {side}\tx{quantity}\t{symbol} [S|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
+        result += f'* {date} - {id} - {side}\tx{quantity}\t{symbol} [S|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
     return result
 
 # FORMAT CRYPTOS ORDERS TO EXTRA INFORMATION STRING
@@ -195,7 +195,7 @@ def FORMAT_ORDER_CRYPTOS(RS_orders):
         execs = len(o["executions"]) if state == "filled" else "None"  # used to be state != "cancelled"
         price1 = TOMONEY(o["executions"][0]["effective_price"]) if state == "filled" else "None"  # used to be state != "cancelled"
         price = TOMONEY(o["price"])
-        result += f'{date} - {id} - {side}\t${rounded}\tx{quantity}\t{symbol} [C|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
+        result += f'* {date} - {id} - {side}\t${rounded}\tx{quantity}\t{symbol} [C|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
     return result
 
 # FORMAT OPTIONS ORDERS TO EXTRA INFORMATION STRING - TODO: test with options one date. might be similar to stocks just change to O in state field
@@ -278,6 +278,30 @@ def LOAD_OPTION_ORDERS():
 
 ###################
 
+# GET ALL CURRENTLY OPEN STOCKS - meaning we own these now
+def LOAD_OPEN_STOCKS():
+    func = r.get_open_stock_positions()
+    return func
+
+# GET ALL CURRENTLY OPEN CRYPTOS - meaning we own these now
+def LOAD_OPEN_CRYPTOS():
+    func = r.get_crypto_positions()
+    return func
+
+# GET ALL CURRENTLY OPEN OPTIONS - meaning we own these now
+def LOAD_OPEN_OPTIONS():
+    func = r.get_all_option_positions()
+    return func
+
+###################
+
+# LOAD DIVIDENDS
+def LOAD_DIVIDENDS():
+    func=r.get_dividends()
+    return func
+
+###################
+
 # sort all stock, crypto, options increasing time
 def SORT_ALL_DICT_ORDERS_INCREASING(dict_of_symbol_orders):
     for i in dict_of_symbol_orders.values():
@@ -329,8 +353,8 @@ def PARSE_OPTION_ORDERS(RS_option_orders):
 ###################
 
 # save time consuming data to file
-def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,verify_bool=False):
-    save_data = { "stock_orders":so, "crypto_orders":co, "option_orders":oo, "stocks_dict":sd, "cryptos_dict":cd, "options_dict":od, "stocks_open":soo, "cryptos_open":coo, "options_open":ooo, "run_date": run_date, "username": loaded_username }  # loaded_username is global
+def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,divs,verify_bool=False):
+    save_data = { "run_date": run_date, "username": loaded_username, "stock_orders":so, "crypto_orders":co, "option_orders":oo, "stocks_dict":sd, "cryptos_dict":cd, "options_dict":od, "stocks_open":soo, "cryptos_open":coo, "options_open":ooo, "dividends": divs }  # loaded_username is global
     # Store data (serialize)
     with open(filename, 'wb') as handle:
         pickle.dump(save_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -346,9 +370,10 @@ def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,verify_bool=False):
         len_soo = len(ld["stocks_open"]) if ld["stocks_open"] is not None else 0
         len_coo = len(ld["cryptos_open"]) if ld["cryptos_open"] is not None else 0
         len_ooo = len(ld["options_open"]) if ld["options_open"] is not None else 0
+        len_divs = len(ld["dividends"]) if ld["dividends"] is not None else 0
         un = ld["username"] if ld["username"] is not None else "N/A"
         # print()
-        print(f"* saved data of {un} to {filename} of run_date {run_date} - {len_so} orders of {len_soo} open of {len_sd} stocks - {len_co} orders of {len_coo} open of {len_cd} crypto - {len_oo} orders of {len_ooo} open of {len_od} options")
+        print(f"* saved data of {un} to {filename} of run_date {run_date} - {len_so} orders of {len_soo} open of {len_sd} stocks - {len_co} orders of {len_coo} open of {len_cd} crypto - {len_oo} orders of {len_ooo} open of {len_od} options - {len_divs} dividends")
         print()
 
 # load time consuming data from file
@@ -645,7 +670,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         total_stocks_open_value, total_cryptos_open_value, total_options_open_value = (0, 0, 0)
         sod, cod, ood = [], [], [] # stock open list of dicts, crypto open list of dicts, option open list of dicts
         # stocks
-        stocks_open = ld["stocks_open"] if load_bool else r.get_open_stock_positions()
+        stocks_open = ld["stocks_open"] if load_bool else LOAD_OPEN_STOCKS()
         sum_of_stocks_open_quantity = sum([ float(i["quantity"]) for i in stocks_open ])
         # if stocks_open != []:
         if sum_of_stocks_open_quantity != 0:
@@ -673,7 +698,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 print(f"* OPEN STOCK - {s} x{a} at ${D2(p)} each - est current value: ${D2(v)}")
             print(f"* TOTAL OPEN STOCKS - {total_stocks_open_amount} stocks for total ${D2(total_stocks_open_value)} estimated value")
         # cryptos
-        cryptos_open = ld["cryptos_open"] if load_bool else r.get_crypto_positions()
+        cryptos_open = ld["cryptos_open"] if load_bool else LOAD_OPEN_CRYPTOS()
         sum_of_cryptos_open_quantity = sum([ float(i["quantity"]) for i in cryptos_open ])
         # if cryptos_open != []:
         if sum_of_cryptos_open_quantity != 0:
@@ -701,7 +726,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 print(f"* OPEN CRYPTO - {s} x{a} at ${D2(p)} each - est current value: ${D2(v)}")
             print(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} stocks for total ${D2(total_cryptos_open_value)} estimated value")
         # TODO: options open positions
-        options_open = ld["options_open"] if load_bool else r.get_all_option_positions()
+        options_open = ld["options_open"] if load_bool else LOAD_OPEN_OPTIONS()
         if options_open != []:
             pass
         # show total open amounts
@@ -767,8 +792,40 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             total_options_profit, total_options_amount, list_dict_of_option_profits = show_profits_from_orders_dictionary(options_dict, "OPTION ")
         complete_profit = total_stocks_profit + total_cryptos_profit + total_options_profit
         print()
-        print("TOTAL:")
+        print("TOTAL NET PROFIT:")
         print(f"* total net profit from stocks, crypto, and options: ${D2(complete_profit)}")
+        print()
+
+        # dividend profit
+        print(f"--- Profits from Dividends ---")
+        rs_divs_list = ld["dividends"] if load_bool else LOAD_DIVIDENDS()
+        if rs_divs_list != [] or rs_divs_list is not None: # maybe just checking != [] is enough, doesn't hurt to check for None as well
+            divs_list = []
+            divs_sum = 0 # can also get divs sum with API: r.get_total_dividends()
+            for i in rs_divs_list:
+                symbol = URL2SYM(i["instrument"])
+                amount_paid = float(i["amount"])
+                date_string = i["paid_at"]
+                state = i["state"]
+                d = orders.dividend(symbol,amount_paid,date_string,state)
+                divs_list.append(d)
+                if state == "paid":
+                    divs_sum += amount_paid
+
+            # sort by value or alpha ---- but we will always sort by date
+            # if sort_alpha_bool:
+            #     sort(divs_list,key=lambda x: x.symbol_name)
+            # else:
+            #    sort(divs_list,key=lambda x: x.amount_paid)
+            divs_list.sort(key=lambda x: x.date_epoch)
+            for i in divs_list:
+                print(f"* dividend from {i.symbol_name} on {i.date_nice()} for ${D2(i.payed_amount)} ({i.state})")
+            print(f"TOTAL DIVIDEND PAY: ${D2(divs_sum)}")
+            print()
+
+        print("TOTAL PROFIT (NET PROFIT + DIVIDENDS):")
+        complete_profit_plus_divs = complete_profit + divs_sum
+        print(f"* total profit from stocks, crypto, and options + dividends: ${D2(complete_profit_plus_divs)}")
         print()
 
     # print extra info footer
@@ -815,10 +872,13 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 if ood != []:
                     print_to_csv("All-Open-Options",ood)
                 print(f"* saved option csvs")
+            if rs_divs_list != []:
+                print(f"* saving dividends csv to '{dir_full}'")
+                print_to_csv("All-Dividends",rs_divs_list)
     
         # Save api data to pickle file dat.pkl so we can use --load in future to load faster (but of course then its not live data)
         if save_bool:
-            save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, soo = stocks_open, coo = cryptos_open, ooo = options_open, verify_bool = True)
+            save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, soo = stocks_open, coo = cryptos_open, ooo = options_open, verify_bool = True, divs = rs_divs_list)
 
 ###################
 ####### MAIN ######

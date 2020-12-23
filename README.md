@@ -1,6 +1,6 @@
 # RHOOD - Robinhood Stocks Analysis
 
-Rhood provides a text analysis of your robinhood portfolio. It provides all of the profile data, order data, open positions, and net profits.
+Rhood provides a text analysis of your robinhood portfolio. It provides all of the profile data, order data, open positions, net profits, dividends, and total profits.
 
 Rhood provides an excellent way to see your profit for each symbol ever held. Robinhood webapp & native application doesn't provide this information (at least I couldn't find it). You can see your total revenue, and you can see symbols total return. However, robinhood's total return per symbol, seems to clear out if you sell the whole symbol; or maybe part sell of the symbol distorts it too - I am not sure. My application, rhood, tells you the total return of each stock regardless of sales. This gives you a good idea as to which stocks, crypto or option* were your most advantageous (and least advantageous).
 
@@ -23,8 +23,16 @@ CRYPTO:
 * CRYPTO BTC net profit $67.34 ** currently open **
 * CRYPTO total net profit $64.03
 
-TOTAL:
+TOTAL NET PROFIT:
 * total net profit from stocks, crypto, and options: $268.65
+
+--- Profits from Dividends ---
+* dividend from SPXL on 2020-07-01 11:18:12 +0000 for $0.19 (paid)
+* dividend from AAPL on 2020-08-14 13:18:03 +0000 for $0.60 (paid)
+TOTAL DIVIDEND PAY: $0.79
+
+TOTAL PROFIT (NET PROFIT + DIVIDENDS):
+* total profit from stocks, crypto, and options + dividends: $269.44
 ```
 
 **Requirements:** python3.9 + pip install robin_stocks and pyotp
@@ -39,7 +47,7 @@ The tested versions are python3.9 and the modules listed in requirements.txt (al
 
 ## HOW TO USE RHOOD
 
-First select a login method, preferably more secure ones. Then select the arguments you want to use. Most likely --all-info to start off, that just give - all the info (all profile info, all orders, open positions and net profits)
+First select a login method, preferably more secure ones. Then select the arguments you want to use. Most likely --all-info to start off, that just give - all the info (all profile info, all orders, open positions, net profits, dividends, and total profits)
 
 ## LOGIN METHODS
 
@@ -149,7 +157,7 @@ python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --al
 
 ## PRINT ALL INFORMATION
 
-Add the --all-info argument to rhood (-i for short) to print all profile information (lots of sensitive information), order information (Stock, Crypto, Option), open positions, and net profits (see note below).
+Add the --all-info argument to rhood (-i for short) to print all profile information (lots of sensitive information), order information (Stock, Crypto, Option), open positions, net profits (see note below), dividends, and total profits.
 
 ```
 python rhood.py --all-info
@@ -157,11 +165,12 @@ python rhood.py --all-info
 
 **NOTE:** To get any information out of rhood, you must at least use --all-info. Without it, its only useful to be played with interactively (see Playground).
 
-**NOTE OF PROFIT CALCULATION:** Net Profits are calculated by subtracting the sum of the buy from the sells, then adding the open positions value. The open position values are calculated by multiplying current help quantity by the current ask_price (which is always changing). Therefore, if a stock, crypto or option is open then we are only getting an estimate of the profit by assuming we also sell the entire stock right now. If a symbol is currently closed (no quantity is held), then open position value can be ignored as its just 0. The term symbol refers to stocks, crypto coins, and options.
+**NOTE OF PROFIT CALCULATION:** Net Profits are calculated by subtracting the sum of the buy from the sells, then adding the open positions value. The open position values are calculated by multiplying current help quantity by the current ask_price (which is always changing). Therefore, if a stock, crypto or option is open then we are only getting an estimate of the profit by assuming we also sell the entire stock right now. If a symbol is currently closed (no quantity is held), then open position value can be ignored as its just 0. The term symbol refers to stocks, crypto coins, and options. Then dividend profit is calculated by summing all paid dividends. Total profit is the sum of dividend profits and net profits.
 
 ```
-Net Profit For Symbol = (Sum of Sells) - (Sum of Buys) + (Open Position Value)
-Total Profit = (Sum of all Net Profits from all symbols)
+Net Profit For Symbol = (Sum of filled Sells) - (Sum of filled Buys) + (Open Position Value)
+Dividends = (Sum of all paid dividends)
+Total Profit = (Sum of all Net Profits from all symbols) + (Dividends)
 ```
 
 ## ONLY GETTING PROFILE INFORMATION OR FINANCIAL INFORMATION
@@ -174,7 +183,7 @@ Profile information includes only profile data. This switch can be used with --p
 python rhood.py --profile-info
 ```
 
-Finance info includes only financial data (order information, open positions, and net profits). This switch can be used with --csv, --load, --save, --extra. Other switches that rely on --profile-info, will be ignored.
+Finance info includes only financial data (order information, open positions, net profits, dividends, and total profits). This switch can be used with --csv, --load, --save, --extra. Other switches that rely on --profile-info, will be ignored.
 
 ```
 python rhood.py --finance-info
@@ -210,7 +219,7 @@ Sidenote: -s is short for --save, -l is short for --load
 
 ## GENERATE CSVs
 
-The --csv or -c option save all of the stock, crypto and options orders + open positions + profits into CSV files. It saves the data as its recieved from the API. This can be loaded from saved orders (with --load option) file or directly from API (with out --load option).
+The --csv or -c option save all of the stock, crypto and options orders + open positions + profits + dividends into CSV files. It saves the data as its recieved from the API. This can be loaded from saved orders (with --load option) file or directly from API (with out --load option).
 
 ```
 python rhood.py --all-info --csv
@@ -220,7 +229,7 @@ To save all profile data use the --profile-csv switch
 
 ```
 python rhood.py --all-info --profile-csv         # save profile info to csvs
-python rhood.py --all-info --profile-csv --csv   # save profile info & stock orders + open positions + profits to csv 
+python rhood.py --all-info --profile-csv --csv   # save profile info & stock orders + open positions + profits + dividends to csv 
 ```
 
 ## EXTRA INFORMATION ABOUT ORDERS
@@ -276,7 +285,7 @@ $637.19 price: $669.10
 * TSLA net profit $695.66 ** currently open **
 ```
 
-**Sidenote:** Above information shows the order information as shown by the robinhood API, followed by the info as it was parsed by rhood.py (this is similar to the returned API order info, except it also shows the value), then it shows any open positions, finally it shows the net profits. From this data, we see there is a total of 42 orders with TSLA with 3 open stocks and profited $695 so far. Since this is an open stock, we will only see that full profit after selling all of TSLA at current ask price ($634.13).
+**Sidenote:** Above information shows the order information as shown by the robinhood API, followed by the info as it was parsed by rhood.py (this is similar to the returned API order info, except it also shows the value), then it shows any open positions, finally it shows the net profits. From this data, we see there is a total of 42 orders with TSLA with 3 open stocks and profited $695 so far. Since this is an open stock, we will only see that full profit after selling all of TSLA at current ask price ($634.13). If TSLA paid dividends (they currently do not), then that profit would appear on here too.
 
 ## HELP
 
@@ -312,7 +321,9 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 * Open positions and net profits are sorted from lowest value symbols to highest. you can use the --sort-name (-S) option to instead sort alphabetically by name.
 
-* If --load option is used, the dat.pkl file contains the following information: username, run date & time, all of the stock, crypto and options orders (as received from API), and all of the stock, crypto and option open positions.
+* Only paid dividends are taken into account for total profit from dividends
+
+* If --load option is used, the dat.pkl file contains the following information: username, run date & time, all of the stock, crypto and options orders (as received from API), and all of the stock, crypto and option open positions, and dividends.
 
 ## LIMITATIONS
 
@@ -328,7 +339,7 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 * Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
 
-* If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occurred then we will be in a mathematics mess, that I don't want to deal with.
+* If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occurred then we will be in a mathematics mess, that I don't want to deal with. <-- might need to check none robin_stocks API as this API doesn't have historical price ability (maybe it does, I just can't find it.
 
 * Allow insecure credentials, without 2factor authentication. add --insecure / -I flag. due to 2 methods of login, we now have to remove interactive mode (it was useless anyways). **DONE, need to test.**
 
@@ -338,4 +349,4 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 * Code refactor: combine login secure and insecure into 1 login method.
 
-* Add dividend profit to my calculations.
+* Add dividend profit to my calculations. **DONE**

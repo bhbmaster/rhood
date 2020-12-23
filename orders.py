@@ -9,7 +9,7 @@ class order:
             raise ValueError("type must be 'sell' or 'buy' (any casing)")
 
         if price_float < 0:
-            raise ValueError("price must be over 0$")
+            raise ValueError("price must be over $0")
 
         if amount_float < 0:
             raise ValueError("amount must be over 0")
@@ -24,7 +24,7 @@ class order:
             self.date_dt = dateutil.parser.parse(date_string)
             self.date_epoch = self.date_dt.timestamp()
         except:
-            raise ValueError('provided date must be a parseable date - preferablly of the type "%y-%m-%dT%H:%M:%S.%f%z" or "%y-%m-%d %H:%M:%S.%f %z"')
+            raise ValueError('provided date must be a parseable date - preferably of the type "%y-%m-%dT%H:%M:%S.%f%z" or "%y-%m-%d %H:%M:%S.%f %z"')
 
     def date_nice(self):
         return self.date_dt.strftime("%Y-%m-%d %H:%M:%S %z")
@@ -119,5 +119,22 @@ class multi_orders:
         tva = self.time_vs_amount()
         last_i = len(tva)-1
         return tva[last_i][2]
+
+# added dividend class
+class dividend:
+
+    def __init__(self, symbol_name: str, payed_amount: float, pay_date_string: str, state: str):
+        self.symbol_name = symbol_name
+        self.payed_amount = payed_amount
+        self.pay_date_string = pay_date_string
+        self.state = state  # state "paid" seems the best one
+        try:
+            self.date_dt = dateutil.parser.parse(pay_date_string)
+            self.date_epoch = self.date_dt.timestamp()
+        except:
+            raise ValueError('provided date must be a parseable date - preferably of the type "%y-%m-%dT%H:%M:%S.%f%z" or "%y-%m-%d %H:%M:%S.%f %z"')
+
+    def date_nice(self):
+        return self.date_dt.strftime("%Y-%m-%d %H:%M:%S %z")
 
 # EOF
