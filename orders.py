@@ -1,4 +1,5 @@
 import dateutil.parser
+import datetime
 
 # a single order (symbol name not included)
 class order:
@@ -123,16 +124,22 @@ class multi_orders:
 # added dividend class
 class dividend:
 
-    def __init__(self, symbol_name: str, payed_amount: float, pay_date_string: str, state: str):
+    def __init__(self, symbol_name: str, payed_amount: float, pay_date_string: str, state: str, run_date_dt: datetime):
+        # run_date is the current run_date, if we get a pay_date_string is None, then we assume date is now
         self.symbol_name = symbol_name
         self.payed_amount = payed_amount
         self.pay_date_string = pay_date_string
         self.state = state  # state "paid" seems the best one
-        try:
-            self.date_dt = dateutil.parser.parse(pay_date_string)
-            self.date_epoch = self.date_dt.timestamp()
-        except:
-            raise ValueError('provided date must be a parseable date - preferably of the type "%y-%m-%dT%H:%M:%S.%f%z" or "%y-%m-%d %H:%M:%S.%f %z"')
+        if pay_date_string is None: 
+            # NOTE: might need to change this behavior. if the pay_date_string is None, most likely state is pending, so lets just give it current date for fun. For current date we better provide the run_date, which is global var in another file, so we will need to feed it in thru an argument.
+            self.date_dt = run_date_dt
+            self.date_epoch = run_date_dt.timestamp()
+        else:
+            try:
+                self.date_dt = dateutil.parser.parse(pay_date_string)
+                self.date_epoch = self.date_dt.timestamp()
+            except:
+                raise ValueError('provided date must be a parseable date - preferably of the type "%y-%m-%dT%H:%M:%S.%f%z" or "%y-%m-%d %H:%M:%S.%f %z"')
 
     def date_nice(self):
         return self.date_dt.strftime("%Y-%m-%d %H:%M:%S %z")

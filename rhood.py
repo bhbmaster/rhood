@@ -397,8 +397,19 @@ def get_save_dir():
     dir_full = f"{dir_suffix}/{date_string}-{user_string}"
     return dir_full
 
-# print list of dictionary or just a dictionary to filename (adds .csv to filename)
-def print_to_csv(fname, list_of_dictionary):
+# list_of_dict_handle_missing_keys - looks thru a list of dictionary, gets all of thekys . lod is list of dictionaries
+def list_of_dict_handle_missing_keys(lod):
+    # from https://stackoverflow.com/questions/33910764/adding-missing-keys-in-dictionary-in-python
+    L = lod
+    allkeys = frozenset().union(*lod)
+    for i in lod:
+        for j in allkeys:
+            if j not in i:
+                i[j] = "Test-NA-Test"
+    return L
+
+# print list of dictionary or just a dictionary to filename (adds .csv to filename). toCSV is list of dicts, or dict (either or works)
+def print_to_csv(fname, toCSV):
     # create dir and get filename
     dir_full = get_save_dir()
     if not os.path.exists(dir_suffix):
@@ -406,8 +417,10 @@ def print_to_csv(fname, list_of_dictionary):
     if not os.path.exists(dir_full):
         os.makedirs(dir_full)
     filename = dir_full + "/" + fname + ".csv"
+    # update / fix list of dictionaries to have common keys
+    if isinstance(toCSV,list):
+        toCSV=list_of_dict_handle_missing_keys(toCSV)
     # csv saving
-    toCSV = list_of_dictionary
     if isinstance(toCSV,list): # print list of dict
         keys = toCSV[0].keys()
         with open(filename, 'w', newline='')  as output_file:
@@ -419,7 +432,6 @@ def print_to_csv(fname, list_of_dictionary):
             for key in toCSV.keys():
                 # f.write("%s,%s\n"%(key,toCSV[key]))
                 f.write(f"{key},{toCSV[key]}\n")
-
 
 # print all stock orders csvs
 def print_all_stocks_to_csv(RS_orders_all_stocks):
@@ -807,7 +819,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 amount_paid = float(i["amount"])
                 date_string = i["paid_at"]
                 state = i["state"]
-                d = orders.dividend(symbol,amount_paid,date_string,state)
+                d = orders.dividend(symbol,amount_paid,date_string,state,run_date)
                 divs_list.append(d)
                 if state == "paid":
                     divs_sum += amount_paid

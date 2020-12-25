@@ -343,6 +343,8 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 * The --load option only works if the username logging in matches the username saved in the 'dat.pkl' file.
 
+* If dividend payment is pending, the pay date is estimated to current run date. Only consider pay dates of "paid" dividends.
+
 ## TODO
 
 * Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
