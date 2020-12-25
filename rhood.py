@@ -18,7 +18,7 @@ import csv
 ###################
 
 # global vars
-Version="0.1.5"
+Version="0.1.6"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -397,15 +397,16 @@ def get_save_dir():
     dir_full = f"{dir_suffix}/{date_string}-{user_string}"
     return dir_full
 
-# list_of_dict_handle_missing_keys - looks thru a list of dictionary, gets all of thekys . lod is list of dictionaries
+# list_of_dict_handle_missing_keys - looks thru a list of dictionary, gets all of thekys. lod is list of dictionaries
 def list_of_dict_handle_missing_keys(lod):
     # from https://stackoverflow.com/questions/33910764/adding-missing-keys-in-dictionary-in-python
+    empty_value = None # we replace all missing key values with this, we could also just put "NA" in string, but None is better as it turns to blank field in csv/excel
     L = lod
     allkeys = frozenset().union(*lod)
     for i in lod:
         for j in allkeys:
             if j not in i:
-                i[j] = "Test-NA-Test"
+                i[j] = empty_value
     return L
 
 # print list of dictionary or just a dictionary to filename (adds .csv to filename). toCSV is list of dicts, or dict (either or works)
