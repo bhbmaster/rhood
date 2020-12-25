@@ -6,6 +6,6 @@ mkdir archive 2> /dev/null
 # more info:
 python rhood.py --all-info --extra --save --csv --profile-csv > output.txt 2>&1
 # less info:
-# python rhood.py --finance-info --extra --save --csv > output.txt
+# python rhood.py --finance-info --extra --save --csv > output.txt 2>&1
 /bin/cp "output.txt" "archive/output-$DATE.txt"
 /bin/cp "dat.pkl" "archive/dat-$DATE.pkl"
