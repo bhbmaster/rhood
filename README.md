@@ -45,6 +45,37 @@ The tested versions are python3.9 and the modules listed in requirements.txt (al
 
 * See todo list at the bottom. Options are not taken into account, yet.
 
+## SHELL QUICK START GUIDE
+
+Here is a quick start guide for shell users:
+
+```
+# install rhood
+
+git clone https://github.com/bhbmaster/rhood
+cd rhood
+
+# install its dependencies
+
+pip install -r requirements.txt
+
+# run rhood using method A or method B:
+
+# method A -- if you do not have 2 factor authentication enabled run this:
+
+python rhood.py --all-info --username 'your@email.com' --password 'YOURPASSWORD' --insecure
+
+# method B -- if you have 2 factor authentication and your authentication key (its an alphanumeric code provided only once at the beginning of your 2 factor authentication setup)
+
+python rhood.py --all-info --username 'your@email.com' --password 'YOURPASSWORD' --authkey 'YOUR2FACTORCODE'
+```
+
+**SIDENOTE 1:** The 2 factor authentication key 'YOUR2FACTORCODE' is not the 6 digit code you get every time you want to login. Instead its an alphanumeric code presented at the beginning of setting up your 2 factor. IT looks like this 'TZIJ9PPENAA2X69Z' (this is not anyones code. I changed the characters.)
+
+**SIDENOTE 2:** It is called --insecure, for the purposes of labeling my code. I labelled none 2 factor authentication as "insecure" and 2 factor auth as "secure". The actual login for both methods is still done over API and your credentials are not saved anywhere, so both are actually secure methods.
+
+**SIDENOTE 3:** If rhood is going to be ran often or in a script, I recommend using a 'creds-encoded' file instead of supplying your credentials in the CLI. More information on cred files and all of the login methods are described below.
+
 ## HOW TO USE RHOOD
 
 First select a login method, preferably more secure ones. Then select the arguments you want to use. Most likely --all-info to start off, that just give - all the info (all profile info, all orders, open positions, net profits, dividends, and total profits)
