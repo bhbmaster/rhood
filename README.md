@@ -49,7 +49,7 @@ The tested versions are python3.9 and the modules listed in requirements.txt (al
 
 Here is a quick start guide for shell users:
 
-```
+```bash
 # install rhood
 
 git clone https://github.com/bhbmaster/rhood
@@ -113,7 +113,7 @@ Steps to create the encoded credentials file:
 
 1. Create a clear text 'creds' file which has 3 lines: UN, PW, and KEY. For me it looked like this:
 
-```
+```console
 bhbmaster@gmail.com
 PineapplesExpress
 TZIJ9PPENAA2X69Z
@@ -121,7 +121,7 @@ TZIJ9PPENAA2X69Z
 
 1. Encode it with this python or bash command.
 
-```
+```bash
 # python command
 python -c 'import base64; print(base64.b64encode(open("creds","r").read().encode("utf-8")).decode("utf-8"))' > creds-encoded
 
@@ -131,13 +131,13 @@ cat creds | base64 > creds-encoded
 
 1. Verify you see an encoded file
 
-```
+```bash
 cat creds-encoded
 ```
 
 1. Verify the file decodes correctly. You should see your UN, PW, and KEY.
 
-```
+```bash
 # python command
 python -c 'import base64; print(base64.b64decode(open("creds-encoded","r").read()).decode("utf-8"))'
 
@@ -147,13 +147,13 @@ cat creds-encoded | base64 -d 2> /dev/null
 
 Example output (modified for privacy):
 
-```
+```console
 PPhib3453455QGdtYWlsasERTVCXYWlyMTIz123412341230VlZFTkJLMlg0N1A=
 ```
 
 1. If you see the original output, then delete the original file. The software will use the creds-encoded file to load your credentials by decoding it correctly.
 
-```
+```bash
 rm creds
 ```
 
@@ -165,7 +165,7 @@ Follow the instructions above to create a creds-encoded file with just username 
 
 So it would look like this pre encoding:
 
-```
+```console
 bhbmaster@gmail.com
 PineapplesExpress
 ```
@@ -176,19 +176,25 @@ Then include the the --insecure (or -I) argument in all of your rhood.py command
 
 If you have 2 factor authentication, you would use secure login with CLI like so:
 
-```
+```bash
 # syntax:
+
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --authkey TZIJ9PPENAA2X69Z [rest of the options]
+
 # example:
+
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --authkey TZIJ9PPENAA2X69Z --all-info
 ```
 
 If you have 2 factor authentication disabled, you would use insecure login with CLI like so:
 
-```
+```bash
 # syntax:
+
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress [rest of the options]
+
 # example:
+
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --all-info
 ```
 
@@ -198,7 +204,7 @@ python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --al
 
 Add the --all-info argument to rhood (-i for short) to print all profile information (lots of sensitive information), order information (Stock, Crypto, Option), open positions, net profits (see note below), dividends, and total profits.
 
-```
+```bash
 python rhood.py --all-info
 ```
 
@@ -206,7 +212,7 @@ python rhood.py --all-info
 
 **NOTE OF PROFIT CALCULATION:** Net Profits are calculated by subtracting the sum of the buy from the sells, then adding the open positions value. The open position values are calculated by multiplying current help quantity by the current ask_price (which is always changing). Therefore, if a stock, crypto or option is open then we are only getting an estimate of the profit by assuming we also sell the entire stock right now. If a symbol is currently closed (no quantity is held), then open position value can be ignored as its just 0. The term symbol refers to stocks, crypto coins, and options. Then dividend profit is calculated by summing all paid dividends. Total profit is the sum of dividend profits and net profits.
 
-```
+```console
 Net Profit For Symbol = (Sum of filled Sells) - (Sum of filled Buys) + (Open Position Value)
 Dividends = (Sum of all paid dividends)
 Total Profit = (Sum of all Net Profits from all symbols) + (Dividends)
@@ -218,19 +224,19 @@ Getting all of the information might not be the intent. So other then using a bu
 
 Profile information includes only profile data. This switch can be used with --profile-csv. Other switches that rely on --finance-info will just be ignored (no errors shown)
 
-```
+```bash
 python rhood.py --profile-info
 ```
 
 Finance info includes only financial data (order information, open positions, net profits, dividends, and total profits). This switch can be used with --csv, --load, --save, --extra. Other switches that rely on --profile-info, will be ignored.
 
-```
+```bash
 python rhood.py --finance-info
 ```
 
 If both profile-info and finance-info switches are used, then its equivalent of just using --all-info. This way all switches work, --save, --load, --extra, --csv, --profile-csv.
 
-```
+```bash
 python rhood.py --finance-info --profile-info  # both of these lines return the same output
 python rhood.py --all-info                     # both of these lines return the same output
 ```
@@ -243,13 +249,13 @@ Checking the API for all of the orders is time consuming. Try to save the data l
 
 Save order information to dat.pkl:
 
-```
+```bash
 python rhood.py --all-info --save
 ```
 
 Load order information from dat.pkl:
 
-```
+```bash
 python rhood.py --all-info --load
 ```
 
@@ -260,13 +266,13 @@ Sidenote: -s is short for --save, -l is short for --load
 
 The --csv or -c option save all of the stock, crypto and options orders + open positions + profits + dividends into CSV files. It saves the data as its recieved from the API. This can be loaded from saved orders (with --load option) file or directly from API (with out --load option).
 
-```
+```bash
 python rhood.py --all-info --csv
 ```
 
 To save all profile data use the --profile-csv switch
 
-```
+```bash
 python rhood.py --all-info --profile-csv         # save profile info to csvs
 python rhood.py --all-info --profile-csv --csv   # save profile info & stock orders + open positions + profits + dividends to csv 
 ```
@@ -275,7 +281,7 @@ python rhood.py --all-info --profile-csv --csv   # save profile info & stock ord
 
 To view all of the information returned from the robinhood API about every order run it with --extra option or --csv option (csv saves the same information). This extra information is omitted during normal operations as we are only concerned with each orders: date, price, amount, state.
 
-```
+```bash
 python rhood.py --all-info --extra              # Can use extra when all info is shown.
 python rhood.py --finance-info --extra          # Or can use extra with finance-info (it won't do anything with profile-info).
 python rhood.py --all-info --extra --load       # Can also load saved orders to lower API time. Works with all-info.
@@ -291,15 +297,15 @@ Here is how to get information about a specific symbol you have traded (stock or
 
 First generate the all of the financial information by running one of the three commands below (just run one; they all return equally important data for the current purpose):
 
-```
-python rhood.py --all-info --extra --save --csv > output.txt
-tpython rhood.py --finance-info --extra --save --csv > output.txt
+```bash
+python rhood.py --all-info --extra --save --csv > output.txt 2>&1
+python rhood.py --finance-info --extra --save --csv > output.txt 2>&1
 ./run.sh                             # this also generates an output.txt
 ```
 
 Then grep the output for your stock:
 
-```
+```bash
 cat output.txt | grep TSLA
 ```
 
@@ -307,7 +313,7 @@ cat output.txt | grep TSLA
 
 The above command has the following output for a random user:
 
-```
+```console
 2020-07-13T18:15:55.663576Z - a1053cf0-abcde-4910-9e04-abcde - buy        x0.06341400     TSLA [S|filled] avg: $1576.94   exec1/2: 
 $1574.70        price: $1654.93
 ...lines skipped for brevity...
@@ -330,7 +336,7 @@ $637.19 price: $669.10
 
 Run this to see all of the options.
 
-```
+```bash
 python rhood.py --help
 ```
 
@@ -347,7 +353,7 @@ In Linux/MAC you can schedule run.sh to run on a crontask.
 
 run.bat would have contents similar to this:
 
-```
+```batch
 @echo off
 c:
 cd \path\to\your\rhood\
@@ -387,7 +393,5 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 * Sort open positions & net profits alphabetically, or by value. default value, include option --sort-by-name / -S. **DONE**
 
 * Add login for secure and insecure mode using CLI arguments, without needing 'creds-encoded' file. Will add --username (-U), --password (-P), --authkey (--K). **DONE**
-
-* Code refactor: combine login secure and insecure into 1 login method.
 
 * Add dividend profit to my calculations. **DONE**
