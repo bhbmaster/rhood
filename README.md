@@ -8,7 +8,7 @@ As this generates very private data, the output should be viewed with discretely
 
 Example output which is made up but shows general concept:
 
-```
+```console
 ...many lines cut off for brevity (cut lines might have shown all profile info, all orders and open positions)...
 
 STOCKS:
@@ -178,11 +178,9 @@ If you have 2 factor authentication, you would use secure login with CLI like so
 
 ```bash
 # syntax:
-
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --authkey TZIJ9PPENAA2X69Z [rest of the options]
 
 # example:
-
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --authkey TZIJ9PPENAA2X69Z --all-info
 ```
 
@@ -190,11 +188,9 @@ If you have 2 factor authentication disabled, you would use insecure login with 
 
 ```bash
 # syntax:
-
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress [rest of the options]
 
 # example:
-
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --all-info
 ```
 
@@ -314,13 +310,10 @@ cat output.txt | grep TSLA
 The above command has the following output for a random user:
 
 ```console
-2020-07-13T18:15:55.663576Z - a1053cf0-abcde-4910-9e04-abcde - buy        x0.06341400     TSLA [S|filled] avg: $1576.94   exec1/2: 
-$1574.70        price: $1654.93
+2020-07-13T18:15:55.663576Z - a1053cf0-abcde-4910-9e04-abcde - buy  x0.06341400  TSLA [S|filled] avg: $1576.94  exec1/2: $1574.70 price: $1654.93
 ...lines skipped for brevity...
-2020-12-09T15:53:58.910000Z - bc4c8aed-abcde-46dd-8106-abcde - buy        x2.00000000     TSLA [S|filled] avg: $639.68    exec1/1: 
-$639.68 price: $671.58
-2020-12-14T18:48:28.147000Z - 75985dd4-abcde-495a-adf3-abcde - buy        x1.00000000     TSLA [S|filled] avg: $637.19    exec1/1: 
-$637.19 price: $669.10
+2020-12-09T15:53:58.910000Z - bc4c8aed-abcde-46dd-8106-abcde - buy  x2.00000000  TSLA [S|filled] avg: $639.68   exec1/1: $639.68  price: $671.58
+2020-12-14T18:48:28.147000Z - 75985dd4-abcde-495a-adf3-abcde - buy  x1.00000000  TSLA [S|filled] avg: $637.19   exec1/1: $637.19  price: $669.10
 
 ...lines skiped for brevity...
 * sym# 10/41 ord# 41/42 tot_ord# 156 - 2020-12-09 15:53:58 +0000 - TSLA - buy - x2.0 at $2.0000 - value $1279.36
