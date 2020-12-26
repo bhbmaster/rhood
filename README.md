@@ -239,9 +239,9 @@ python rhood.py --all-info                     # both of these lines return the 
 
 **SIDENOTE:** The old --info switch was renamed to --all-info
 
-## SAVING AND LOADING STOCK ORDER INFORMATION
+## SAVING AND LOADING FINANCE INFORMATION
 
-Checking the API for all of the orders is time consuming. Try to save the data locally & loading it. Of course if any orders were done since then, we will not have the most up to date information. Its always saved and load to 'dat.pkl' file. You can save a copy if you need, and if you need to use an older copy just rename or overwrite it to dat.pkl.
+Checking the API for all of the orders + open positions + dividends is time consuming. Try to save the data locally & loading it. Of course if any changes were done since then, we will not have the most up to date information. 
 
 Save order information to dat.pkl:
 
@@ -255,8 +255,9 @@ Load order information from dat.pkl:
 python rhood.py --all-info --load
 ```
 
-Sidenote: saving and loading only makes sense if you also use --all-info/-i option 
-Sidenote: -s is short for --save, -l is short for --load
+**SIDENOTE:** Saving and loading only makes sense if you also use --all-info/-i option 
+
+**SIDENOTE:** -s is short for --save, -l is short for --load
 
 ## GENERATE CSVs
 
@@ -361,15 +362,16 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 * Only paid dividends are taken into account for total profit from dividends
 
-* If --load option is used, the dat.pkl file contains the following information: username, run date & time, all of the stock, crypto and options orders (as received from API), and all of the stock, crypto and option open positions, and dividends.
+* If --save & --load option is used, the 'dat.pkl' file contains the following information: username, run date & time, all of the stock, crypto and options orders (as received from API), and all of the stock, crypto and option open positions, and dividends.
+
+* Option --finance-file or -F can be used to specify a different file to save and load finance info (so you are not limited to it being named 'dat.pkl')
+
+* Option --creds-file or -C can be used to specify a different credentials file (so you are not limited to it being named 'creds-encoded')
+
+* Option --csv-dir or -D can be used to specify a different output directory for --csv and --profile-csv output. (By default the csv files are saved to 'csv' directory. Do not worry, if its missing its created.)
+
 
 ## LIMITATIONS
-
-* Credentials file must be named 'creds-encoded' and be present in current working directory.
-
-* The --save option saves 'dat.pkl' into current working directory. --load can only load that file. Specifying other files is not possible.
-
-* The --load option can only be used if 'dat.pkl' file is present in current working directory.
 
 * The --load option only works if the username logging in matches the username saved in the 'dat.pkl' file.
 
@@ -377,14 +379,14 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 ## TODO
 
-* Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
+- [ ] Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
 
-* If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occurred then we will be in a mathematics mess, that I don't want to deal with. <-- might need to check none robin_stocks API as this API doesn't have historical price ability (maybe it does, I just can't find it.
+- [ ] If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. this will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occurred then we will be in a mathematics mess, that I don't want to deal with. <-- might need to check none robin_stocks API as this API doesn't have historical price ability (maybe it does, I just can't find it.
 
-* Allow insecure credentials, without 2factor authentication. add --insecure / -I flag. due to 2 methods of login, we now have to remove interactive mode (it was useless anyways). **DONE, need to test.**
+- [x] Allow insecure credentials, without 2factor authentication. add --insecure / -I flag. due to 2 methods of login, we now have to remove interactive mode (it was useless anyways). **(DONE, need to test.)**
 
-* Sort open positions & net profits alphabetically, or by value. default value, include option --sort-by-name / -S. **DONE**
+- [x] Sort open positions & net profits alphabetically, or by value. default value, include option --sort-by-name / -S. **(DONE)**
 
-* Add login for secure and insecure mode using CLI arguments, without needing 'creds-encoded' file. Will add --username (-U), --password (-P), --authkey (--K). **DONE**
+- [x] Add login for secure and insecure mode using CLI arguments, without needing 'creds-encoded' file. Will add --username (-U), --password (-P), --authkey (--K). **(DONE)**
 
-* Add dividend profit to my calculations. **DONE**
+- [x] Add dividend profit to my calculations. **(DONE)**

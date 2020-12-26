@@ -18,7 +18,7 @@ import csv
 ###################
 
 # global vars
-Version="0.1.6"
+Version="0.1.7"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -27,6 +27,7 @@ dir_suffix = "csv" # where we save csvs
 user_string = ""
 expires_seconds = 3600 # one hour login session (don't worry they don't overlap so you can login with another user afterwards)
 loaded_username = ""
+cryptopairs = None
 
 ###################
 #### FUNCTIONS ####
@@ -42,7 +43,7 @@ def LOGIN(un="",pw="",ke=""):
         # CREDS FILE
         if not os.path.isfile(CREDENTIALSFILE):
             print()
-            print(f"* ERROR: credentials file missing in current path '{CREDENTIALSFILE}'. follow README.md for creation instructions.")
+            print(f"* ERROR: Credentials file missing in current path '{CREDENTIALSFILE}'. Follow README.md for creation instructions.")
             print()
             sys.exit(1)
         with open(CREDENTIALSFILE) as f:
@@ -52,7 +53,7 @@ def LOGIN(un="",pw="",ke=""):
     else:
         # FAIL
         print()
-        print(f"* ERROR: if using CLI arguments for secure login, must specify: username, password and authentication key.")
+        print(f"* ERROR: If using CLI arguments for secure login, must specify: username, password and authentication key.")
         print()
         sys.exit(1)
     # now we have creds, login in and such
@@ -79,7 +80,7 @@ def LOGIN_INSECURE(un="",pw=""):
         # CREDS FILE
         if not os.path.isfile(CREDENTIALSFILE):
             print()
-            print(f"* ERROR: credentials file missing in current path '{CREDENTIALSFILE}'. follow README.md for creation instructions.")
+            print(f"* ERROR: Credentials file missing in current path '{CREDENTIALSFILE}'. Follow README.md for creation instructions.")
             print()
             sys.exit(1)
         with open(CREDENTIALSFILE) as f:
@@ -89,7 +90,7 @@ def LOGIN_INSECURE(un="",pw=""):
     else:
         # FAIL
         print()
-        print(f"* ERROR: if using CLI arguments for insecure login, must specify: username and password.")
+        print(f"* ERROR: If using CLI arguments for insecure login, must specify: username and password.")
         print()
         sys.exit(1)
     # now we have creds, login in and such
@@ -381,7 +382,7 @@ def load_data(filename):
     # check if file exists
     if not os.path.isfile(filename):
         print()
-        print(f"* ERROR: can't load {filename}, it is missing. try running with --save parameter instead so that we contact the API for the order information and save the data to {filename}.")
+        print(f"* ERROR: Can't load {filename}, it is missing. Try running with --save parameter instead so that we contact the API for the order information and save the data to {filename}.")
         print()
         sys.exit(1)
     # Load data (deserialize)
@@ -494,7 +495,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         print(f"* Preloading Complete")
         if ld["username"] != loaded_username:
             print()
-            print("* ERROR: loaded dat.pkl of another user, can't do that. please save current users data first using --save, if you wish to --load it at later point.")
+            print(f"* ERROR: Loaded finance information of another user, can't do that. Please save current users data first using --save, if you wish to --load it at later point.")
             print()
             sys.exit(1)
         print()
@@ -897,25 +898,31 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
 ####### MAIN ######
 ###################
 
-if __name__ == "__main__":
+def main():
+
+    # these global variable's can be edited here
+    global CREDENTIALSFILE, FILENAME, dir_suffix, cryptopairs
 
     # args parser
 
-    arg_desc = f"rhood v{Version} - Text analysis of robinhood profile, portfolio and profits. Please review README.md for login instructions. There are 2 methods: creating creds-encoded file (more secure), or providing credentials in the command line (less secure)."
-    end_message = "Example: first create 'creds-encoded' credentials file following the README.md instructions, then run # python rhood.py --all-info"
+    arg_desc = f"rhood v{Version} - Text analysis of robinhood profile, portfolio and profits. Please review README.md for login instructions. There are 2 methods: creating '{CREDENTIALSFILE}' file (more secure), or providing credentials in the command line (less secure)."
+    end_message = f"Example: first create '{CREDENTIALSFILE}' credentials file following the README.md instructions, then run # python rhood.py --all-info"
     parser = argparse.ArgumentParser(description=arg_desc,epilog=end_message)
     parser.add_argument("--username","-U",help="Robinhood username. Must be used with --password and --authkey, if 2 factor authentication is used.", action="store", default="")
     parser.add_argument("--password","-P",help="Robinhood password.", action="store", default="")
     parser.add_argument("--authkey","-K",help="2 factor authentication key. Only needed if 2Factor is enabled.", action="store", default="")
-    parser.add_argument("--insecure","-I",help="Not recommended. Login insecurely without 2factor authentication. 'creds-encoded' only holds username line and password line in encoded base64 ascii format. Sidenote: default secure mode also needs third auth key line encoded as well.", action="store_true")
+    parser.add_argument("--insecure","-I",help=f"Not recommended. Login insecurely without 2factor authentication. '{CREDENTIALSFILE}' only holds username line and password line in encoded base64 ascii format. Sidenote: default secure mode also needs third auth key line encoded as well.", action="store_true")
+    parser.add_argument("--creds-file","-C",help=f"Where to load base64 encoded credentials from (README.md for more information). By default it is '{CREDENTIALSFILE}'.", action="store", default=CREDENTIALSFILE)
     parser.add_argument("--all-info","-i",help="Get all profile + order + open positions + profit info.",action="store_true")
     parser.add_argument("--profile-info","-r",help="Get only profile information.",action="store_true")
     parser.add_argument("--finance-info","-f",help="Get financial information: all orders + open positions + profit info.",action="store_true")
-    parser.add_argument("--save","-s",help="Save all orders + open positions to file 'dat.pkl'. Only works with --all-info or --finance-info.",action="store_true")
-    parser.add_argument("--load","-l",help="Load all orders + open positions from file 'dat.pkl', therefore we don't have to contact API; Saves time but gets older data. Only works  with --all-info or --finance-info.",action="store_true")
+    parser.add_argument("--save","-s",help=f"Save all orders + open positions to file '{FILENAME}'. Only works with --all-info or --finance-info.",action="store_true")
+    parser.add_argument("--load","-l",help=f"Load all orders + open positions from file '{FILENAME}', therefore we don't have to contact API; Saves time but gets older data. Only works  with --all-info or --finance-info.",action="store_true")
+    parser.add_argument("--finance-file","-F",help=f"Change financial orders file to save to or load from. By default it is '{FILENAME}'.", action="store", default=FILENAME)
     parser.add_argument("--extra","-e",help="Shows extra order information (time consuming). only works with --all-info or --finance-info.",action="store_true")
     parser.add_argument("--csv","-c",help="Save all loaded orders to csv files in 'csv' directory (dir is created if missing). Only works  with --all-info or --finance-info.", action="store_true")
     parser.add_argument("--profile-csv","-p",help="Save all profile data to csv. Only works if --profile-info or --all-info used as well.", action="store_true")
+    parser.add_argument("--csv-dir","-D",help=f"Change output directory for csv files generated by --csv and --profile-csv option, by default the directory is named '{dir_suffix}'.", action="store", default=dir_suffix)
     parser.add_argument("--sort-by-name","-S",help="Sorts open positions + profits by name instead of value. Only works if --finance-info or --all-info is used as well.", action="store_true")
 
     args = parser.parse_args()
@@ -950,9 +957,18 @@ if __name__ == "__main__":
     # error checking on saving and loading
     if load_bool and save_bool:
         print()
-        print("* ERROR: can't save and load. try again with either save or load.")
+        print("* ERROR: Can't save and load. Try again with either save or load.")
         print()
         sys.exit(1)
+
+    # Credentials file (if we don't need it, that is okay and handled in LOGIN functions)
+    CREDENTIALSFILE = args.creds_file
+
+    # Pickle file
+    FILENAME = args.finance_file
+
+    # csv directory
+    dir_suffix = args.csv_dir
 
     # LOGIN securely or insecurely
     if not args.insecure:
@@ -970,5 +986,11 @@ if __name__ == "__main__":
         PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool,csv_profile_bool=csv_profile_bool,info_type="PROFILE", sort_alpha_bool=sort_alpha_bool)
     elif finance_info_bool: # this is just finance info
         PRINT_ALL_PROFILE_AND_ORDERS(save_bool=save_bool, load_bool=load_bool, extra_info_bool=extra_info_bool,csv_bool=csv_bool,csv_profile_bool=csv_profile_bool,info_type="FINANCE", sort_alpha_bool=sort_alpha_bool)
+
+# Mains your Name!
+
+if __name__ == "__main__":
+
+    main()
 
 # EOF
