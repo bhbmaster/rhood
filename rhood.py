@@ -834,7 +834,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             divs_list.sort(key=lambda x: x.date_epoch)
             for i in divs_list:
                 print(f"* dividend from {i.symbol_name} on {i.date_nice()} for ${D2(i.payed_amount)} ({i.state})")
-            print(f"TOTAL DIVIDEND PAY: ${D2(divs_sum)}")
+            print(f"TOTAL PAID DIVIDEND PAY: ${D2(divs_sum)}")
             print()
 
         print("TOTAL PROFIT (NET PROFIT + DIVIDENDS):")
