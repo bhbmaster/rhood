@@ -390,3 +390,5 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 - [x] Add login for secure and insecure mode using CLI arguments, without needing 'creds-encoded' file. Will add --username (-U), --password (-P), --authkey (--K). **(DONE)**
 
 - [x] Add dividend profit to my calculations. **(DONE)**
+
+- [ ] Total all buys per symbol, and all sells per symbol, and ratio with profits and study what that means.
