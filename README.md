@@ -95,11 +95,11 @@ secure vs insecure simply means, secure is your account has 2 factor authenticat
 
 For this to work, I encourage to use 2 factor authentication. Please set it up. I installed the Google Authenticator app on my phone and then I enabled 2 factor from Robinhood app the "authentication with an app" 2 factor method (not the SMS method).
 
-**More instructions 1:** https://github.com/jmfernandes/robin_stocks#with-mfa-entered-programmatically-from-time-based-one-time-password-totp (Specifically read the text, the code doesn't matter as similar login code is implemented in rhood)
+**More instructions 1:** https://github.com/jmfernandes/robin_stocks#with-mfa-entered-programmatically-from-time-based-one-time-password-totp (Specifically read the text. The code doesn't matter as similar login code is implemented in rhood)
 
 **More instructions 2:** https://robinhood.com/us/en/support/articles/twofactor-authentication/
 
-You will be given an alphanumetic API key that looks like this "TZIJ9PPENAA2X69Z". You will use it to create the credentials file below.
+You will be given an alphanumeric API key that looks like this "TZIJ9PPENAA2X69Z". You will use it to create the credentials file below.
 
 **NOTE:** I am not sure if the 2 factor with SMS method works, it might. If it doesn't then just switch to 2 factor with an app
 
