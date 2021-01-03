@@ -121,6 +121,47 @@ class multi_orders:
         last_i = len(tva)-1
         return tva[last_i][2]
 
+    # def total_buys_value(self) -> float:
+    #     # sum of all of the buys
+    #     sum = 0
+    #     for o in self.orders:
+    #         if o.type_string == "buy":
+    #             sum += o.value_float
+    #     return sum
+
+    # def total_sells_value(self) -> float:
+    #     # sum of all of the sells
+    #     sum = 0
+    #     for o in self.orders:
+    #         if o.type_string == "sell":
+    #             sum += o.value_float
+    #     return sum
+
+    # def ratio_profit_buys(self) -> float:
+    #     # profits / total buys -> i believe this would be % growth of the stock after you multiple by 100
+    #     if self.total_buys_value() == 0:
+    #         return None
+    #     return self.latest_profit() / self.total_buys_value() 
+
+    # def ratio_profit_sells(self) -> float:
+    #     # profits / total sells -> not sure what this is - maybe need to get rid of this function
+    #     if self.total_sells_value() == 0:
+    #         return None
+    #     return self.latest_profit() / self.total_sells_value() 
+
+    # def print_some_values(self) -> tuple:
+    #     # test info
+    #     a = self.symbol_name
+    #     b = self.total_sells_value()
+    #     c = self.total_buys_value()
+    #     d = self.latest_profit()
+    #     e = self.ratio_profit_buys()
+    #     es = f"{e*100:.5f}" if e is not None else "NA"
+    #     f = self.ratio_profit_sells()
+    #     fs = f"{e*100:.5f}" if f is not None else "NA"
+    #     print(f"{a}, sells: ${b:.2f}, buys: ${c:.2f}, profit: ${d:.2f}, profit per buys: %{es}, profit per sells: %{fs}")
+    #     return (a,b,c,d,e,f) # symbol, sells, buys, profit, ratio profit buys, ratio profit sells
+
 # added dividend class
 class dividend:
 

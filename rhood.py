@@ -583,7 +583,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             # contacting order via API
             print(f"--- Loading Orders (from API) ---")
             run_date_orders = run_date
-            print(f"* loading orders via API on {run_date_orders}")
+            print(f"* Loading orders via API on {run_date_orders}")
             print(f"* (S) started stock orders load")
             stock_orders = LOAD_STOCK_ORDERS()
             stock_orders.reverse()
@@ -837,10 +837,25 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             print(f"TOTAL PAID DIVIDEND PAY: ${D2(divs_sum)}")
             print()
 
-        print("TOTAL PROFIT (NET PROFIT + DIVIDENDS):")
+        print("--- Total Profit (Net Profit + Dividends) ---")
         complete_profit_plus_divs = complete_profit + divs_sum
         print(f"* total profit from stocks, crypto, and options + dividends: ${D2(complete_profit_plus_divs)}")
         print()
+
+    ### TESTING
+    # print(f"--- TESTING SOME VALUES ---")
+    # sum_sells = 0
+    # sum_buys = 0
+    # sum_profits = 0
+    # for sf in stocks_dict.values():
+    #     a,b,c,d,e,f = sf.print_some_values() # prints and sets
+    #     sum_sells += b
+    #     sum_buys += c
+    #     sum_profits += d
+    # rat_pps = (sum_profits / sum_sells)*100
+    # rat_ppb = (sum_profits / sum_buys)*100
+    # print(f"** {sum_sells=} {sum_buys=} {sum_profits=} {rat_pps=} {rat_ppb=} **")
+    # print()
 
     # print extra info footer
     print(f"--- Final Notes ---")
