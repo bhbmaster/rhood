@@ -3,6 +3,7 @@ pip freeze | grep -E "robin|pyotp" > requirements.txt
 
 # upgrade robinhood
 pip install --upgrade robin-stocks
+pip install --upgrade pyotp
 
 # test that it works
-python rhood.py -i
+python rhood.py --all-info
