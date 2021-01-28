@@ -43,7 +43,7 @@ The tested versions are python3.9 and the modules listed in requirements.txt (al
 
 ## WORK IN PROGRESS
 
-* See todo list at the bottom. Options are not taken into account, yet.
+* See todo list at the bottom. Options + Margins are not taken into account, yet.
 
 ## SHELL QUICK START GUIDE
 
@@ -396,3 +396,5 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 - [x] Add dividend profit to my calculations. **(DONE)**
 
 - [ ] Total all buys per symbol, and all sells per symbol, and ratio with profits and study what that means.
+
+- [ ] Test if output works with Margins.
