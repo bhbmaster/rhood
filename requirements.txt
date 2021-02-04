@@ -1,2 +1,2 @@
-pyotp==2.4.1
-robin-stocks==1.6.3
+pyotp==2.5.1
+robin-stocks==1.7.1
