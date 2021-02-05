@@ -374,7 +374,8 @@ def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,divs,verify_bool=False):
         len_divs = len(ld["dividends"]) if ld["dividends"] is not None else 0
         un = ld["username"] if ld["username"] is not None else "N/A"
         # print()
-        print(f"* saved data of {un} to {filename} of run_date {run_date} - {len_so} orders of {len_soo} open of {len_sd} stocks - {len_co} orders of {len_coo} open of {len_cd} crypto - {len_oo} orders of {len_ooo} open of {len_od} options - {len_divs} dividends")
+        # print(f"* saved data of {un} to {filename} of run_date {run_date} - {len_so} orders of {len_soo} open stocks of {len_sd} - {len_co} orders of {len_coo} open crypto of {len_cd} - {len_oo} orders of {len_ooo} open options of {len_od} - {len_divs} dividends")
+        print(f"* saved data of {un} to {filename} of run_date {run_date} - (total orders, open symbols, total symbols): stocks ({len_so},{len_soo}/{len_sd}) - crypto ({len_co},{len_coo}/{len_cd}) - options ({len_oo},{len_ooo}/{len_od}) - {len_divs} dividends")
         print()
 
 # load time consuming data from file
