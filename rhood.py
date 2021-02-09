@@ -218,7 +218,7 @@ def PRINT_ORDERS_DICTIONARY(stock_orders_dictionary):
         for order in obj.orders:
             total_order_num += 1;
             stock_order_num += 1
-            print(f"* sym# {stock_num}/{len_of_stocks} ord# {stock_order_num}/{len_of_orders} tot_ord# {total_order_num} - {order.date_nice()} - {symbol} - {order.type_string} - x{order.amount_float} at ${DX(order.amount_float,4)} - value ${D2(order.value_float)}")
+            print(f"* sym# {stock_num}/{len_of_stocks} ord# {stock_order_num}/{len_of_orders} tot_ord# {total_order_num} - {order.date_nice()} - {symbol} - {order.type_string} - x{order.amount_float} at ${DX(order.price_float,5)} - value ${D2(order.value_float)}")
 
 ###################
 
@@ -521,8 +521,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         # print account values
         print(f"--- Gain Information (Experimental) ---")
         print(f"* NOTE: Currently this section does not take into account cash management, options, and crypto. If only stocks are involved, then this section _should_ be accurate.")
-        print(f"* NOTE: The profit calculations below this section are more accurate as they look into every symbols order + current open positions")
-        print(f"* NOTE: inspired by https://github.com/jmfernandes/robin_stocks/blob/master/examples/get_accurate_gains.py")
+        print(f"* NOTE: The profit calculations in this section are inspired by https://github.com/jmfernandes/robin_stocks/blob/master/examples/get_accurate_gains.py")
+        print(f"* NOTE: The profit calculations below this section are more accurate as they consider every symbol order + current open positions + dividends")
 
         profileData = r.load_portfolio_profile()
         allTransactions = r.get_bank_transfers()
