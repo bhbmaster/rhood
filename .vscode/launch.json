@@ -16,8 +16,8 @@
             // "args": [ "--all-info", "--extra" ], //  testing extra option
             // "args": [ "--all-info", "--save" ], //  talks to api and saves dat.pkl
             // "args": [ "--all-info", "--save", "--csv" ], // saving csv from API and saving
-            // "args": [ "--all-info", "--load", "--csv" ], // saving csv from file
-            // "args": [ "--all-info", "--load", "--csv", "--extra" ], // saving csv from file + cross checking with extra output
+            // "args": [ "--all-info", "--load", "--csv" ], // loading csv from file
+            // "args": [ "--all-info", "--load", "--csv", "--extra" ], // loading csv from file + cross checking with extra output
             // "args": [ "--all-info", "--save", "--csv", "--extra" ], // saving csv from API + cross checking with extra output
             // "args": [ "--all-info", "--load", "--csv", "--profile-csv" ], // test profile-csv (fast as we load from file)
             "args": [ "--all-info", "--save", "--csv", "--profile-csv" ], // test profile-csv (slow as we load from api)

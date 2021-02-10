@@ -18,7 +18,7 @@ import csv
 ###################
 
 # global vars
-Version="0.1.9"
+Version="0.2.0"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -354,8 +354,9 @@ def PARSE_OPTION_ORDERS(RS_option_orders):
 ###################
 
 # save time consuming data to file
-def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,divs,verify_bool=False):
-    save_data = { "run_date": run_date, "username": loaded_username, "stock_orders":so, "crypto_orders":co, "option_orders":oo, "stocks_dict":sd, "cryptos_dict":cd, "options_dict":od, "stocks_open":soo, "cryptos_open":coo, "options_open":ooo, "dividends": divs }  # loaded_username is global
+# sod, cod, ood = list of dict of open positions { "symbol", "quantity", "price",  "value" }
+def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,sod,cod,ood,divs,verify_bool=False):
+    save_data = { "run_date": run_date, "username": loaded_username, "stock_orders":so, "crypto_orders":co, "option_orders":oo, "stocks_dict":sd, "cryptos_dict":cd, "options_dict":od, "stocks_open":soo, "cryptos_open":coo, "options_open":ooo, "sod":sod, "cod":cod, "ood": ood, "dividends":divs }  # loaded_username is global
     # Store data (serialize)
     with open(filename, 'wb') as handle:
         pickle.dump(save_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -371,6 +372,9 @@ def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,divs,verify_bool=False):
         len_soo = len(ld["stocks_open"]) if ld["stocks_open"] is not None else 0
         len_coo = len(ld["cryptos_open"]) if ld["cryptos_open"] is not None else 0
         len_ooo = len(ld["options_open"]) if ld["options_open"] is not None else 0
+        len_sod = len(ld["sod"]) if ld["sod"] is not None else 0
+        len_cod = len(ld["cod"]) if ld["cod"] is not None else 0
+        len_ood = len(ld["ood"]) if ld["ood"] is not None else 0
         len_divs = len(ld["dividends"]) if ld["dividends"] is not None else 0
         un = ld["username"] if ld["username"] is not None else "N/A"
         # print()
@@ -390,6 +394,15 @@ def load_data(filename):
     with open(filename, 'rb') as handle:
         unserialized_data = pickle.load(handle)
     return unserialized_data
+
+###################
+
+# get price from open positions list dict. list of { "symbol", "quantity", "price",  "value" }
+def find_price_in_open_listdict(symbol,open_positions_list_dist):
+    for i in open_positions_list_dist:
+        if i["symbol"] == symbol:
+            return i["price"]
+    return None # we shouldnt return none (perhaps raise error)
 
 ###################
 
@@ -696,7 +709,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 a = float(i["quantity"])
                 if a == 0: # skip if empty and not actually an open position
                     continue
-                p = QUOTE_STOCK(s) # or maybe faster to do this: float(i["average_buy_price"])
+                p = find_price_in_open_listdict(s,ld["sod"]) if load_bool else QUOTE_STOCK(s) # p = QUOTE_STOCK(s) # or maybe faster to do this: float(i["average_buy_price"])
+                # print("DEBUG-S:",s,p)
                 stocks_dict[s].update_current(a,p)
                 total_stocks_open_amount += a
                 total_stocks_open_value += stocks_dict[s].current_value
@@ -725,6 +739,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 if a == 0: # skip if empty and not actually an open position
                     continue
                 p = QUOTE_CRYPTO(s)
+                p = find_price_in_open_listdict(s,ld["cod"]) if load_bool else QUOTE_CRYPTO(s) # p = QUOTE_CRYPTO(s)
+                # print("DEBUG-C:",s,p)
                 cryptos_dict[s].update_current(a,p)
                 total_cryptos_open_amount += a
                 total_cryptos_open_value += cryptos_dict[s].current_value
@@ -908,7 +924,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     
         # Save api data to pickle file dat.pkl so we can use --load in future to load faster (but of course then its not live data)
         if save_bool:
-            save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, soo = stocks_open, coo = cryptos_open, ooo = options_open, verify_bool = True, divs = rs_divs_list)
+            save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, soo = stocks_open, coo = cryptos_open, ooo = options_open, sod = sod, cod = cod, ood = ood, divs = rs_divs_list, verify_bool = True)
 
 ###################
 ####### MAIN ######

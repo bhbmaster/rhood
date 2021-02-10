@@ -261,6 +261,7 @@ python rhood.py --all-info --load
 
 **SIDENOTE:** -s is short for --save, -l is short for --load
 
+**SIDENOTE:** The following data is saved in the file as a dictionary object: run date, loaded username, stocks orders list of dict, crypto orders list of dict, options orders list of dict, stock order dictionary, crypto order dictionary, stocks open list of dict, cryptos open list of dict, options open list of dict, sod, cod, ood, dividends.. sod, cod, and ood is another list of dict of open positions, however, it also contains prices at the run date (allowing to view the price of the open symbol at later date when we use --load)
 ## GENERATE CSVs
 
 The --csv or -c option save all of the stock, crypto and options orders + open positions + profits + dividends into CSV files. It saves the data as its recieved from the API. This can be loaded from saved orders (with --load option) file or directly from API (with out --load option).
@@ -379,13 +380,11 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 * If dividend payment is pending, the pay date is estimated to current run date. Only consider pay dates of "paid" dividends.
 
-* When --load is used, current symbol values are used for open positions, so net profit is affected. Therefore, net profit will change every time the symbol moves. There is a TODO item to correct this by saving the old ask_price when --save is used.
-
 ## TODO
 
 - [ ] Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
 
-- [ ] This is for the 3rd limitation above. If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. This will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occurred then we will be in a mathematics mess, that I don't want to deal with. Solution: save the ask_price when --save is used, and --load it, therefore we bypass needing to look up historical prices.
+- [x] If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. This will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occurred then we will be in a mathematics mess, that I don't want to deal with. Solution: save the ask_price when --save is used, and --load it, therefore we bypass needing to look up historical prices. **(DONE)**
 
 - [x] Allow insecure credentials, without 2factor authentication. add --insecure / -I flag. due to 2 methods of login, we now have to remove interactive mode (it was useless anyways). **(DONE, need to test.)**
 
