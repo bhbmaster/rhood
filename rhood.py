@@ -18,7 +18,7 @@ import csv
 ###################
 
 # global vars
-Version="0.1.8"
+Version="0.1.9"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
