@@ -33,6 +33,24 @@ cryptopairs = None
 #### FUNCTIONS ####
 ###################
 
+# error codes so far:
+# 1 - credentials
+# 2 - loading or saving errors
+# 3 - parameter errors
+
+# error message
+def errmsg(message):
+    print()
+    print(f"* ERROR: {message}")
+    print()
+
+# error and exit
+def errext(exitcode,message):
+    errmsg(message)
+    sys.exit(exitcode)
+
+###################
+
 # LOGIN WITH 2FACTOR. creds FILE HAS 3 LINES: username/email, password, authkey
 def LOGIN(un="",pw="",ke=""):
     global r, user_string, loaded_username
@@ -42,20 +60,14 @@ def LOGIN(un="",pw="",ke=""):
     elif un == "" and pw == "" and ke == "":
         # CREDS FILE
         if not os.path.isfile(CREDENTIALSFILE):
-            print()
-            print(f"* ERROR: Credentials file missing in current path '{CREDENTIALSFILE}'. Follow README.md for creation instructions.")
-            print()
-            sys.exit(1)
+            errext(1, f"Credentials file missing in current path '{CREDENTIALSFILE}'. Follow README.md for creation instructions.")
         with open(CREDENTIALSFILE) as f:
             lines = base64.b64decode(f.read()).decode("utf-8").split()
         # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password, authkey)
         EMAIL, PASSWD, KEY = map(lambda x: x.strip(), lines)
     else:
         # FAIL
-        print()
-        print(f"* ERROR: If using CLI arguments for secure login, must specify: username, password and authentication key.")
-        print()
-        sys.exit(1)
+        errext(1, "If using CLI arguments for secure login, must specify: username, password and authentication key.")
     # now we have creds, login in and such
     loaded_username = EMAIL
     user_string = EMAIL.split("@")[0] # get the username part of the email (or just the username if username was provided)
@@ -79,20 +91,14 @@ def LOGIN_INSECURE(un="",pw=""):
     elif un == "" and pw == "":
         # CREDS FILE
         if not os.path.isfile(CREDENTIALSFILE):
-            print()
-            print(f"* ERROR: Credentials file missing in current path '{CREDENTIALSFILE}'. Follow README.md for creation instructions.")
-            print()
-            sys.exit(1)
+            errext(1, f"Credentials file missing in current path '{CREDENTIALSFILE}'. Follow README.md for creation instructions.")
         with open(CREDENTIALSFILE) as f:
             lines = base64.b64decode(f.read()).decode("utf-8").split()
         # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password)
         EMAIL, PASSWD = map(lambda x: x.strip(), lines)
     else:
         # FAIL
-        print()
-        print(f"* ERROR: If using CLI arguments for insecure login, must specify: username and password.")
-        print()
-        sys.exit(1)
+        errext(1, "If using CLI arguments for insecure login, must specify: username and password.")
     # now we have creds, login in and such
     loaded_username = EMAIL
     user_string = EMAIL.split("@")[0] # get the username part of the email (or just the username if username was provided)
@@ -386,10 +392,7 @@ def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,sod,cod,ood,divs,verify_boo
 def load_data(filename):
     # check if file exists
     if not os.path.isfile(filename):
-        print()
-        print(f"* ERROR: Can't load {filename}, it is missing. Try running with --save parameter instead so that we contact the API for the order information and save the data to {filename}.")
-        print()
-        sys.exit(1)
+        errext(2, f"Can't load {filename}, it is missing. Try running with --save parameter instead so that we contact the API for the order information and save the data to {filename}.")
     # Load data (deserialize)
     with open(filename, 'rb') as handle:
         unserialized_data = pickle.load(handle)
@@ -402,7 +405,8 @@ def find_price_in_open_listdict(symbol,open_positions_list_dist):
     for i in open_positions_list_dist:
         if i["symbol"] == symbol:
             return i["price"]
-    return None # we shouldnt return none (perhaps raise error)
+    # if we didn't find symbol we will be here and that can only happen if corruption of file
+    errext(2, "Loaded file might be corrupted as its missing price for {symbol}. Can't proceed further. Try again without loading.")
 
 ###################
 
@@ -508,10 +512,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         run_date_orders = ld['run_date']
         print(f"* Preloading Complete")
         if ld["username"] != loaded_username:
-            print()
-            print(f"* ERROR: Loaded finance information of another user, can't do that. Please save current users data first using --save, if you wish to --load it at later point.")
-            print()
-            sys.exit(1)
+            errext(2, "Loaded finance information of another user, can't do that. Please save current users data first using --save, if you wish to --load it at later point.")
         print()
     else:
         # contacting order via API
@@ -988,10 +989,7 @@ def main():
 
     # error checking on saving and loading
     if load_bool and save_bool:
-        print()
-        print("* ERROR: Can't save and load. Try again with either save or load.")
-        print()
-        sys.exit(1)
+        errext(3, "Can't save and load. Try again with either save or load.")
 
     # Credentials file (if we don't need it, that is okay and handled in LOGIN functions)
     CREDENTIALSFILE = args.creds_file
