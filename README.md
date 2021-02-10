@@ -319,8 +319,8 @@ The above command has the following output for a random user:
 2020-12-14T18:48:28.147000Z - 75985dd4-abcde-495a-adf3-abcde - buy  x1.00000000  TSLA [S|filled] avg: $637.19   exec1/1: $637.19  price: $669.10
 
 ...lines skiped for brevity...
-* sym# 10/41 ord# 41/42 tot_ord# 156 - 2020-12-09 15:53:58 +0000 - TSLA - buy - x2.0 at $2.0000 - value $1279.36
-* sym# 10/41 ord# 42/42 tot_ord# 157 - 2020-12-14 18:48:28 +0000 - TSLA - buy - x1.0 at $1.0000 - value $637.19
+* sym# 10/44 ord# 34/48 tot_ord# 156 - 2020-11-19 16:34:42 +0000 - TSLA - buy - x1.0 at $506.59000 - value $506.59
+* sym# 10/44 ord# 35/48 tot_ord# 157 - 2020-11-19 16:59:37 +0000 - TSLA - sell - x2.0 at $499.55000 - value $999.10
 
 * OPEN STOCK - TSLA x3.0 at $634.13 each - est current value: $1902.38
 * TSLA net profit $695.66 ** currently open **
