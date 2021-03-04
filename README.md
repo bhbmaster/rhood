@@ -1,6 +1,6 @@
 # RHOOD - Robinhood Stocks Analysis
 
-Rhood provides a text analysis of your robinhood portfolio. It provides all of the profile data, order data, open positions, net profits, dividends, and total profits.
+Rhood provides an analysis of your Robinhood portfolio using the robin_stocks API. It provides all of the profile data, order data, open positions, net profits, dividends, and total profits in a single text output.
 
 Rhood provides an excellent way to see your profit for each symbol ever held. Robinhood webapp & native application doesn't provide this information (at least I couldn't find it). You can see your total revenue, and you can see symbols total return. However, robinhood's total return per symbol, seems to clear out if you sell the whole symbol; or maybe part sell of the symbol distorts it too - I am not sure. My application, rhood, tells you the total return of each stock regardless of sales. This gives you a good idea as to which stocks, crypto or option* were your most advantageous (and least advantageous).
 
