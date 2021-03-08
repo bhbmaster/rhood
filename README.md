@@ -6,7 +6,11 @@ Rhood provides an excellent way to see your profit for each symbol ever held. Ro
 
 As this generates very private data, the output should be viewed with discretely.
 
-Example output which is made up but shows general concept:
+Example output 1 - provided by generous online user (this is the bottom portion; above this you would see all of the orders by each category and parsed by each symbol):
+
+![image](https://user-images.githubusercontent.com/62363157/110397276-66fe8180-8026-11eb-8474-a75a135fbf9b.png)
+
+Example output 2 - which is made up but shows general concept:
 
 ```console
 ...many lines cut off for brevity (cut lines might have shown all profile info, all orders and open positions)...
