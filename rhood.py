@@ -18,7 +18,7 @@ import csv
 ###################
 
 # global vars
-Version="0.2.0"
+Version="0.2.1"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -725,8 +725,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 a = i["quantity"]
                 p = i["price"]
                 v = i["value"]
-                print(f"* OPEN STOCK - {s} x{a} at ${D2(p)} each - est current value: ${D2(v)}")
-            print(f"* TOTAL OPEN STOCKS - {total_stocks_open_amount} stocks for total ${D2(total_stocks_open_value)} estimated value")
+                print(f"* OPEN STOCK - {s} x{a} at ${DX(p,5)} each - est current value: ${DX(v,5)}")
+            print(f"* TOTAL OPEN STOCKS - {total_stocks_open_amount} stocks for total ${DX(total_stocks_open_value,5)} estimated value")
         # cryptos
         cryptos_open = ld["cryptos_open"] if load_bool else LOAD_OPEN_CRYPTOS()
         sum_of_cryptos_open_quantity = sum([ float(i["quantity"]) for i in cryptos_open ])
@@ -755,8 +755,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 a = i["quantity"]
                 p = i["price"]
                 v = i["value"]
-                print(f"* OPEN CRYPTO - {s} x{a} at ${D2(p)} each - est current value: ${D2(v)}")
-            print(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} stocks for total ${D2(total_cryptos_open_value)} estimated value")
+                print(f"* OPEN CRYPTO - {s} x{a} at ${DX(p,5)} each - est current value: ${DX(v,5)}")
+            print(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} stocks for total ${DX(total_cryptos_open_value,5)} estimated value")
         # TODO: options open positions
         options_open = ld["options_open"] if load_bool else LOAD_OPEN_OPTIONS()
         if options_open != []:
