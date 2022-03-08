@@ -18,7 +18,7 @@ import csv
 ###################
 
 # global vars
-Version="0.2.1"
+Version="0.2.2"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -149,7 +149,7 @@ def ID2SYM(id,cryptopairs):
 
 ###################
 
-# CONVERT MONEY STRING TO 2 DECIMAL 
+# CONVERT MONEY STRING TO 2 DECIMAL
 def TOMONEY(money_string):
     if money_string is None:
         return "None"
@@ -333,7 +333,7 @@ def PARSE_STOCK_ORDERS(RS_stock_orders):
             # if symbol already exists just add order
             stock_order_dict[symbol].add_order(order)
         else:
-            # if symbol not in dict, create new instance of stock_orders and put 1 order 
+            # if symbol not in dict, create new instance of stock_orders and put 1 order
             stock_order_dict[symbol] = orders.multi_orders(symbol, [order])
     SORT_ALL_DICT_ORDERS_INCREASING(stock_order_dict)
     return stock_order_dict
@@ -561,19 +561,19 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             extended_hours_equity = None
             use_equity = equity
             print("* NOTE: extended_hours_equity missing, using regular equity instead")
-            
+
         totalGainMinusDividends = use_equity - dividends - money_invested # missing cash_account_debits + i think also missing crypto and options
         percentGain = totalGainMinusDividends/money_invested*100
 
-        print(f"* Reported Deposits: {TOMONEY(deposits)}")
-        print(f"* Reported Withdrawals: {TOMONEY(withdrawals)}")
-        print(f"* Reported Debits: {TOMONEY(debits)} *** this is wrong right now ***") # <-- why is this 0, it should be all cash_account debits
-        print(f"* Reported Reversal Fees: {TOMONEY(reversal_fees)}")
-        print(f"* The total money invested is {TOMONEY(money_invested)}")
-        print(f"* The total equity is {TOMONEY(equity)}")
-        print(f"* NOTE: extended_hours_equity is {TOMONEY(extended_hours_equity)}") # added by me
-        print(f"* The net worth has increased {percentDividend:.3f}% due to dividends that amount to {TOMONEY(dividends)}")
-        print(f"* The net worth has increased {TOMONEY(percentGain)}% due to other gains that amount to {TOMONEY(totalGainMinusDividends)} *** correct if only stocks & no cash mgmt ***")
+        print(f"* Reported Deposits: ${TOMONEY(deposits)}")
+        print(f"* Reported Withdrawals: ${TOMONEY(withdrawals)}")
+        print(f"* Reported Debits: ${TOMONEY(debits)} *** this is wrong right now ***") # <-- why is this 0, it should be all cash_account debits
+        print(f"* Reported Reversal Fees: ${TOMONEY(reversal_fees)}")
+        print(f"* The total money invested is ${TOMONEY(money_invested)}")
+        print(f"* The total equity is ${TOMONEY(equity)}")
+        print(f"* NOTE: extended_hours_equity is ${TOMONEY(extended_hours_equity)}") # added by me
+        print(f"* The net worth has increased {percentDividend:.3f}% due to dividends that amount to ${TOMONEY(dividends)}")
+        print(f"* The net worth has increased {TOMONEY(percentGain)}% due to other gains that amount to ${TOMONEY(totalGainMinusDividends)} *** correct if only stocks & no cash mgmt ***")
         print()
 
         # print load stock + crypto + options - TIME CONSUMING
@@ -735,7 +735,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             print()
             print("CRYPTO:")
             for i in cryptos_open:
-                s = i["currency"]["code"] 
+                s = i["currency"]["code"]
                 a = float(i["quantity"])
                 if a == 0: # skip if empty and not actually an open position
                     continue
@@ -779,7 +779,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             option_keys = [ i["symbol"] for i in ood ] if ood != [] else []
             all_keys = stock_keys + crypto_keys + option_keys
             list_dict = []
-            # go thru each item in the dictionary which is a multi_order class and run latest_profit and latest_amount (not needed)        
+            # go thru each item in the dictionary which is a multi_order class and run latest_profit and latest_amount (not needed)
             for sym,orders in dictionary.items():
                 last_profit = orders.latest_profit()
                 last_amount = orders.latest_amount() # <-- not needed as it fails when stocks split. open stocks make more senses
@@ -896,7 +896,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             print(f"* loaded order data from '{FILENAME}' which ran on {run_date_orders}")
         else:
             print(f"* loaded order data from robinhood API run date {run_date_orders}")
-    
+
     # save to order , open , and profit to csv
     if info_type == "ALL" or info_type == "FINANCE":
         if csv_bool:
@@ -924,7 +924,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             if rs_divs_list != []:
                 print(f"* saving dividends csv to '{dir_full}'")
                 print_to_csv("All-Dividends",rs_divs_list)
-    
+
         # Save api data to pickle file dat.pkl so we can use --load in future to load faster (but of course then its not live data)
         if save_bool:
             save_data(FILENAME, so = stock_orders, co = crypto_orders, oo = option_orders, sd = stocks_dict, cd = cryptos_dict, od = options_dict, soo = stocks_open, coo = cryptos_open, ooo = options_open, sod = sod, cod = cod, ood = ood, divs = rs_divs_list, verify_bool = True)

@@ -14,7 +14,7 @@ class order:
 
         if amount_float < 0:
             raise ValueError("amount must be over 0")
-        
+
         self.date_string = date_string
         self.type_string = type_string.lower()
         self.price_float = price_float    # prices a single share sold / buy at
