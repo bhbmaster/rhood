@@ -28,11 +28,12 @@ grep -v "total net profit from stocks" | while read i; do
 	if [[ $N -gt 1 ]]; then
 	  if [[ "$OLD_INPUT_DATE" != "$INPUT_DATE" ]]; then
 	  	MOD_DATE=$(echo "$OLD_INPUT_DATE" | sed 's|output-||g;s|.txt\$||g' | sed 's|\([0-9]*-[0-9]*-[0-9]*\)-\([0-9][0-9]\)\([0-9][0-9]\)|\1 \2:\3:##|')
-	 	echo "${MOD_DATE}  - ${CONCAT}" | sed 's|\^M\$||g';
+	 	echo "${MOD_DATE}  - ${CONCAT}" # | sed 's|\^M\$||g';
 	 	CONCAT="";
 	  fi
 	fi
-	REMAINING=$(echo "$i" | cut -d: -f2- | cat -e);
+	REMAINING=$(echo "$i" | cut -d: -f2- | cat -A | sed 's|\^M||g' | sed 's|$$||g');
+	# echo "(R $REMAINING)"
 	CONCAT="${CONCAT}${REMAINING}";
 	OLD_INPUT_DATE=$INPUT_DATE;
 done;
