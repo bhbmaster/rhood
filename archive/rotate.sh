@@ -1,6 +1,16 @@
 #!/bin/bash
-# file: rotate.sh
+#
+# Last update: 2022-03-19
+#
+# filename: rotate.sh
+# what this does: rotates and compresses output files from archive/output into a single .txt files which is then compressed with xz to become .txt.xz. this also rotates out by compressing all of the dat files into a tar file and then compressing it with xz.
+#
+#############################################################
 
+# for scheduler (doesn't hurt anything anyways)
+PATH="/usr/bin:/usr/local/bin:$PATH"
+
+# variables for output
 DATESUF=`date +%Y%m%d-%H%M%S`
 LOG_OUTPUT="output/rotate-$DATESUF.log"
 LOG_DAT="dat/rotate-$DATESUF.log"
@@ -66,3 +76,4 @@ echo "* Creating $LOG_OUTPUT can follow: tail -F $LOG_OUTPUT"
 echo "* Creating $LOG_DAT can follow: tail -F $LOG_DAT"
 
 exit 0
+# EOF
