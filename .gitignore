@@ -6,7 +6,9 @@ dat*pkl
 run.bat
 notes*
 csv*
-archive*
+archive/dat*
+archive/output*
+*out
 test-*
 test
 TODO*
