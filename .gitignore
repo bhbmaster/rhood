@@ -4,6 +4,7 @@ __pycache__*
 dat*pkl
 .vscode*
 run.bat
+rotate.bat
 notes*
 csv*
 archive/dat*
