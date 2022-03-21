@@ -82,7 +82,7 @@ if  [[ "$1" == "save" ]]; then
 	{
 		echo "PARSE START @ $STARTDATE_STRING $STARTDATE"
 		[[ "$SHOW_OLD" ==  1 ]] && show_old;
-		[[ "$SHOW_new" ==  1 ]] && show_new;
+		[[ "$SHOW_NEW" ==  1 ]] && show_new;
 		ENDDATE_STRING=`date`; ENDDATE=`date +%s` # these will be called outside of the process group {}
 		DIFFDATE=`echo "$STARTDATE $ENDDATE" | awk '{print $2-$1}'` # these will be called outside of the process group {}
 		echo "PARSE END @ $ENDDATE_STRING $ENDDATE (took $DIFFDATE seconds)"
@@ -91,7 +91,7 @@ if  [[ "$1" == "save" ]]; then
 	echo "* Operation Complete"
 else
 	[[ "$SHOW_OLD" ==  1 ]] && show_old;
-	[[ "$SHOW_new" ==  1 ]] && show_new;
+	[[ "$SHOW_NEW" ==  1 ]] && show_new;
 fi
 
 exit 0
