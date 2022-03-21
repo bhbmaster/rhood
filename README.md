@@ -347,7 +347,7 @@ You can run this script on repeat per a schedule (example daily) and analyze the
 
 You can schedule the script to run in windows with Windows task scheduler that will run a bat file, that kicks off the run.sh shell script. For windows you need cygwin or another source of a bash.exe to get this running.
 
-In Linux/MAC you can schedule run.sh to run on a crontask.
+In Linux/MAC you can schedule run.sh to run on a crontask. On Windows we kick off run.bat to kick off the run.sh:
 
 * run.sh --> this script runs rhood.py with extra information and saves output to a dated output file and a dated pickle file in archive/output and archive/dat. missing folders are created.
 * run.bat --> not included but you can make it. it should just kick off run.sh with bash (ex: cygwin's bash)
@@ -361,7 +361,20 @@ cd \path\to\your\rhood\
 c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 ```
 
-Also schedule the rotate.sh script to run once every few days. On Windows, you will need to create a similar bat file for it:
+If you want run.bat to also run the parse-outputs.sh, I recommend doing it with WSL2 (Windows Subsystem for Linux). Personally I have Ubuntu installed as WSL. Thru cygwin parsing compressed results (if they exist) took me 1 hour, where as with WSL they took 1.5 minutes.
+
+```batch
+@echo off
+c:
+cd \path\to\your\rhood\
+c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
+wsl /mnt/path/to/your/rhood/archive/parse-outputs.sh save
+```
+
+Also schedule the rotate.sh script to run once every few days (I run mine once every Sunday). On Windows, you will need to create a similar bat file for it:
+
+* rotate.sh --> this script compressed the archived dat files into tar.xz files and the archived output files into txt.xz. The txt.xz can later be analyzed along with the uncompressed output files with parse-outputs.sh.
+* rotate.bat --> not included but you can make it. it should just kick off run.sh with bash (ex: cygwin's bash)
 
 ```batch
 @echo off
@@ -370,13 +383,29 @@ cd \path\to\your\rhood\archive
 c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood/archive; ./rotate.sh"
 ```
 
-## run.sh and its output
-
-When run.sh is ran it saves a date copy of the output into archive/output directory and the pickle info into archive/dat. Overtime, you can get thousands of these files. So I created a rotate.sh file that rotates those files out and creates smart compressed xz files. Overtime these can grow to a few GiB. For me they grew to like 50GiB after a year of running. The compressing tool made it all go down to like 20MiB. There is no way to uncompress the output files back into their original many files format (as they were smartly combined into one file before being compressed). You can however get the original dat files back by simply extracting the dat*tar.xz file.
-
-Additionally there is a parse-outputs.sh file that generates oneline output of each run showing the most important profit information per line. It goes chronologically from oldest to newest, and it even works on the rotated files.
-
 More information on scheduling: I recommend scheduleing a run.sh or run.bat to run every hour of every day, then every 7 days run rotate.sh to help clear up space.
+
+## THE OUTPUT OF run.sh AND rotate.sh FUNCTIONALITY
+
+When **run.sh** is ran it saves a dated copy of the output into `archive/output/` directory and the pickle info into `archive/dat/`. Overtime, you can get thousands of these files. So I created a **rotate.sh** file that rotates those files out and creates smart compressed xz files. Overtime the uncompressed content can grow to a few GiB. For example,  for me they grew to 50GiB after a 1.5 years of running. The compressing tool shrunk it to 20MiB. There is no way to uncompress the output files back into their original multiple file format (as they were modified before being compressed -- if you are curious, each line was prefixed with the date -> this makes it possible to parse the compressed results in one swoop later). You can however get the original dat files back by simply extracting the dat*tar.xz file.
+
+## PARSING THE output FILES
+
+We are not saving the output files for no reason. They can be analyzed for further analysis. I made a script **parse-output.sh** that parses the older compressed files first (that were created by **rotate.sh**) and then the new uncompressed files (which were not yet processed by **rotate.sh**)
+
+Additionally there is a **parse-outputs.sh** file that generates oneline output of each run showing the most important profit information per line. It goes chronologically from oldest to newest, and it even works on the rotated files.
+
+To run it and show results on screen:
+```bash
+cd rhood/archive
+./parse-output.sh
+```
+
+To save the results to **rhood/archive/parse.out** (note the start and end date is appended to back and front of parse.out)
+```bash
+cd rhood/archive
+./parse-output.sh save
+```
 
 ## EXTRA INFORMATION
 
@@ -405,7 +434,9 @@ More information on scheduling: I recommend scheduleing a run.sh or run.bat to r
 
 - [ ] Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
 
-- [x] Added parsing of output files and rotating of output and dat files.
+- [ ] Add rotating/compressing of csv output files
+
+- [x] Added parsing of output files and rotating/compressing of output and dat files.
 
 - [x] If we use --load data from pickle file, then we should also use the ask_price of open positions at the loaded date, instead of the current date. otherwise the value will constantly change. This will give correct profits on that date. we could include option to evaluate loaded open positions with current ask price (--eval-loaded-current, -L), however, if stock splits occurred then we will be in a mathematics mess, that I don't want to deal with. Solution: save the ask_price when --save is used, and --load it, therefore we bypass needing to look up historical prices. **(DONE)**
 
