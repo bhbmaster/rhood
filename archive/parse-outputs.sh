@@ -65,7 +65,7 @@ function show_new () {
 		set -f # so that * are not expanded. we don't want it at the top of script as then other stuff might not work and a while loop is in a way a subshell
 		# MOD_DATE=$( stat -c "%w" $i | cut -f1 -d"."; )
 		MOD_DATE=$(echo "$i" | sed 's|output-||g;s|.txt\$||g;s|\.txt||g' | sed 's|\([0-9]*-[0-9]*-[0-9]*\)-\([0-9][0-9]\)\([0-9][0-9]\)|\1 \2:\3:##|')
-		echo  "$MOD_DATE - " $( cat $i | grep "total.*profit" | grep -v "total net profit from stocks"; );
+		echo  "$MOD_DATE  - " $( cat $i | grep "total.*profit" | grep -v "total net profit from stocks"; );
 	done | grep -v " - $" | cat -A | sed 's|\^M||g' | sed 's|$$||g'
 }
 
