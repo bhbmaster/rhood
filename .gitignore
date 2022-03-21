@@ -6,7 +6,9 @@ dat*pkl
 run.bat
 rotate.bat
 notes*
-csv*
+csv/*
+!csv/
+!csv/rotate.sh
 archive/dat*
 archive/output*
 *out

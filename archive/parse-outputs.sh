@@ -16,7 +16,7 @@
 # for scheduler (doesn't hurt anything anyways)
 PATH="/usr/bin:/usr/local/bin:$PATH"
 
-# We must start from the archive dir
+# We must start from the archive dir and go into output subdir
 SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 cd "$SCRIPT_DIR"  # we need to get to output dir in SCRIPT_DIR, so first make sure we are there
 cd output;

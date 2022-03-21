@@ -350,9 +350,11 @@ You can schedule the script to run in windows with Windows task scheduler that w
 In Linux/MAC you can schedule run.sh to run on a crontask. On Windows we kick off run.bat to kick off the run.sh:
 
 * run.sh --> this script runs rhood.py with extra information and saves output to a dated output file and a dated pickle file in archive/output and archive/dat. missing folders are created.
-* run.bat --> not included but you can make it. it should just kick off run.sh with bash (ex: cygwin's bash)
+* run.bat --> batch script to kick off run.sh from windows. not included but you can make it. it just kick off run.sh with cygwins bash
 
 run.bat would have contents similar to this:
+
+**run.bat**
 
 ```batch
 @echo off
@@ -363,6 +365,8 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 
 If you want run.bat to also run the parse-outputs.sh, I recommend doing it with WSL2 (Windows Subsystem for Linux). Personally I have Ubuntu installed as WSL. Thru cygwin parsing compressed results (if they exist) took me 1 hour, where as with WSL they took 1.5 minutes.
 
+**run.bat**: with added option to kick off parse-outputs.sh
+
 ```batch
 @echo off
 c:
@@ -371,10 +375,12 @@ c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood; ./run.sh"
 wsl /mnt/path/to/your/rhood/archive/parse-outputs.sh save
 ```
 
-Also schedule the rotate.sh script to run once every few days (I run mine once every Sunday). On Windows, you will need to create a similar bat file for it:
+Also schedule the archive/rotate.sh & csv/rotate.sh script to run once every few days (I run mine once every Sunday). On Windows, you will need to create a similar bat file for it:
 
-* rotate.sh --> this script compressed the archived dat files into tar.xz files and the archived output files into txt.xz. The txt.xz can later be analyzed along with the uncompressed output files with parse-outputs.sh.
-* rotate.bat --> not included but you can make it. it should just kick off run.sh with bash (ex: cygwin's bash)
+* archive/rotate.sh --> this script compressed the archived dat files into single tar.xz files and the archived output files into txt.xz. The txt.xz can later be analyzed along with the uncompressed output files with parse-outputs.sh.
+* archive/rotate.bat --> batch script to kick off the rotate.sh from windows. not included but you can make it. it just kicks off rotate.sh with cygwins bash
+
+**archive/rotate.bat**
 
 ```batch
 @echo off
@@ -382,12 +388,25 @@ c:
 cd \path\to\your\rhood\archive
 c:\path\to\your\bash.exe -c "cd /cygdrive/c/path/to/your/rhood/archive; ./rotate.sh"
 ```
+* csv/rotate.sh --> this script compressed the sub directories in csv directory into single tar.xz file. It can later be extracted to be viewed. I recommend extracting in a different directory so it doesn't mess with the next rotation.
+* csv/rotate.bat --> batch script to kick off the rotate.sh from windows. not included but you can make it. it just kicks off rotate.sh with cygwins bash
+
+**csv/rotate.bat**
+
+```batch
+@echo off
+d:
+cd \path\to\your\rhood\csv
+c:\cygwin64\bin\bash.exe -c "cd /cygdrive/c/path/to/your/rhood/csv; ./rotate.sh"
+```
 
 More information on scheduling: I recommend scheduleing a run.sh or run.bat to run every hour of every day, then every 7 days run rotate.sh to help clear up space.
 
 ## THE OUTPUT OF run.sh AND rotate.sh FUNCTIONALITY
 
 When **run.sh** is ran it saves a dated copy of the output into `archive/output/` directory and the pickle info into `archive/dat/`. Overtime, you can get thousands of these files. So I created a **rotate.sh** file that rotates those files out and creates smart compressed xz files. Overtime the uncompressed content can grow to a few GiB. For example,  for me they grew to 50GiB after a 1.5 years of running. The compressing tool shrunk it to 20MiB. There is no way to uncompress the output files back into their original multiple file format (as they were modified before being compressed -- if you are curious, each line was prefixed with the date -> this makes it possible to parse the compressed results in one swoop later). You can however get the original dat files back by simply extracting the dat*tar.xz file.
+
+There is also a **rotate.sh** script inside of csv directory which similary rotates/compresses the csv directories.
 
 ## PARSING THE output FILES
 
@@ -434,7 +453,7 @@ cd rhood/archive
 
 - [ ] Options are not yet included as I don't have any. Looking for any information regarding how the data structure or output look like for the APIs methods: option orders, and option open positions.
 
-- [ ] Add rotating/compressing of csv output files
+- [x] Add rotating/compressing of csv output files
 
 - [x] Added parsing of output files and rotating/compressing of output and dat files.
 

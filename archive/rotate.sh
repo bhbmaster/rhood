@@ -15,6 +15,10 @@ DATESUF=`date +%Y%m%d-%H%M%S`
 LOG_OUTPUT="output/rotate-$DATESUF.log"
 LOG_DAT="dat/rotate-$DATESUF.log"
 
+# We must start from the archive dir
+SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
+cd "$SCRIPT_DIR"  # we need to get to output dir in SCRIPT_DIR, so first make sure we are there
+
 ### compress and rotate output files - run from archive dir and it creates an output-from-DATE-to-DATE.txt.zx file in archive/output from all of the output*txt files in output
 ( FILENAMEPREFIX="output";
 cd output
