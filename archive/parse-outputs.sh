@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Last update: 2022-03-19
+# Last update: 2022-03-20
 #
 # filename: rhood/archive/parse-output.sh
 # what this does: shows oneline info of profits from each run of rhood
