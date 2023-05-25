@@ -1,4 +1,4 @@
-# RHOOD - Comprehensive Robinhood Portfolio Analysis Tool
+# RHOOD - Robinhood Portfolio Analysis Tool
 
 Welcome to Rhood, an advanced portfolio analysis tool designed for users of the Robinhood platform. Through leveraging the power of the robin_stocks API, Rhood provides a comprehensive and insightful view of your Robinhood portfolio.
 
