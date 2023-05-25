@@ -8,7 +8,7 @@ If you've ever wondered about the total return of a stock after selling it, Rhoo
 
 Rhood is aware of the sensitivity of financial data, and it has been designed with privacy and security in mind. It's recommended that the output data should be viewed discreetly.
 
-To get started, you will need Python 3.9 along with the robin_stocks and pyotp Python packages. Follow the steps in the Quick Start Guide below to install the necessary prerequisites, set up your credentials, and start using Rhood.
+To get started, you will need Python 3.9 (although newer will probably work too) along with the robin_stocks and pyotp Python packages. Follow the steps in the Quick Start Guide below to install the necessary prerequisites, set up your credentials, and start using Rhood.
 
 Remember, investing is not just about making money, it's about understanding your investments. With Rhood, you'll gain insights into your Robinhood portfolio like never before.
 
