@@ -100,12 +100,12 @@ First select a login method, preferably more secure ones. Then select the argume
 
 ## LOGIN METHODS
 
-There are 4 methods of login in. In order from least to most secure:
+There are 4 main methods of login in. In order from least to most secure:
 
-1. Secure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line and authkey on third line (pre-encoding)
-1. Insecure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line (pre-encoding)
-1. Secure login with CLI using --username un, --password pw, and --authkey ak
-1. Insecure login with CLI using --insecure, --username un, and --password pw
+1. 2FA is enabled on the account, use secure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line and authkey on third line (pre-encoding)
+1. 2FA is enabled on the account, use secure login with CLI using --username un, --password pw, and --authkey ak
+1. 2FA is enabled on the account, use insecure login with CLI using --insecure, --username un, and --password pw and you will be prompted to enter the MFA code (6 digit)
+1. 2FA is not enabled on the account, use insecure login with CLI using --insecure, --username un, and --password pw
 
 Where un, pw, and ak are the username, password, and authkey field respecively.
 
@@ -179,22 +179,7 @@ PPhib3453455QGdtYWlsasERTVCXYWlyMTIz123412341230VlZFTkJLMlg0N1A=
 rm creds
 ```
 
-## LOGIN METHOD 2 ) LOGIN INSECURELY WITH CREDENTIALS FILE - NOT RECOMMENDED
-
-One can login with username and password as well - without 2 factor authentication. It is not recommended, but it works.
-
-Follow the instructions above to create a creds-encoded file with just username and password, missing the auth key.
-
-So it would look like this pre encoding:
-
-```console
-bhbmaster@gmail.com
-PineapplesExpress
-```
-
-Then include the the --insecure (or -I) argument in all of your rhood.py commands.
-
-## LOGIN METHOD 3 and 4 ) USING CLI TO LOGIN
+## LOGIN METHOD 2, 3 and 4) USING CLI TO LOGIN
 
 If you have 2 factor authentication, you would use secure login with CLI like so:
 
@@ -206,8 +191,6 @@ python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --au
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --authkey TZIJ9PPENAA2X69Z --all-info
 ```
 
-Note: you can still use insecure method with 2 factor, it will just ask for your MFA code (the 6 digit code)
-
 If you have 2 factor authentication disabled, you would use insecure login with CLI like so:
 
 ```bash
@@ -217,6 +200,8 @@ python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --in
 # example:
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --insecure --all-info
 ```
+
+Note: you can still use insecure method with 2 factor, it will just ask for your MFA code (the 6 digit code)
 
 **SIDENOTE:** instead of using --username, --password, and --authkey which are 'wordy', you can use -U, -P and -A respectivly.
 
@@ -488,3 +473,5 @@ cd rhood/archive
 - [ ] Total all buys per symbol, and all sells per symbol, and ratio with profits and study what that means.
 
 - [ ] Test if output works with Margins.
+
+- [ ] Fix regression where we can not use simple username + password authentication with creds with insecure mode. It looks for authkey in the file. Will also need to update the README.md file in the "LOGIN METHOD" sections.
