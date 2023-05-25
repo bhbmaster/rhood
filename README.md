@@ -1,4 +1,18 @@
-# RHOOD - Robinhood Stocks Analysis
+# RHOOD - Comprehensive Robinhood Portfolio Analysis Tool
+
+Welcome to Rhood, an advanced portfolio analysis tool designed for users of the Robinhood platform. Through leveraging the power of the robin_stocks API, Rhood provides a comprehensive and insightful view of your Robinhood portfolio.
+
+This tool brings together all your profile data, order data, open positions, net profits, dividends, and total profits into a single, easy-to-understand text output. It offers a superior perspective of your investment journey by showing the profit for each symbol you've ever held - a feature not readily available in the standard Robinhood web or native applications.
+
+If you've ever wondered about the total return of a stock after selling it, Rhood is the tool for you. It calculates the total return of each stock, crypto, or option, regardless of sales. This gives you a clear understanding of your most (and least) advantageous investments over time.
+
+Rhood is aware of the sensitivity of financial data, and it has been designed with privacy and security in mind. It's recommended that the output data should be viewed discreetly.
+
+To get started, you will need Python 3.9 along with the robin_stocks and pyotp Python packages. Follow the steps in the Quick Start Guide below to install the necessary prerequisites, set up your credentials, and start using Rhood.
+
+Remember, investing is not just about making money, it's about understanding your investments. With Rhood, you'll gain insights into your Robinhood portfolio like never before.
+
+## Purpose and Examples
 
 Rhood provides an analysis of your Robinhood portfolio using the robin_stocks API. It provides all of the profile data, order data, open positions, net profits, dividends, and total profits in a single text output.
 
