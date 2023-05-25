@@ -88,7 +88,7 @@ python rhood.py --all-info --username 'your@email.com' --password 'YOURPASSWORD'
 python rhood.py --all-info --username 'your@email.com' --password 'YOURPASSWORD' --authkey 'YOUR2FACTORCODE'
 ```
 
-**SIDENOTE 1:** The 2 factor authentication key 'YOUR2FACTORCODE' is not the 6 digit code you get every time you want to login. Instead its an alphanumeric code presented at the beginning of setting up your 2 factor. IT looks like this 'TZIJ9PPENAA2X69Z' (this is not anyones code. I changed the characters.)
+**SIDENOTE 1:** The 2 factor authentication key 'YOUR2FACTORCODE' is not the 6 digit code you get every time you want to login. Instead its an alphanumeric code presented at the beginning of setting up your 2 factor. It looks like this 'TZIJ9PPENAA2X69Z' (this is not a real code. it has been mangled)
 
 **SIDENOTE 2:** It is called --insecure, for the purposes of labeling my code. I labelled none 2 factor authentication as "insecure" and 2 factor auth as "secure". The actual login for both methods is still done over API and your credentials are not saved anywhere, so both are actually secure methods.
 
@@ -102,12 +102,14 @@ First select a login method, preferably more secure ones. Then select the argume
 
 There are 4 methods of login in. In order from least to most secure:
 
-1. secure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line and authkey on third line (pre-encoding)
-1. insecure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line (pre-encoding)
-1. secure login with CLI using --username --password and --authkey
-1. insecure login with CLI --username and --password
+1. Secure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line and authkey on third line (pre-encoding)
+1. Insecure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line (pre-encoding)
+1. Secure login with CLI using --username un, --password pw, and --authkey ak
+1. Insecure login with CLI using --insecure, --username un, and --password pw
 
-secure vs insecure simply means, secure is your account has 2 factor authentication mode, where as insecure means your account does not have 2 factor authentication.
+Where un, pw, and ak are the username, password, and authkey field respecively.
+
+Secure vs Insecure: secure method requires your account to have 2 factor authentication mode, where as insecure means your account does not have 2 factor authentication and if it does it will ask for the MFA code (6 digit code).
 
 ## LOGIN METHOD 1 ) LOGIN SECURELY - USE AUTHENTICATION KEY AND CREATE CREDS FILE
 
@@ -204,14 +206,16 @@ python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --au
 python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --authkey TZIJ9PPENAA2X69Z --all-info
 ```
 
+Note: you can still use insecure method with 2 factor, it will just ask for your MFA code (the 6 digit code)
+
 If you have 2 factor authentication disabled, you would use insecure login with CLI like so:
 
 ```bash
 # syntax:
-python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress [rest of the options]
+python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --insecure [rest of the options]
 
 # example:
-python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --all-info
+python rhood.py --username bhbmaster@gmail.com --password PineapplesExpress --insecure --all-info
 ```
 
 **SIDENOTE:** instead of using --username, --password, and --authkey which are 'wordy', you can use -U, -P and -A respectivly.
