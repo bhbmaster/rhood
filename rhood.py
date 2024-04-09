@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import robin_stocks as r
+import robin_stocks.robinhood as r
 import pyotp
 import sys
 import json

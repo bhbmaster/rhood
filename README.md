@@ -39,7 +39,9 @@ TOTAL PROFIT (NET PROFIT + DIVIDENDS):
 * total profit from stocks, crypto, and options + dividends: $269.44
 ```
 
-**Requirements:** python3.9 + pip install robin_stocks and pyotp
+**Requirements:** python3.9 + pip install robin_stocks, pyotp, and python-dateutil
+
+**Tested Successfully:** python3.10
 
 **Robinhood API used:** https://github.com/jmfernandes/robin_stocks
 
