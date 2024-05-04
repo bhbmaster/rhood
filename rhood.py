@@ -64,7 +64,11 @@ def LOGIN(un="",pw="",ke=""):
         with open(CREDENTIALSFILE) as f:
             lines = base64.b64decode(f.read()).decode("utf-8").split()
         # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password, authkey)
-        EMAIL, PASSWD, KEY = map(lambda x: x.strip(), lines)
+        try:
+            EMAIL, PASSWD, KEY = map(lambda x: x.strip(), lines)
+        except:
+            # FAIL
+            errext(1, "Secure creds must be base64 encoded with 3 lines, from top to bottom: Username or Email, Password, MFA Key.")
     else:
         # FAIL
         errext(1, "If using CLI arguments for secure login, must specify: username, password and authentication key.")
@@ -95,7 +99,11 @@ def LOGIN_INSECURE(un="",pw=""):
         with open(CREDENTIALSFILE) as f:
             lines = base64.b64decode(f.read()).decode("utf-8").split()
         # lines = open("creds").readlines() # much less secure (creds file has 3 lines, email/username, password)
-        EMAIL, PASSWD = map(lambda x: x.strip(), lines)
+        try:
+            EMAIL, PASSWD = map(lambda x: x.strip(), lines)
+        except:
+            # FAIL
+            errext(1, "Insecure creds must be base64 encoded with 2 lines, from top to bottom: Username or Email, Password.")
     else:
         # FAIL
         errext(1, "If using CLI arguments for insecure login, must specify: username and password.")
@@ -955,10 +963,10 @@ def main():
     arg_desc = f"rhood v{Version} - Text analysis of robinhood profile, portfolio and profits. Please review README.md for login instructions. There are 2 methods: creating '{CREDENTIALSFILE}' file (more secure), or providing credentials in the command line (less secure)."
     end_message = f"Example: first create '{CREDENTIALSFILE}' credentials file following the README.md instructions, then run # python rhood.py --all-info"
     parser = argparse.ArgumentParser(description=arg_desc,epilog=end_message)
-    parser.add_argument("--username","-U",help="Robinhood username. Must be used with --password and --authkey, if 2 factor authentication is used.", action="store", default="")
+    parser.add_argument("--username","-U",help="Robinhood username. Must be used with --password and --authkey, if 2 Factor Authn is used.", action="store", default="")
     parser.add_argument("--password","-P",help="Robinhood password.", action="store", default="")
-    parser.add_argument("--authkey","-K",help="2 factor authentication key. Only needed if 2Factor is enabled.", action="store", default="")
-    parser.add_argument("--insecure","-I",help=f"Not recommended. Login insecurely without 2factor authentication. '{CREDENTIALSFILE}' only holds username line and password line in encoded base64 ascii format. Sidenote: default secure mode also needs third auth key line encoded as well.", action="store_true")
+    parser.add_argument("--authkey","-K",help="2 Factor Authn key. Only needed if 2 Factor Authn is enabled on account.", action="store", default="")
+    parser.add_argument("--insecure","-I",help=f"Not recommended. Insecure login w/out 2 Factor Authn. '{CREDENTIALSFILE}' holds username line and password line in base64 encoded ascii format. Note: default secure mode also requires third auth key line. Can run insecure mode with 2 Factor enabled on account but it will prompt for MFA code.", action="store_true")
     parser.add_argument("--creds-file","-C",help=f"Where to load base64 encoded credentials from (README.md for more information). By default it is '{CREDENTIALSFILE}'.", action="store", default=CREDENTIALSFILE)
     parser.add_argument("--all-info","-i",help="Get all profile + order + open positions + profit info.",action="store_true")
     parser.add_argument("--profile-info","-r",help="Get only profile information.",action="store_true")
