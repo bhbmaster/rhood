@@ -41,7 +41,7 @@ TOTAL PROFIT (NET PROFIT + DIVIDENDS):
 
 **Requirements:** python3.9 + pip install robin_stocks, pyotp, and python-dateutil
 
-**Tested Successfully:** python3.10
+**Tested Successfully:** python3.10, python3.11
 
 **Robinhood API used:** https://github.com/jmfernandes/robin_stocks
 
@@ -56,31 +56,33 @@ The tested versions are python3.9 and the modules listed in requirements.txt (al
 Here is a quick start guide for shell users:
 
 ```bash
-# install rhood
+# Install rhood
 
 git clone https://github.com/bhbmaster/rhood
 cd rhood
 
-# install its dependencies
+# Install its dependencies
 
 pip install -r requirements.txt
 
-# run rhood using method A or method B:
+# Run rhood using method A or method B:
 
-# method A -- if you do not have 2 factor authentication enabled run this:
+# Method A -- if you do not have 2 factor authentication enabled run this:
 
 python rhood.py --all-info --username 'your@email.com' --password 'YOURPASSWORD' --insecure
 
-# method B -- if you have 2 factor authentication and your authentication key (its an alphanumeric code provided only once at the beginning of your 2 factor authentication setup)
+# Method B -- if you have 2 factor authentication enabled and have your authentication key (its an alphanumeric code provided only once at the beginning of your 2 factor authentication setup) run this:
 
 python rhood.py --all-info --username 'your@email.com' --password 'YOURPASSWORD' --authkey 'YOUR2FACTORCODE'
 ```
 
 **SIDENOTE 1:** The 2 factor authentication key 'YOUR2FACTORCODE' is not the 6 digit code you get every time you want to login. Instead its an alphanumeric code presented at the beginning of setting up your 2 factor. IT looks like this 'TZIJ9PPENAA2X69Z' (this is not anyones code. I changed the characters.)
 
-**SIDENOTE 2:** It is called --insecure, for the purposes of labeling my code. I labelled none 2 factor authentication as "insecure" and 2 factor auth as "secure". The actual login for both methods is still done over API and your credentials are not saved anywhere, so both are actually secure methods.
+**SIDENOTE 2:** It is called --insecure, for the purposes of labeling my code. I labeled none 2 factor authentication as "insecure" and 2 factor auth as "secure". The actual login for both methods is still done over API and your credentials are not saved anywhere, so both are actually secure methods.
 
-**SIDENOTE 3:** If rhood is going to be ran often or in a script, I recommend using a 'creds-encoded' file instead of supplying your credentials in the CLI. More information on cred files and all of the login methods are described below.
+**SIDENOTE 3:** If rhood is ran often or in a script, its recommended to use a 'creds-encoded' file instead of supplying the credentials in the CLI. More information on creds files and all of the login methods are described below.
+
+**SIDENOTE 4:** If MFA / 2 factor authentication enabled, --insecure mode will work, however it will prompt for the generated MFA code. Therefore due to the keyboard intervention, its not supported to script with.
 
 ## HOW TO USE RHOOD
 
@@ -472,3 +474,5 @@ cd rhood/archive
 - [ ] Total all buys per symbol, and all sells per symbol, and ratio with profits and study what that means.
 
 - [ ] Test if output works with Margins.
+
+- [x] Update to latest robin-stocks to work with python3.11
