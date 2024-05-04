@@ -18,7 +18,7 @@ import csv
 ###################
 
 # global vars
-Version="0.2.2"
+Version="0.3.0"
 run_date = datetime.datetime.now()
 run_date_orders = None # its set later either to run_date or loaded run_date, we establish it here so that its global
 CREDENTIALSFILE = "creds-encoded" # file we read for creds
@@ -297,8 +297,20 @@ def LOAD_OPEN_CRYPTOS():
 
 # GET ALL CURRENTLY OPEN OPTIONS - meaning we own these now
 def LOAD_OPEN_OPTIONS():
-    func = r.get_all_option_positions()
-    return func
+    # TODO: current implementation of get_all_option_positions seems buggy with robin_stocks v3.0.6, its asking for account_number & when supplied does nothing.
+    # (Example1) - if supply empty like other r. calls, we get this:
+    # func = r.options.get_all_option_positions()
+    # return func
+    # We get error: TypeError: option_positions_url() missing 1 required positional argument: 'account_number'
+    # (Example2) - if supply like this
+    # func = r.options.get_all_option_positions(account_number="5SX90465")
+    # return func
+    # We get error: error same or similar as Example3 below
+    # (Example3) - if supply like this
+    # func = r.options.get_all_option_positions("5SX90465")
+    # return func
+    # We get error: TypeError: option_positions_url() missing 1 required positional argument: 'account_number'
+    return []
 
 ###################
 
