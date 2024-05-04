@@ -5,5 +5,8 @@ pip freeze | grep -E "robin|pyotp" > requirements.txt
 pip install --upgrade robin-stocks
 pip install --upgrade pyotp
 
-# test that it works
-python rhood.py --all-info
+# test the upgrade worked by running rhood.
+# below command assumes "creds-encoded" file exists for authn.
+# refer to README.md for 
+python rhood.py --all-info                # for secure login for 2fa enabled accounts using un,pw,key encoded in creds-encoded file
+python rhood.py --all-info --insecure     # for insecure login using un,pw in creds-encoded file or if 2fa is enabled then using un,pw, and 6 digit code (keyboard)
