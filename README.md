@@ -476,3 +476,7 @@ cd rhood/archive
 - [ ] Test if output works with Margins.
 
 - [x] Update to latest robin-stocks to work with python3.11
+
+- [ ] Refactor functions into different files: file_ops.py
+
+- [ ] After refactor, improve readability by converting the folowing variables into functions in rhood.py or source file. This way we dont have to pass it in as parameters into functions. The variables from file_ops.py: run_date_orders, dir_suffix, user_string - cryptopairs - run_date , loaded_username
