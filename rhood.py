@@ -561,7 +561,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
 
         # print all option orders (buy and sell)
         options_dict = {}
-        print(f"--- All Option Orders ---")
+        print(f"--- All Option Orders (Work In Progress / Not Yet Implemented) ---")
         if option_orders != []: # time consuming shows alot of extra information (like state of orders and more)
             PRINT_OPTION_ORDERS(option_orders)  ## time consuming
             print()

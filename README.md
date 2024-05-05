@@ -49,7 +49,7 @@ The tested versions are python3.9 and the modules listed in requirements.txt (al
 
 ## WORK IN PROGRESS
 
-* See todo list at the bottom. Options + Margins are not taken into account, yet.
+* See TODO list at the bottom. Options + Margins are not taken into account, yet.
 
 ## SHELL QUICK START GUIDE
 
@@ -93,11 +93,13 @@ First select a login method, preferably more secure ones. Then select the argume
 There are 4 methods of login in. In order from least to most secure:
 
 1. secure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line and authkey on third line (pre-encoding)
-1. insecure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line (pre-encoding)
-1. secure login with CLI using --username --password and --authkey
-1. insecure login with CLI --username and --password
+2. insecure login using base64 encoded file 'creds-encoded' that has username/email on first line and password on second line (pre-encoding)
+3. secure login with CLI using --username --password and --authkey
+4. insecure login with CLI --username and --password
 
-secure vs insecure simply means, secure is your account has 2 factor authentication mode, where as insecure means your account does not have 2 factor authentication.
+Secure vs insecure simply means, secure means 2 factor authentication mode is enabled on the account, where as insecure means the account does not have 2 factor authentication.
+
+**NOTE:** There is a caveat, inseucre login with a 2 Factor Authentication enabled account, the program will prompt for the MFA 6 digit code.
 
 ## LOGIN METHOD 1 ) LOGIN SECURELY - USE AUTHENTICATION KEY AND CREATE CREDS FILE
 
@@ -129,7 +131,7 @@ PineapplesExpress
 TZIJ9PPENAA2X69Z
 ```
 
-1. Encode it with this python or bash command.
+2. Encode it with this python or bash command.
 
 ```bash
 # python command
@@ -139,13 +141,13 @@ python -c 'import base64; print(base64.b64encode(open("creds","r").read().encode
 cat creds | base64 > creds-encoded
 ```
 
-1. Verify you see an encoded file
+3. Verify you see an encoded file
 
 ```bash
 cat creds-encoded
 ```
 
-1. Verify the file decodes correctly. You should see your UN, PW, and KEY.
+4. Verify the file decodes correctly. You should see your UN, PW, and KEY.
 
 ```bash
 # python command
@@ -161,7 +163,7 @@ Example output (modified for privacy):
 PPhib3453455QGdtYWlsasERTVCXYWlyMTIz123412341230VlZFTkJLMlg0N1A=
 ```
 
-1. If you see the original output, then delete the original file. The software will use the creds-encoded file to load your credentials by decoding it correctly.
+5. If you see the original output, then delete the original file. The software will use the creds-encoded file to load your credentials by decoding it correctly.
 
 ```bash
 rm creds
@@ -270,6 +272,7 @@ python rhood.py --all-info --load
 **SIDENOTE:** -s is short for --save, -l is short for --load
 
 **SIDENOTE:** The following data is saved in the file as a dictionary object: run date, loaded username, stocks orders list of dict, crypto orders list of dict, options orders list of dict, stock order dictionary, crypto order dictionary, stocks open list of dict, cryptos open list of dict, options open list of dict, sod, cod, ood, dividends.. sod, cod, and ood is another list of dict of open positions, however, it also contains prices at the run date (allowing to view the price of the open symbol at later date when we use --load)
+
 ## GENERATE CSVs
 
 The --csv or -c option save all of the stock, crypto and options orders + open positions + profits + dividends into CSV files. It saves the data as its recieved from the API. This can be loaded from saved orders (with --load option) file or directly from API (with out --load option).
@@ -337,7 +340,7 @@ The above command has the following output for a random user:
 
 **Sidenote:** Above information shows the order information as shown by the robinhood API, followed by the info as it was parsed by rhood.py (this is similar to the returned API order info, except it also shows the value), then it shows any open positions, finally it shows the net profits. From this data, we see there is a total of 42 orders with TSLA with 3 open stocks and profited $695 so far. Since this is an open stock, we will only see that full profit after selling all of TSLA at current ask price ($634.13). If TSLA paid dividends (they currently do not), then that profit would appear on here too.
 
-## HELP
+## RHOOD HELP AND USAGE
 
 Run this to see all of the options.
 
@@ -477,6 +480,6 @@ cd rhood/archive
 
 - [x] Update to latest robin-stocks to work with python3.11
 
-- [ ] Refactor functions into different files: file_ops.py
+- [ ] Refactor functions into different files. So far worked on: file_ops.py
 
 - [ ] After refactor, improve readability by converting the folowing variables into functions in rhood.py or source file. This way we dont have to pass it in as parameters into functions. The variables from file_ops.py: run_date_orders, dir_suffix, user_string - cryptopairs - run_date , loaded_username
