@@ -76,13 +76,13 @@ python rhood.py --all-info --username 'your@email.com' --password 'YOURPASSWORD'
 python rhood.py --all-info --username 'your@email.com' --password 'YOURPASSWORD' --authkey 'YOUR2FACTORCODE'
 ```
 
-**SIDENOTE 1:** The 2 factor authentication key 'YOUR2FACTORCODE' is not the 6 digit code you get every time you want to login. Instead its an alphanumeric code presented at the beginning of setting up your 2 factor. IT looks like this 'TZIJ9PPENAA2X69Z' (this is not anyones code. I changed the characters.)
+**SIDENOTE 1:** The 2 factor authentication key 'YOUR2FACTORCODE' is not the 6 digit code you get every time you want to login. Instead its an alphanumeric code presented at the beginning of setting up your 2 factor. It looks like this 'TZIJ9PPENAA2X69Z' (this is not anyones code. I changed the characters.)
 
 **SIDENOTE 2:** It is called --insecure, for the purposes of labeling my code. I labeled none 2 factor authentication as "insecure" and 2 factor auth as "secure". The actual login for both methods is still done over API and your credentials are not saved anywhere, so both are actually secure methods.
 
 **SIDENOTE 3:** If rhood is ran often or in a script, its recommended to use a 'creds-encoded' file instead of supplying the credentials in the CLI. More information on creds files and all of the login methods are described below.
 
-**SIDENOTE 4:** If MFA / 2 factor authentication enabled, --insecure mode will work, however it will prompt for the generated MFA code. Therefore due to the keyboard intervention, its not supported to script with.
+**SIDENOTE 4:** If MFA / 2 factor authentication enabled, "--insecure" mode will work, however it will prompt for the generated MFA code. Therefore due to the keyboard intervention, its not supported to script with. To save the output while being prompted for the MFA code, use the following syntax: `python rhood.py --all-info --insecure | tee output.txt`. The example command assumes an encoded `creds` file exists containing the username and password. Without it, provide username and password as arguments.
 
 ## HOW TO USE RHOOD
 
