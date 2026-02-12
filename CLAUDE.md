@@ -13,6 +13,7 @@
 rhood/
 ├── rhood.py               # Main application (entry point, ~1050 lines)
 ├── orders.py              # Data model classes: order, multi_orders, dividend
+├── colors.py              # ANSI color output module (--color auto/always/never)
 ├── requirements.txt       # Pinned Python dependencies
 ├── run.sh                 # Scheduled execution wrapper (cron/task scheduler)
 ├── TestSuite.sh           # Bash test harness (22 test combinations)
@@ -29,6 +30,7 @@ rhood/
 ## Key Files
 
 - **`rhood.py`** - All application logic: login, API calls, order parsing, profit calculation, CSV export, pickle save/load, argparse CLI. Uses procedural style with global state and UPPERCASE function names for major operations.
+- **`colors.py`** - ANSI color output module. Controlled via `--color` flag (auto/always/never). `auto` enables color when stdout is a TTY. All color functions are no-ops when disabled, ensuring clean output for piping and file redirection.
 - **`orders.py`** - Three data classes:
   - `order` - Single buy/sell transaction (date, type, price, quantity, value)
   - `multi_orders` - All orders for a symbol with profit calculation methods
@@ -66,7 +68,7 @@ python rhood.py --profile-info
 python rhood.py --finance-info
 ```
 
-Key CLI flags: `--all-info`, `--profile-info`, `--finance-info`, `--save`, `--load`, `--extra`, `--csv`, `--profile-csv`, `--sort-by-name`, `--insecure`, `--username`, `--password`, `--authkey`, `--creds-file`, `--finance-file`, `--csv-dir`.
+Key CLI flags: `--all-info`, `--profile-info`, `--finance-info`, `--save`, `--load`, `--extra`, `--csv`, `--profile-csv`, `--sort-by-name`, `--color` (auto/always/never), `--insecure`, `--username`, `--password`, `--authkey`, `--creds-file`, `--finance-file`, `--csv-dir`.
 
 ## Testing
 
