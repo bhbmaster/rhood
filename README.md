@@ -39,13 +39,15 @@ TOTAL PROFIT (NET PROFIT + DIVIDENDS):
 * total profit from stocks, crypto, and options + dividends: $269.44
 ```
 
-**Requirements:** python3.9 + pip install robin_stocks, pyotp, and python-dateutil
+**Requirements:** Python 3.9+ and the packages listed in `requirements.txt`: `robin-stocks>=3.4.0`, `pyotp`, and `python-dateutil`
 
-**Tested Successfully:** python3.10, python3.11
+**Tested Successfully:** Python 3.9, 3.10, 3.11
 
 **Robinhood API used:** https://github.com/jmfernandes/robin_stocks
 
-The tested versions are python3.9 and the modules listed in requirements.txt (along with the tested versions).
+The tested Python versions and pinned module versions are listed in `requirements.txt`.
+
+**Note:** `robin-stocks` version 3.4.0 or later is required. Earlier versions (e.g., 3.0.6) have a known bug where login error handling crashes with a `KeyError: 'detail'` instead of showing the actual error message.
 
 ## WORK IN PROGRESS
 
@@ -285,6 +287,18 @@ python rhood.py --all-info --profile-csv         # save profile info to csvs
 python rhood.py --all-info --profile-csv --csv   # save profile info & stock orders + open positions + profits + dividends to csv 
 ```
 
+## COLOR OUTPUT
+
+Rhood supports colored terminal output via the `--color` flag. Colors highlight profits/losses, buy/sell sides, section headers, and errors for easier reading.
+
+```bash
+python rhood.py --all-info --color auto      # default: color when stdout is a TTY
+python rhood.py --all-info --color always     # force color (useful for piping to 'less -R')
+python rhood.py --all-info --color never      # no color (clean output for file redirection)
+```
+
+When `--color` is set to `auto` (the default), colors are enabled when outputting to a terminal and disabled when piping to a file or another command. This ensures clean output in `> output.txt` redirections.
+
 ## EXTRA INFORMATION ABOUT ORDERS
 
 To view all of the information returned from the robinhood API about every order run it with --extra option or --csv option (csv saves the same information). This extra information is omitted during normal operations as we are only concerned with each orders: date, price, amount, state.
@@ -344,6 +358,8 @@ Run this to see all of the options.
 ```bash
 python rhood.py --help
 ```
+
+Full list of CLI flags: `--all-info` (`-i`), `--profile-info`, `--finance-info`, `--save` (`-s`), `--load` (`-l`), `--extra` (`-e`), `--csv` (`-c`), `--profile-csv` (`-p`), `--sort-by-name` (`-S`), `--color` (auto/always/never), `--insecure` (`-I`), `--username` (`-U`), `--password` (`-P`), `--authkey` (`-A`), `--creds-file` (`-C`), `--finance-file` (`-F`), `--csv-dir` (`-D`).
 
 ## SCHEDULING
 
@@ -476,3 +492,7 @@ cd rhood/archive
 - [ ] Test if output works with Margins.
 
 - [x] Update to latest robin-stocks to work with python3.11
+
+- [x] Add `--color` flag (auto/always/never) with ANSI color output for profits, buy/sell sides, headers, and errors via `colors.py` module **(DONE)**
+
+- [x] Update robin-stocks from 3.0.6 to 3.4.0 to fix login `KeyError: 'detail'` bug **(DONE)**
