@@ -6,11 +6,11 @@ Robinhood's own app doesn't show you true total return per symbol - especially a
 
 > **Privacy warning:** Output contains sensitive financial data. Handle it carefully.
 
-Here is some trivial example output (prior to adding the color functionality)
+Here is some trivial example output showing stock gains and related values. I am fine sharing this since the amounts are small and the data is old. Note that this is older output from before the color functionality was added.
 
 ![Example output](https://user-images.githubusercontent.com/62363157/110397276-66fe8180-8026-11eb-8474-a75a135fbf9b.png)
 
-Example output after adding color (2026-02-17):
+Below is a more recent example with color support enabled (2026-02-17). The screenshot reflects the current format.
 
 <img width="406" height="323" alt="Cursor 2026-02-16 23 57 34" src="https://github.com/user-attachments/assets/94e3b2c3-2aae-4e65-b72d-bbce7ab16410" />
 
