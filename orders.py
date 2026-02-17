@@ -39,10 +39,10 @@ Orders = list[order]
 # symbol class holds symbol name, all of its orders, and current value (open positions)
 class multi_orders:
 
-    def __init__(self, symbol_name: str, orders: Orders = [], current_amount: float = 0, current_avgprice: float = 0):
+    def __init__(self, symbol_name: str, orders: Orders = None, current_amount: float = 0, current_avgprice: float = 0):
         self.symbol_name = symbol_name
         # all orders
-        self.orders = orders
+        self.orders = orders if orders is not None else []
         # current open
         self.current_amount = current_amount
         self.current_avgprice = current_avgprice
