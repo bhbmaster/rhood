@@ -155,7 +155,7 @@ The main command that prints everything -- profile info, all orders, open positi
 python rhood.py --all-info
 ```
 
-The "kitchen sink" command that also saves a cache, exports CSVs, and includes extra API detail:
+The all in one command that also saves a cache, exports CSVs, and pulls in extra API details:
 
 ```bash
 python rhood.py --all-info --extra --save --csv --profile-csv
@@ -208,7 +208,7 @@ python rhood.py --all-info --extra
 rhood supports ANSI-colored output (profits in green/red, buy/sell highlighting, section headers):
 
 ```bash
-python rhood.py --all-info --color auto      # default: color when stdout is a TTY
+python rhood.py --all-info --color auto       # default: color when stdout is a TTY
 python rhood.py --all-info --color always     # force color (e.g. piping to 'less -R')
 python rhood.py --all-info --color never      # plain text (clean for file redirection)
 ```
