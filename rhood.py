@@ -84,7 +84,13 @@ def LOGIN(un="",pw="",ke=""):
     except:
         pass
     # login and don't store session to pickle file, so that we
-    login = r.login(EMAIL, PASSWD, mfa_code=ptot_now, expiresIn = expires_seconds, store_session=False) # changed to store_session false so could load gabes data
+    # NOTE: robin_stocks may print misleading "Login failed" messages during
+    # challenge/device-approval flows even when login ultimately succeeds.
+    login = r.login(EMAIL, PASSWD, mfa_code=ptot_now, expiresIn = expires_seconds, store_session=False)
+    if login and isinstance(login, dict) and 'access_token' in login:
+        print(colors.bright_green("Login successful."))
+    else:
+        errext(1, "Login truly failed. Check your credentials, 2FA key, and try again.")
     return login
 
 # LOGIN INSECURELY WITHOUT 2FACTOR. creds FILE HAS 2 LINES: username/email, password
@@ -117,7 +123,13 @@ def LOGIN_INSECURE(un="",pw=""):
     except:
         pass
     # login and don't store session to pickle file, so that we
-    login = r.login(EMAIL, PASSWD, expiresIn = expires_seconds, store_session=False) # changed to store_session false so could load gabes data
+    # NOTE: robin_stocks may print misleading "Login failed" messages during
+    # challenge/device-approval flows even when login ultimately succeeds.
+    login = r.login(EMAIL, PASSWD, expiresIn = expires_seconds, store_session=False)
+    if login and isinstance(login, dict) and 'access_token' in login:
+        print(colors.bright_green("Login successful."))
+    else:
+        errext(1, "Login truly failed. Check your credentials and try again.")
     return login
 
 ###################
@@ -306,7 +318,7 @@ def LOAD_OPEN_CRYPTOS():
 
 # GET ALL CURRENTLY OPEN OPTIONS - meaning we own these now
 def LOAD_OPEN_OPTIONS():
-    # TODO: current implementation of get_all_option_positions seems buggy with robin_stocks v3.0.6, its asking for account_number & when supplied does nothing.
+    # TODO: current implementation of get_all_option_positions seems buggy in robin_stocks, its asking for account_number & when supplied does nothing.
     # (Example1) - if supply empty like other r. calls, we get this:
     # func = r.options.get_all_option_positions()
     # return func
@@ -437,7 +449,7 @@ def get_save_dir():
     dir_full = f"{dir_suffix}/{date_string}-{user_string}"
     return dir_full
 
-# list_of_dict_handle_missing_keys - looks thru a list of dictionary, gets all of thekys. lod is list of dictionaries
+# list_of_dict_handle_missing_keys - looks thru a list of dictionary, gets all of the keys. lod is list of dictionaries
 def list_of_dict_handle_missing_keys(lod):
     # from https://stackoverflow.com/questions/33910764/adding-missing-keys-in-dictionary-in-python
     empty_value = None # we replace all missing key values with this, we could also just put "NA" in string, but None is better as it turns to blank field in csv/excel
@@ -499,7 +511,7 @@ def print_all_crypto_to_csv(RS_orders_all_cryptos):
         symbol = ID2SYM(i,cryptopairs)
         current_orders  = [ j for j in RS_orders_all_cryptos if j["currency_pair_id"]==i ]
         print_to_csv("C-"+symbol,current_orders)
-    # print all stocks (for fun)
+    # print all cryptos
     print_to_csv("C-(all)",RS_orders_all_cryptos)
 
 
@@ -760,8 +772,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 a = float(i["quantity"])
                 if a == 0: # skip if empty and not actually an open position
                     continue
-                p = QUOTE_CRYPTO(s)
-                p = find_price_in_open_listdict(s,ld["cod"]) if load_bool else QUOTE_CRYPTO(s) # p = QUOTE_CRYPTO(s)
+                p = find_price_in_open_listdict(s,ld["cod"]) if load_bool else QUOTE_CRYPTO(s)
                 # print("DEBUG-C:",s,p)
                 cryptos_dict[s].update_current(a,p)
                 total_cryptos_open_amount += a
@@ -777,7 +788,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 p = i["price"]
                 v = i["value"]
                 print(f"* OPEN CRYPTO - {colors.symbol(s)} x{a} at ${DX(p,5)} each - est current value: {colors.green('$'+DX(v,5))}")
-            print(colors.bold(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} stocks for total ${DX(total_cryptos_open_value,5)} estimated value"))
+            print(colors.bold(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} crypto for total ${DX(total_cryptos_open_value,5)} estimated value"))
         # TODO: options open positions
         options_open = ld["options_open"] if load_bool else LOAD_OPEN_OPTIONS()
         if options_open != []:
