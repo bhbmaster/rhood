@@ -12,6 +12,7 @@ import pickle
 import os.path
 import os
 import csv
+import colors
 
 ###################
 #### PRE VARS #####
@@ -41,7 +42,7 @@ cryptopairs = None
 # error message
 def errmsg(message):
     print()
-    print(f"* ERROR: {message}")
+    print(colors.error(f"* ERROR: {message}"))
     print()
 
 # error and exit
@@ -190,7 +191,7 @@ def FORMAT_ORDER_STOCKS(RS_orders):
         execs = len(o["executions"]) if state == "filled" else "None"  # used to be state != "cancelled"
         price1 = TOMONEY(o["executions"][0]["price"]) if state == "filled" else "None"  # used to be state != "cancelled"
         price = TOMONEY(o["price"])
-        result += f'* {date} - {id} - {side}\tx{quantity}\t{symbol} [S|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
+        result += f'* {colors.dim(date)} - {colors.dim(id)} - {colors.buy_sell(side)}\tx{quantity}\t{colors.symbol(symbol)} [S|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
     return result
 
 # FORMAT CRYPTOS ORDERS TO EXTRA INFORMATION STRING
@@ -210,7 +211,7 @@ def FORMAT_ORDER_CRYPTOS(RS_orders):
         execs = len(o["executions"]) if state == "filled" else "None"  # used to be state != "cancelled"
         price1 = TOMONEY(o["executions"][0]["effective_price"]) if state == "filled" else "None"  # used to be state != "cancelled"
         price = TOMONEY(o["price"])
-        result += f'* {date} - {id} - {side}\t${rounded}\tx{quantity}\t{symbol} [C|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
+        result += f'* {colors.dim(date)} - {colors.dim(id)} - {colors.buy_sell(side)}\t${rounded}\tx{quantity}\t{colors.symbol(symbol)} [C|{state}]\tavg: ${priceavg}\texec1/{execs}: ${price1}\tprice: ${price}\n'
     return result
 
 # FORMAT OPTIONS ORDERS TO EXTRA INFORMATION STRING - TODO: test with options one date. might be similar to stocks just change to O in state field
@@ -232,7 +233,7 @@ def PRINT_ORDERS_DICTIONARY(stock_orders_dictionary):
         for order in obj.orders:
             total_order_num += 1;
             stock_order_num += 1
-            print(f"* sym# {stock_num}/{len_of_stocks} ord# {stock_order_num}/{len_of_orders} tot_ord# {total_order_num} - {order.date_nice()} - {symbol} - {order.type_string} - x{order.amount_float} at ${DX(order.price_float,5)} - value ${D2(order.value_float)}")
+            print(f"* {colors.dim(f'sym# {stock_num}/{len_of_stocks} ord# {stock_order_num}/{len_of_orders} tot_ord# {total_order_num}')} - {order.date_nice()} - {colors.symbol(symbol)} - {colors.buy_sell(order.type_string)} - x{order.amount_float} at ${DX(order.price_float,5)} - value ${D2(order.value_float)}")
 
 ###################
 
@@ -405,7 +406,7 @@ def save_data(filename,so,co,oo,sd,cd,od,soo,coo,ooo,sod,cod,ood,divs,verify_boo
         un = ld["username"] if ld["username"] is not None else "N/A"
         # print()
         # print(f"* saved data of {un} to {filename} of run_date {run_date} - {len_so} orders of {len_soo} open stocks of {len_sd} - {len_co} orders of {len_coo} open crypto of {len_cd} - {len_oo} orders of {len_ooo} open options of {len_od} - {len_divs} dividends")
-        print(f"* saved data of {un} to {filename} of run_date {run_date} - (total orders, open symbols, total symbols): stocks ({len_so},{len_soo}/{len_sd}) - crypto ({len_co},{len_coo}/{len_cd}) - options ({len_oo},{len_ooo}/{len_od}) - {len_divs} dividends")
+        print(colors.status(f"* saved data of {un} to {filename} of run_date {run_date} - (total orders, open symbols, total symbols): stocks ({len_so},{len_soo}/{len_sd}) - crypto ({len_co},{len_coo}/{len_cd}) - options ({len_oo},{len_ooo}/{len_od}) - {len_divs} dividends"))
         print()
 
 # load time consuming data from file
@@ -522,7 +523,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         info_type_string = "Financial Information"
 
     # print date header
-    print(f"Date: {run_date} - Rhood Version: {Version} - {info_type_string}")
+    print(colors.bold(f"Date: {run_date} - Rhood Version: {Version} - {info_type_string}"))
     print()
 
     # preloading
@@ -530,7 +531,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         # loading orders from pickle
         ld = load_data(FILENAME) # this is used below this if as well
         run_date_orders = ld['run_date']
-        print(f"* Preloading Complete")
+        print(colors.status(f"* Preloading Complete"))
         if ld["username"] != loaded_username:
             errext(2, "Loaded finance information of another user, can't do that. Please save current users data first using --save, if you wish to --load it at later point.")
         print()
@@ -543,20 +544,20 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         prof_type = ["account","basic","investment","portfolio","security","user"]
         # save profiles to csv if csv_profile_bool
         for prof in prof_type:
-            print(f"---{prof} Profile---")
+            print(colors.section(f"---{prof} Profile---"))
             prof_func = getattr(r.profiles,f"load_{prof}_profile")
             prof_dictionary = prof_func()
             if csv_profile_bool:
                 print_to_csv(f"A-{prof}-profile",prof_dictionary)
-            print("\n".join([ f"* {i[0]}: {i[1]}" for i in prof_dictionary.items() ]))
+            print("\n".join([ f"* {colors.cyan(i[0])}: {i[1]}" for i in prof_dictionary.items() ]))
             print()
 
     if info_type == "ALL" or info_type == "FINANCE":
         # print account values
-        print(f"--- Gain Information (Experimental) ---")
-        print(f"* NOTE: Currently this section does not take into account cash management, options, and crypto. If only stocks are involved, then this section _should_ be accurate.")
-        print(f"* NOTE: The profit calculations in this section are inspired by https://github.com/jmfernandes/robin_stocks/blob/master/examples/get_accurate_gains.py")
-        print(f"* NOTE: The profit calculations below this section are more accurate as they consider every symbol order + current open positions + dividends")
+        print(colors.section(f"--- Gain Information (Experimental) ---"))
+        print(colors.note(f"* NOTE: Currently this section does not take into account cash management, options, and crypto. If only stocks are involved, then this section _should_ be accurate."))
+        print(colors.note(f"* NOTE: The profit calculations in this section are inspired by https://github.com/jmfernandes/robin_stocks/blob/master/examples/get_accurate_gains.py"))
+        print(colors.note(f"* NOTE: The profit calculations below this section are more accurate as they consider every symbol order + current open positions + dividends"))
 
         profileData = r.load_portfolio_profile()
         allTransactions = r.get_bank_transfers()
@@ -576,145 +577,145 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         if extended_hours_equity_string is not None:
             extended_hours_equity = float(extended_hours_equity_string)
             use_equity = extended_hours_equity
-            print("* NOTE: extended_hours_equity exists, using it")
+            print(colors.note("* NOTE: extended_hours_equity exists, using it"))
         else:
             extended_hours_equity = None
             use_equity = equity
-            print("* NOTE: extended_hours_equity missing, using regular equity instead")
+            print(colors.note("* NOTE: extended_hours_equity missing, using regular equity instead"))
 
         totalGainMinusDividends = use_equity - dividends - money_invested # missing cash_account_debits + i think also missing crypto and options
         percentGain = totalGainMinusDividends/money_invested*100
 
-        print(f"* Reported Deposits: ${TOMONEY(deposits)}")
-        print(f"* Reported Withdrawals: ${TOMONEY(withdrawals)}")
-        print(f"* Reported Debits: ${TOMONEY(debits)} *** this is wrong right now ***") # <-- why is this 0, it should be all cash_account debits
+        print(f"* Reported Deposits: {colors.green('$'+TOMONEY(deposits))}")
+        print(f"* Reported Withdrawals: {colors.red('$'+TOMONEY(withdrawals))}")
+        print(f"* Reported Debits: ${TOMONEY(debits)} {colors.warn('*** this is wrong right now ***')}") # <-- why is this 0, it should be all cash_account debits
         print(f"* Reported Reversal Fees: ${TOMONEY(reversal_fees)}")
-        print(f"* The total money invested is ${TOMONEY(money_invested)}")
-        print(f"* The total equity is ${TOMONEY(equity)}")
-        print(f"* NOTE: extended_hours_equity is ${TOMONEY(extended_hours_equity)}") # added by me
-        print(f"* The net worth has increased {percentDividend:.3f}% due to dividends that amount to ${TOMONEY(dividends)}")
-        print(f"* The net worth has increased {TOMONEY(percentGain)}% due to other gains that amount to ${TOMONEY(totalGainMinusDividends)} *** correct if only stocks & no cash mgmt ***")
+        print(f"* The total money invested is {colors.bold('$'+TOMONEY(money_invested))}")
+        print(f"* The total equity is {colors.bold('$'+TOMONEY(equity))}")
+        print(colors.note(f"* NOTE: extended_hours_equity is ${TOMONEY(extended_hours_equity)}")) # added by me
+        print(f"* The net worth has increased {colors.bright_green(f'{percentDividend:.3f}%')} due to dividends that amount to {colors.green('$'+TOMONEY(dividends))}")
+        print(f"* The net worth has increased {TOMONEY(percentGain)}% due to other gains that amount to {colors.profit(totalGainMinusDividends)} {colors.warn('*** correct if only stocks & no cash mgmt ***')}")
         print()
 
         # print load stock + crypto + options - TIME CONSUMING
         if load_bool:
             # loading orders from pickle
             # no need to reverse, as we already saveed reversed
-            print(f"--- Loading Orders (from file) ---")
+            print(colors.section(f"--- Loading Orders (from file) ---"))
             ld = load_data(FILENAME) # this is used below this if as well
             run_date_orders = ld['run_date']
-            print(f"* loaded order data from '{FILENAME}' which ran on {run_date_orders}")
-            print(f"* (S) started stock orders load")
+            print(colors.status(f"* loaded order data from '{FILENAME}' which ran on {run_date_orders}"))
+            print(colors.status(f"* (S) started stock orders load"))
             stock_orders = ld["stock_orders"]
-            print(f"* (S) completed stock orders load")
-            print(f"* (C) started crypto orders load")
+            print(colors.status(f"* (S) completed stock orders load"))
+            print(colors.status(f"* (C) started crypto orders load"))
             crypto_orders = ld["crypto_orders"]
-            print(f"* (C) completed crypto orders load")
-            print(f"* (O) started option orders load")
+            print(colors.status(f"* (C) completed crypto orders load"))
+            print(colors.status(f"* (O) started option orders load"))
             option_orders = ld["option_orders"]
-            print(f"* (O) completed option orders load")
+            print(colors.status(f"* (O) completed option orders load"))
             print()
         else:
             # contacting order via API
-            print(f"--- Loading Orders (from API) ---")
+            print(colors.section(f"--- Loading Orders (from API) ---"))
             run_date_orders = run_date
-            print(f"* Loading orders via API on {run_date_orders}")
-            print(f"* (S) started stock orders load")
+            print(colors.status(f"* Loading orders via API on {run_date_orders}"))
+            print(colors.status(f"* (S) started stock orders load"))
             stock_orders = LOAD_STOCK_ORDERS()
             stock_orders.reverse()
-            print(f"* (S) completed stock orders load")
-            print(f"* (C) started crypto orders load")
+            print(colors.status(f"* (S) completed stock orders load"))
+            print(colors.status(f"* (C) started crypto orders load"))
             crypto_orders = LOAD_CRYPTO_ORDERS()
             crypto_orders.reverse()
-            print(f"* (C) completed crypto orders load")
-            print(f"* (O) started option orders load")
+            print(colors.status(f"* (C) completed crypto orders load"))
+            print(colors.status(f"* (O) started option orders load"))
             option_orders = LOAD_OPTION_ORDERS()
             option_orders.reverse()
-            print(f"* (O) completed option orders load")
+            print(colors.status(f"* (O) completed option orders load"))
             print()
 
         # print all stock orders (buy and sell)
         stocks_dict = {}
-        print(f"--- All Stock Orders ---")
+        print(colors.section(f"--- All Stock Orders ---"))
         if stock_orders != []:
             if extra_info_bool: # time consuming shows alot of extra information (like state of orders and more)
                 PRINT_STOCK_ORDERS(stock_orders)  ## time consuming
                 print()
                 if load_bool:
-                    print("...loading parsed stock orders...")
+                    print(colors.status("...loading parsed stock orders..."))
                     stocks_dict = ld["stocks_dict"]
                 else:
-                    print("...parsing stock orders...")
+                    print(colors.status("...parsing stock orders..."))
                     stocks_dict = PARSE_STOCK_ORDERS(stock_orders)
                 print()
-                print(f"--- Parsed Fulfilled Stock Orders ---")
+                print(colors.section(f"--- Parsed Fulfilled Stock Orders ---"))
                 PRINT_ORDERS_DICTIONARY(stocks_dict)
                 print()
             else: # not time consuming
                 if load_bool:
-                    print("...loading parsed stock orders...")
+                    print(colors.status("...loading parsed stock orders..."))
                     stocks_dict = ld["stocks_dict"]
                 else:
-                    print("...parsing stock orders...")
+                    print(colors.status("...parsing stock orders..."))
                     stocks_dict = PARSE_STOCK_ORDERS(stock_orders)
                 PRINT_ORDERS_DICTIONARY(stocks_dict)
                 print()
 
         # print all crypto orders (buy and sell)
         cryptos_dict = {}
-        print(f"--- All Crypto Orders ---")
+        print(colors.section(f"--- All Crypto Orders ---"))
         if crypto_orders != []:
             if extra_info_bool: # time consuming shows alot of extra information (like state of orders and more)
                 PRINT_CRYPTO_ORDERS(crypto_orders) ## time consuming
                 print()
                 if load_bool:
-                    print("...loading parsed crypto orders...")
+                    print(colors.status("...loading parsed crypto orders..."))
                     cryptos_dict = ld["cryptos_dict"]
                 else:
-                    print("...parsing crypto orders...")
+                    print(colors.status("...parsing crypto orders..."))
                     cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)
                 print()
-                print(f"--- Parsed Fulfilled Crypto Orders ---")
+                print(colors.section(f"--- Parsed Fulfilled Crypto Orders ---"))
                 PRINT_ORDERS_DICTIONARY(cryptos_dict)
                 print()
             else: # not time consuming
                 if load_bool:
-                    print("...loading parsed crypto orders...")
+                    print(colors.status("...loading parsed crypto orders..."))
                     cryptos_dict = ld["cryptos_dict"]
                 else:
-                    print("...parsing crypto orders...")
+                    print(colors.status("...parsing crypto orders..."))
                     cryptos_dict = PARSE_CRYPTO_ORDERS(crypto_orders)
                 PRINT_ORDERS_DICTIONARY(cryptos_dict)
                 print()
 
         # print all option orders (buy and sell)
         options_dict = {}
-        print(f"--- All Option Orders ---")
+        print(colors.section(f"--- All Option Orders ---"))
         if option_orders != []: # time consuming shows alot of extra information (like state of orders and more)
             PRINT_OPTION_ORDERS(option_orders)  ## time consuming
             print()
             if load_bool:
-                print("...loading parsed option orders...")
+                print(colors.status("...loading parsed option orders..."))
                 options_dict = ld["options_dict"]
             else:
-                print("...parsing option orders...")
+                print(colors.status("...parsing option orders..."))
                 options_dict = PARSE_OPTION_ORDERS(option_orders)
             print()
-            print(f"--- Parsed Fulfilled Option Orders ---")
+            print(colors.section(f"--- Parsed Fulfilled Option Orders ---"))
             PRINT_ORDERS_DICTIONARY(options_dict)
             print()
         else:  # not time consuming
             if load_bool:
-                print("...loading parsed option orders...")
+                print(colors.status("...loading parsed option orders..."))
                 options_dict = ld["options_dict"]
             else:
-                print("...parsing option orders...")
+                print(colors.status("...parsing option orders..."))
                 options_dict = PARSE_OPTION_ORDERS(option_orders)
             PRINT_ORDERS_DICTIONARY(options_dict)
             print()
 
         # show open positions
-        print("--- Open Positions ---")
+        print(colors.section("--- Open Positions ---"))
         total_stocks_open_amount, total_cryptos_open_amount, total_options_open_amount = (0, 0, 0)
         total_stocks_open_value, total_cryptos_open_value, total_options_open_value = (0, 0, 0)
         sod, cod, ood = [], [], [] # stock open list of dicts, crypto open list of dicts, option open list of dicts
@@ -724,7 +725,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         # if stocks_open != []:
         if sum_of_stocks_open_quantity != 0:
             print()
-            print("STOCKS:")
+            print(colors.header("STOCKS:"))
             for i in stocks_open:
                 s = URL2SYM(i["instrument"])
                 a = float(i["quantity"])
@@ -745,15 +746,15 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 a = i["quantity"]
                 p = i["price"]
                 v = i["value"]
-                print(f"* OPEN STOCK - {s} x{a} at ${DX(p,5)} each - est current value: ${DX(v,5)}")
-            print(f"* TOTAL OPEN STOCKS - {total_stocks_open_amount} stocks for total ${DX(total_stocks_open_value,5)} estimated value")
+                print(f"* OPEN STOCK - {colors.symbol(s)} x{a} at ${DX(p,5)} each - est current value: {colors.green('$'+DX(v,5))}")
+            print(colors.bold(f"* TOTAL OPEN STOCKS - {total_stocks_open_amount} stocks for total ${DX(total_stocks_open_value,5)} estimated value"))
         # cryptos
         cryptos_open = ld["cryptos_open"] if load_bool else LOAD_OPEN_CRYPTOS()
         sum_of_cryptos_open_quantity = sum([ float(i["quantity"]) for i in cryptos_open ])
         # if cryptos_open != []:
         if sum_of_cryptos_open_quantity != 0:
             print()
-            print("CRYPTO:")
+            print(colors.header("CRYPTO:"))
             for i in cryptos_open:
                 s = i["currency"]["code"]
                 a = float(i["quantity"])
@@ -775,8 +776,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 a = i["quantity"]
                 p = i["price"]
                 v = i["value"]
-                print(f"* OPEN CRYPTO - {s} x{a} at ${DX(p,5)} each - est current value: ${DX(v,5)}")
-            print(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} stocks for total ${DX(total_cryptos_open_value,5)} estimated value")
+                print(f"* OPEN CRYPTO - {colors.symbol(s)} x{a} at ${DX(p,5)} each - est current value: {colors.green('$'+DX(v,5))}")
+            print(colors.bold(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} stocks for total ${DX(total_cryptos_open_value,5)} estimated value"))
         # TODO: options open positions
         options_open = ld["options_open"] if load_bool else LOAD_OPEN_OPTIONS()
         if options_open != []:
@@ -786,8 +787,8 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             total_open_amount = total_stocks_open_amount, total_cryptos_open_amount, total_options_open_amount
             total_open_value = total_stocks_open_value + total_cryptos_open_value + total_options_open_value
             print()
-            print("TOTAL:")
-            print(f"* total open positions value: ${D2(total_open_value)}")
+            print(colors.header("TOTAL:"))
+            print(f"* total open positions value: {colors.bold('$'+D2(total_open_value))}")
 
         # quick inner function for profit printing
         def show_profits_from_orders_dictionary(dictionary, prefix=""):
@@ -817,41 +818,41 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             for i in list_dict:
                 sym = i["symbol"]
                 last_profit = i["profit"]
-                open_string = " ** currently open **" if i["open"] else ""
-                print(f"* {prefix}{sym} net profit ${D2(last_profit)}"+open_string)
-            print(f"* {prefix}total net profit ${D2(total_profit)}")
+                open_string = colors.open_marker(" ** currently open **") if i["open"] else ""
+                print(f"* {prefix}{colors.symbol(sym)} net profit {colors.profit(last_profit)}"+open_string)
+            print(colors.bold(f"* {prefix}total net profit {colors.profit(total_profit)}"))
             return (total_profit, total_amount, list_dict)
 
         # show each stocks profit
         print()
-        print(f"--- Profits Based On Orders + Open Positions ---")
-        print("* NOTE: For this profit approximation, add up every symbol's sell values, subtract the buy values, and if the symbol is currently open add in the current open value based on current ask price for the symbol")
-        print("* NOTE: This is an approximation - albiet a good one, because symbols which are currently open their current ask price is constantly fluctuating.")
-        print("* NOTE: If your portfolio has no open symbols, then this is not an approximation but a very close actual value.")
-        print("* NOTE: profit per stock = (current open position value) + (sum of all of the sells) - (sum of all of the buy orders)")
+        print(colors.section(f"--- Profits Based On Orders + Open Positions ---"))
+        print(colors.note("* NOTE: For this profit approximation, add up every symbol's sell values, subtract the buy values, and if the symbol is currently open add in the current open value based on current ask price for the symbol"))
+        print(colors.note("* NOTE: This is an approximation - albiet a good one, because symbols which are currently open their current ask price is constantly fluctuating."))
+        print(colors.note("* NOTE: If your portfolio has no open symbols, then this is not an approximation but a very close actual value."))
+        print(colors.note("* NOTE: profit per stock = (current open position value) + (sum of all of the sells) - (sum of all of the buy orders)"))
         total_stocks_profit, total_stocks_amount, total_cryptos_profit, total_cryptos_amount, total_options_profit, total_options_amount = 0,0,0,0,0,0
         list_dict_of_stock_profits, list_dict_of_crypto_profits, list_dict_of_option_profits = [], [], []
         profits_dict = {}
         if stock_orders != []:
             print()
-            print(f"STOCKS:")
+            print(colors.header(f"STOCKS:"))
             total_stocks_profit, total_stocks_amount, list_dict_of_stock_profits = show_profits_from_orders_dictionary(stocks_dict,"STOCK ")
         if crypto_orders != []:
             print()
-            print(f"CRYPTO:")
+            print(colors.header(f"CRYPTO:"))
             total_cryptos_profit, total_cryptos_amount, list_dict_of_crypto_profits = show_profits_from_orders_dictionary(cryptos_dict, "CRYPTO ")
         if option_orders != []:
             print()
-            print(f"OPTIONS:")
+            print(colors.header(f"OPTIONS:"))
             total_options_profit, total_options_amount, list_dict_of_option_profits = show_profits_from_orders_dictionary(options_dict, "OPTION ")
         complete_profit = total_stocks_profit + total_cryptos_profit + total_options_profit
         print()
-        print("TOTAL NET PROFIT:")
-        print(f"* total net profit from stocks, crypto, and options: ${D2(complete_profit)}")
+        print(colors.header("TOTAL NET PROFIT:"))
+        print(colors.bold(f"* total net profit from stocks, crypto, and options: {colors.profit(complete_profit)}"))
         print()
 
         # dividend profit
-        print(f"--- Profits from Dividends ---")
+        print(colors.section(f"--- Profits from Dividends ---"))
         rs_divs_list = ld["dividends"] if load_bool else LOAD_DIVIDENDS()
         if rs_divs_list != [] or rs_divs_list is not None: # maybe just checking != [] is enough, doesn't hurt to check for None as well
             divs_list = []
@@ -873,13 +874,14 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
             #    sort(divs_list,key=lambda x: x.amount_paid)
             divs_list.sort(key=lambda x: x.date_epoch)
             for i in divs_list:
-                print(f"* dividend from {i.symbol_name} on {i.date_nice()} for ${D2(i.payed_amount)} ({i.state})")
-            print(f"TOTAL PAID DIVIDEND PROFIT: ${D2(divs_sum)}")
+                state_colored = colors.green(i.state) if i.state == "paid" else colors.yellow(i.state)
+                print(f"* dividend from {colors.symbol(i.symbol_name)} on {i.date_nice()} for {colors.green('$'+D2(i.payed_amount))} ({state_colored})")
+            print(colors.bold(f"TOTAL PAID DIVIDEND PROFIT: {colors.bright_green('$'+D2(divs_sum))}"))
             print()
 
-        print("--- Total Profit (Net Profit + Dividends) ---")
+        print(colors.section("--- Total Profit (Net Profit + Dividends) ---"))
         complete_profit_plus_divs = complete_profit + divs_sum
-        print(f"* total profit from stocks, crypto, and options + dividends: ${D2(complete_profit_plus_divs)}")
+        print(colors.bold(f"* total profit from stocks, crypto, and options + dividends: {colors.profit(complete_profit_plus_divs)}"))
         print()
 
     ### TESTING
@@ -898,51 +900,51 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
     # print()
 
     # print extra info footer
-    print(f"--- Final Notes ---")
+    print(colors.section(f"--- Final Notes ---"))
 
     # if profile info was saved to csv
     dir_full = get_save_dir()
 
     if info_type == "ALL" or info_type == "PROFILE":
         if csv_profile_bool:
-            print(f"* saved profile data csvs to '{dir_full}' directory")
+            print(colors.status(f"* saved profile data csvs to '{dir_full}' directory"))
 
     if info_type == "PROFILE" and csv_profile_bool == False:
-        print("* none")
+        print(colors.dim("* none"))
 
     # if we loaded order data from api or dat.pkl file
     if info_type == "ALL" or info_type == "FINANCE":
         if load_bool:
-            print(f"* loaded order data from '{FILENAME}' which ran on {run_date_orders}")
+            print(colors.status(f"* loaded order data from '{FILENAME}' which ran on {run_date_orders}"))
         else:
-            print(f"* loaded order data from robinhood API run date {run_date_orders}")
+            print(colors.status(f"* loaded order data from robinhood API run date {run_date_orders}"))
 
     # save to order , open , and profit to csv
     if info_type == "ALL" or info_type == "FINANCE":
         if csv_bool:
             if stock_orders != []:
-                print(f"* saving stock orders + open positions + net profits csvs to '{dir_full}' directory")
+                print(colors.status(f"* saving stock orders + open positions + net profits csvs to '{dir_full}' directory"))
                 print_all_stocks_to_csv(stock_orders)
                 print_to_csv("All-Profits-Stocks",list_dict_of_stock_profits)
                 if sod != []:
                     print_to_csv("All-Open-Stocks",sod)
-                print(f"* saved stock csvs")
+                print(colors.status(f"* saved stock csvs"))
             if crypto_orders != []:
-                print(f"* saving crypto orders + open positions + net profits csvs to '{dir_full}' directory")
+                print(colors.status(f"* saving crypto orders + open positions + net profits csvs to '{dir_full}' directory"))
                 print_all_crypto_to_csv(crypto_orders)
                 print_to_csv("All-Profits-Crypto",list_dict_of_crypto_profits)
                 if cod != []:
                     print_to_csv("All-Open-Crypto",cod)
-                print(f"* saved crypto csvs")
+                print(colors.status(f"* saved crypto csvs"))
             if option_orders != []:
-                print(f"* saving option orders + open positions + net profits csvs to '{dir_full}' directory")
+                print(colors.status(f"* saving option orders + open positions + net profits csvs to '{dir_full}' directory"))
                 print_all_options_to_csv(option_orders)
                 print_to_csv("All-Profits-Options",list_dict_of_option_profits)
                 if ood != []:
                     print_to_csv("All-Open-Options",ood)
-                print(f"* saved option csvs")
+                print(colors.status(f"* saved option csvs"))
             if rs_divs_list != []:
-                print(f"* saving dividends csv to '{dir_full}'")
+                print(colors.status(f"* saving dividends csv to '{dir_full}'"))
                 print_to_csv("All-Dividends",rs_divs_list)
 
         # Save api data to pickle file dat.pkl so we can use --load in future to load faster (but of course then its not live data)
@@ -979,8 +981,12 @@ def main():
     parser.add_argument("--profile-csv","-p",help="Save all profile data to csv. Only works if --profile-info or --all-info used as well.", action="store_true")
     parser.add_argument("--csv-dir","-D",help=f"Change output directory for csv files generated by --csv and --profile-csv option, by default the directory is named '{dir_suffix}'.", action="store", default=dir_suffix)
     parser.add_argument("--sort-by-name","-S",help="Sorts open positions + profits by name instead of value. Only works if --finance-info or --all-info is used as well.", action="store_true")
+    parser.add_argument("--color",help="Color output: auto (default, color if terminal), always (force color), never (no color).", action="store", default="auto", choices=["auto","always","never"])
 
     args = parser.parse_args()
+
+    # initialize color output
+    colors.init(args.color)
 
     # parse save and load
     save_bool = args.save
