@@ -134,7 +134,7 @@ def BUY_STOCK(symbol, amount_of_shares):
 
 # SELL X SHARES OF STOCK
 def SELL_STOCK(symbol, amount_of_shares):
-    ans=r.order_buy_market(symbol,amount_of_shares)
+    ans=r.order_sell_market(symbol,amount_of_shares)
     return ans
 
 ###################
@@ -427,7 +427,7 @@ def find_price_in_open_listdict(symbol,open_positions_list_dist):
         if i["symbol"] == symbol:
             return i["price"]
     # if we didn't find symbol we will be here and that can only happen if corruption of file
-    errext(2, "Loaded file might be corrupted as its missing price for {symbol}. Can't proceed further. Try again without loading.")
+    errext(2, f"Loaded file might be corrupted as its missing price for {symbol}. Can't proceed further. Try again without loading.")
 
 ###################
 
