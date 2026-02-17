@@ -29,6 +29,7 @@ user_string = ""
 expires_seconds = 3600 # one hour login session (don't worry they don't overlap so you can login with another user afterwards)
 loaded_username = ""
 cryptopairs = None
+_cached_account_profile = None # cache account_profile data used for login checks and display to reduce API calls.
 
 ###################
 #### FUNCTIONS ####
@@ -49,6 +50,23 @@ def errmsg(message):
 def errext(exitcode,message):
     errmsg(message)
     sys.exit(exitcode)
+
+###################
+
+# Verify login by testing the session with a lightweight API call.
+# robin_stocks may return None from r.login() even when the session was
+# successfully established (e.g. after device-approval challenge flow).
+def _verify_login():
+    global _cached_account_profile
+    try:
+        profile = r.load_account_profile()
+        if profile and isinstance(profile, dict) and 'url' in profile:
+            _cached_account_profile = profile
+            print(colors.bright_green("Login successful."))
+            return
+    except Exception:
+        pass
+    errext(1, "Login failed. Check your credentials and try again.")
 
 ###################
 
@@ -83,8 +101,11 @@ def LOGIN(un="",pw="",ke=""):
         r.logout()
     except:
         pass
-    # login and don't store session to pickle file, so that we
-    login = r.login(EMAIL, PASSWD, mfa_code=ptot_now, expiresIn = expires_seconds, store_session=False) # changed to store_session false so could load gabes data
+    # NOTE: robin_stocks may print misleading "Login failed" messages during
+    # challenge/device-approval flows even when login ultimately succeeds.
+    # The return value can be None even on success, so we verify by testing the session.
+    login = r.login(EMAIL, PASSWD, mfa_code=ptot_now, expiresIn = expires_seconds, store_session=False)
+    _verify_login()
     return login
 
 # LOGIN INSECURELY WITHOUT 2FACTOR. creds FILE HAS 2 LINES: username/email, password
@@ -116,8 +137,11 @@ def LOGIN_INSECURE(un="",pw=""):
         r.logout()
     except:
         pass
-    # login and don't store session to pickle file, so that we
-    login = r.login(EMAIL, PASSWD, expiresIn = expires_seconds, store_session=False) # changed to store_session false so could load gabes data
+    # NOTE: robin_stocks may print misleading "Login failed" messages during
+    # challenge/device-approval flows even when login ultimately succeeds.
+    # The return value can be None even on success, so we verify by testing the session.
+    login = r.login(EMAIL, PASSWD, expiresIn = expires_seconds, store_session=False)
+    _verify_login()
     return login
 
 ###################
@@ -306,7 +330,7 @@ def LOAD_OPEN_CRYPTOS():
 
 # GET ALL CURRENTLY OPEN OPTIONS - meaning we own these now
 def LOAD_OPEN_OPTIONS():
-    # TODO: current implementation of get_all_option_positions seems buggy with robin_stocks v3.0.6, its asking for account_number & when supplied does nothing.
+    # TODO: current implementation of get_all_option_positions seems buggy in robin_stocks, its asking for account_number & when supplied does nothing.
     # (Example1) - if supply empty like other r. calls, we get this:
     # func = r.options.get_all_option_positions()
     # return func
@@ -437,7 +461,7 @@ def get_save_dir():
     dir_full = f"{dir_suffix}/{date_string}-{user_string}"
     return dir_full
 
-# list_of_dict_handle_missing_keys - looks thru a list of dictionary, gets all of thekys. lod is list of dictionaries
+# list_of_dict_handle_missing_keys - looks thru a list of dictionary, gets all of the keys. lod is list of dictionaries
 def list_of_dict_handle_missing_keys(lod):
     # from https://stackoverflow.com/questions/33910764/adding-missing-keys-in-dictionary-in-python
     empty_value = None # we replace all missing key values with this, we could also just put "NA" in string, but None is better as it turns to blank field in csv/excel
@@ -499,7 +523,7 @@ def print_all_crypto_to_csv(RS_orders_all_cryptos):
         symbol = ID2SYM(i,cryptopairs)
         current_orders  = [ j for j in RS_orders_all_cryptos if j["currency_pair_id"]==i ]
         print_to_csv("C-"+symbol,current_orders)
-    # print all stocks (for fun)
+    # print all cryptos
     print_to_csv("C-(all)",RS_orders_all_cryptos)
 
 
@@ -545,8 +569,11 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
         # save profiles to csv if csv_profile_bool
         for prof in prof_type:
             print(colors.section(f"---{prof} Profile---"))
-            prof_func = getattr(r.profiles,f"load_{prof}_profile")
-            prof_dictionary = prof_func()
+            if prof == "account" and _cached_account_profile is not None:
+                prof_dictionary = _cached_account_profile
+            else:
+                prof_func = getattr(r.profiles,f"load_{prof}_profile")
+                prof_dictionary = prof_func()
             if csv_profile_bool:
                 print_to_csv(f"A-{prof}-profile",prof_dictionary)
             print("\n".join([ f"* {colors.cyan(i[0])}: {i[1]}" for i in prof_dictionary.items() ]))
@@ -760,8 +787,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 a = float(i["quantity"])
                 if a == 0: # skip if empty and not actually an open position
                     continue
-                p = QUOTE_CRYPTO(s)
-                p = find_price_in_open_listdict(s,ld["cod"]) if load_bool else QUOTE_CRYPTO(s) # p = QUOTE_CRYPTO(s)
+                p = find_price_in_open_listdict(s,ld["cod"]) if load_bool else QUOTE_CRYPTO(s)
                 # print("DEBUG-C:",s,p)
                 cryptos_dict[s].update_current(a,p)
                 total_cryptos_open_amount += a
@@ -777,7 +803,7 @@ def PRINT_ALL_PROFILE_AND_ORDERS(save_bool=False,load_bool=False, extra_info_boo
                 p = i["price"]
                 v = i["value"]
                 print(f"* OPEN CRYPTO - {colors.symbol(s)} x{a} at ${DX(p,5)} each - est current value: {colors.green('$'+DX(v,5))}")
-            print(colors.bold(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} stocks for total ${DX(total_cryptos_open_value,5)} estimated value"))
+            print(colors.bold(f"* TOTAL OPEN CRYPTO - {total_cryptos_open_amount} crypto for total ${DX(total_cryptos_open_value,5)} estimated value"))
         # TODO: options open positions
         options_open = ld["options_open"] if load_bool else LOAD_OPEN_OPTIONS()
         if options_open != []:
